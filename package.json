@@ -1,0 +1,33 @@
+{
+    "name": "repo-name-here",
+    "version": "0.0.1",
+    "private": true,
+    "description": "",
+    "keywords": [
+        "vir"
+    ],
+    "homepage": "https://github.com/electrovir/repo-name-here#readme",
+    "bugs": {
+        "url": "https://github.com/electrovir/repo-name-here/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/electrovir/repo-name-here.git"
+    },
+    "license": "MIT",
+    "author": "electrovir (github.com/electrovir)",
+    "main": "dist/index.js",
+    "scripts": {
+        "prepublishOnly": "npm run test",
+        "test": "tsc && node dist/index.js",
+        "format": "prettier --ignore-path .gitignore --write  \"./**/*.{ts,css,html,json}\""
+    },
+    "devDependencies": {
+        "@types/node": "^14.14.31",
+        "prettier": "^2.2.1",
+        "prettier-plugin-organize-imports": "^1.1.1",
+        "prettier-plugin-packagejson": "^2.2.10",
+        "prettier-plugin-sort-json": "^0.0.2",
+        "typescript": "^4.2.2"
+    }
+}

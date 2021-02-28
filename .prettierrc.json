@@ -1,0 +1,16 @@
+{
+    "arrowParens": "always",
+    "bracketSpacing": false,
+    "endOfLine": "lf",
+    "htmlWhitespaceSensitivity": "ignore",
+    "jsonRecursiveSort": true,
+    "jsxBracketSameLine": false,
+    "plugins": [
+        "./node_modules/prettier-plugin-sort-json",
+        "./node_modules/prettier-plugin-organize-imports"
+    ],
+    "printWidth": 100,
+    "singleQuote": true,
+    "tabWidth": 4,
+    "trailingComma": "all"
+}
