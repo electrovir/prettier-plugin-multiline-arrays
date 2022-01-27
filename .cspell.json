@@ -1,3 +1,4 @@
 {
-    "import": ".cspell-base.json"
+    "import": ".cspell-base.json",
+    "words": ["estree"]
 }

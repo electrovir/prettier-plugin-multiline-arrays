@@ -1,26 +1,31 @@
 {
-    "name": "prettier-plugin-demo",
-    "version": "1.0.0",
-    "private": "true",
+    "name": "prettier-plugin-newline-arrays",
+    "version": "0.0.0",
     "description": "",
     "keywords": [],
-    "homepage": "https://github.com/electrovir/prettier-plugin-demo#readme",
+    "homepage": "https://github.com/electrovir/prettier-plugin-newline-arrays#readme",
     "bugs": {
-        "url": "https://github.com/electrovir/prettier-plugin-demo/issues"
+        "url": "https://github.com/electrovir/prettier-plugin-newline-arrays/issues"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/electrovir/prettier-plugin-demo.git"
+        "url": "git+https://github.com/electrovir/prettier-plugin-newline-arrays.git"
     },
-    "license": "ISC",
-    "author": "",
-    "main": "index.js",
+    "license": "MIT",
+    "author": {
+        "name": "electrovir",
+        "url": "https://github.com/electrovir"
+    },
+    "main": "dist/index.js",
     "scripts": {
         "format": "virmator format write",
         "prepublishOnly": "npm run test:full",
         "spellcheck": "virmator spellcheck",
-        "test": "jest --config ./src/jest.config.ts",
+        "test": "tsc && jest --config ./src/jest/jest.config.ts",
         "test:full": "npm test && npm run spellcheck && virmator format check"
+    },
+    "dependencies": {
+        "augment-vir": "^1.4.3"
     },
     "devDependencies": {
         "@types/jest": "^27.4.0",
