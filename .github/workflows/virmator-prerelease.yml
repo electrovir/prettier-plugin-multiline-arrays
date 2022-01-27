@@ -1,0 +1,43 @@
+name: branch-prerelease
+
+on:
+    workflow_run:
+        workflows: ['tests']
+        branches: '**'
+        types:
+            - completed
+
+jobs:
+    package-release:
+        name: 'package release'
+        runs-on: 'ubuntu-latest'
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        steps:
+            - uses: actions/checkout@v1
+            - name: Use Node.js 14.x
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 14.x
+            - name: run test
+              run: |
+                  npm ci
+                  npm run test:full
+            - name: pack and set vars
+              id: vars
+              run: |
+                  branchName="${GITHUB_REF#refs/*/}"
+                  echo ::set-output name=short_ref::"$branchName"
+
+                  originalTarName="$(npm pack)"
+                  packageName="$(npm -s run env echo '$npm_package_name')"
+                  timeStamp="$(date +%s)"
+                  newTarName="$packageName-$timeStamp.tgz"
+                  mv "$originalTarName" "$newTarName"
+                  echo ::set-output name=tar_name::"$newTarName"
+            - uses: 'marvinpinto/action-automatic-releases@latest'
+              with:
+                  repo_token: '${{ secrets.GITHUB_TOKEN }}'
+                  automatic_release_tag: 'prerelease-${{ steps.vars.outputs.short_ref }}'
+                  prerelease: true
+                  files: |
+                      ${{ steps.vars.outputs.tar_name }}

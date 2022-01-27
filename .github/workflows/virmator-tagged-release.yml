@@ -1,0 +1,27 @@
+name: 'tagged-release'
+
+on:
+    push:
+        tags:
+            - 'v*'
+
+jobs:
+    tagged-release:
+        name: 'Tagged Release'
+        runs-on: 'ubuntu-latest'
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Use Node.js 14.x
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 14.x
+            - name: run test
+              run: |
+                  npm ci
+                  npm run test:full
+
+            - uses: 'marvinpinto/action-automatic-releases@latest'
+              with:
+                  repo_token: '${{ secrets.GITHUB_TOKEN }}'
+                  prerelease: false

@@ -1,0 +1,34 @@
+{
+    "name": "prettier-plugin-demo",
+    "version": "1.0.0",
+    "private": "true",
+    "description": "",
+    "keywords": [],
+    "homepage": "https://github.com/electrovir/prettier-plugin-demo#readme",
+    "bugs": {
+        "url": "https://github.com/electrovir/prettier-plugin-demo/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/electrovir/prettier-plugin-demo.git"
+    },
+    "license": "ISC",
+    "author": "",
+    "main": "index.js",
+    "scripts": {
+        "format": "virmator format write",
+        "prepublishOnly": "npm run test:full",
+        "spellcheck": "virmator spellcheck",
+        "test": "jest --config ./src/jest.config.ts",
+        "test:full": "npm test && npm run spellcheck && virmator format check"
+    },
+    "devDependencies": {
+        "@types/jest": "^27.4.0",
+        "@types/prettier": "^2.4.3",
+        "jest": "^27.4.7",
+        "ts-jest": "^27.1.3",
+        "ts-node": "^10.4.0",
+        "typescript": "^4.5.5",
+        "virmator": "^1.3.7"
+    }
+}
