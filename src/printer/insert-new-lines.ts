@@ -5,21 +5,21 @@ import {getAndSetJsPlugin, jsPlugin} from './jsplugin';
 import {extractChildDocs, hasChildDocs, walkDoc} from './walk';
 
 function insertArrayLines(inputDoc: Doc, lineCounts: number[]): Doc {
-    let outerDoc: Doc = inputDoc;
-    // pull to contents out of an array with just a single group in it
+    let extractedDoc: Doc = inputDoc;
+    // pull contents out of an array with just a single group in it
     if (Array.isArray(inputDoc) && inputDoc.filter((entry) => !!entry).length === 1) {
-        outerDoc = inputDoc[0] ?? [];
-        if (typeof outerDoc !== 'string') {
-            if ('contents' in outerDoc) {
-                outerDoc = outerDoc.contents;
-            } else if ('parts' in outerDoc) {
-                outerDoc = outerDoc.parts;
+        extractedDoc = inputDoc[0] ?? [];
+        if (typeof extractedDoc !== 'string') {
+            if ('contents' in extractedDoc) {
+                extractedDoc = extractedDoc.contents;
+            } else if ('parts' in extractedDoc) {
+                extractedDoc = extractedDoc.parts;
             }
         }
     }
 
-    if (typeof outerDoc === 'string') {
-        return outerDoc;
+    if (typeof extractedDoc === 'string') {
+        return extractedDoc;
     }
 
     let lineIndex = 0;
@@ -31,12 +31,16 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[]): Doc {
     // start at -1 because the first '[' will then stick us on level 0
     let nestedDepth = -1;
 
-    walkDoc(outerDoc, (currentDoc) => {
+    walkDoc(extractedDoc, (currentDoc) => {
         const childDocs = extractChildDocs(currentDoc);
         if (childDocs) {
             childDocs.forEach((childDoc, childIndex) => {
-                // console.log({childDoc, nestedDepth});
                 if (typeof childDoc === 'string') {
+                    /**
+                     * Track array depth so we can ignore nested arrays, otherwise they'd get
+                     * formatted twice (cause nested arrays will already get formatted as an
+                     * independent array).
+                     */
                     if (childDoc === '[') {
                         nestedDepth++;
                     } else if (childDoc === ']') {
@@ -53,12 +57,6 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[]): Doc {
                         const currentLineCount: number | undefined = lineCounts.length
                             ? lineCounts[currentLineCountIndex]
                             : undefined;
-                        // console.log({
-                        //     currentLineCount,
-                        //     currentLineCountIndex,
-                        //     lineIndex,
-                        //     columnCount,
-                        // });
                         if (
                             (currentLineCount && columnCount === currentLineCount) ||
                             !currentLineCount
@@ -74,6 +72,7 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[]): Doc {
                             childDocs[childIndex] = doc.builders.hardlineWithoutBreakParent;
                         }
                     } else if (childDoc.type === 'if-break') {
+                        // all breaks should act like they're getting broken
                         childDoc.flatContents = childDoc.breakContents;
                     }
                 }
@@ -81,7 +80,7 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[]): Doc {
         }
     });
 
-    return outerDoc;
+    return extractedDoc;
 }
 
 const mappedComments = new WeakMap<Node, Record<number, number[]>>();
@@ -115,10 +114,10 @@ export const printWithNewLineArrays: Printer['print'] = (path, options, print) =
 
             const lineCounts = mappedComments.get(programNode)?.[node.loc.start.line - 1] ?? [];
 
-            // console.log({lineCounts});
             const newDoc = insertArrayLines(printedArray, lineCounts);
             return newDoc;
         } else if (node.type === 'Program') {
+            // parse comments only on the program node so it only happens once
             const comments: Comment[] =
                 node.comments ??
                 node.body
@@ -129,7 +128,6 @@ export const printWithNewLineArrays: Printer['print'] = (path, options, print) =
                         return accum;
                     }, [] as Comment[])
                     .flat();
-            // console.log({comments});
             if (comments && comments.length) {
                 const keyedCommentsByLastLine: Record<number, number[]> = comments.reduce(
                     (accum, currentComment) => {
@@ -155,7 +153,6 @@ export const printWithNewLineArrays: Printer['print'] = (path, options, print) =
                     {} as Record<number, number[]>,
                 );
 
-                // console.log({keyedCommentsByLastLine});
                 // save to a map so we don't have to recalculate these every time
                 mappedComments.set(node, keyedCommentsByLastLine);
             }
