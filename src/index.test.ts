@@ -1,6 +1,6 @@
 import {BuiltInParserName, format as prettierFormat, LiteralUnion} from 'prettier';
-import {lineContainsTriggerComment, parserName} from './names';
-import {repoConfig} from './prettier-config-for-tests';
+import {lineContainsTriggerComment, parserName} from './metadata/package-phrases';
+import {repoConfig} from './metadata/prettier-config-for-tests';
 
 function format(
     code: string,
