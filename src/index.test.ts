@@ -14,230 +14,286 @@ function format(
     });
 }
 
-const tests: {code: string; expected?: string; parser?: string; force?: true}[] = [
+const tests: {name: string; code: string; expected?: string; parser?: string; force?: true}[] = [
     {
-        code: `const varNoLine = ['a', 'b'];
-const varOneNewLine = [
-    'a', 'b',
-];
-const nestedArray = [
-    'q', 'r',
-    ['s', 't'],
-];
-/**
- * ${lineContainsTriggerComment} 2 1
- * 3
- */
-const setNumberPerLine = [
-    'a', 'b',
-    'c',
-    'd',
-    'e',
-];
-
-`,
-        expected: `const varNoLine = [
-    'a',
-    'b',
-];
-const varOneNewLine = [
-    'a',
-    'b',
-];
-const nestedArray = [
-    'q',
-    'r',
-    [
-        's',
-        't',
-    ],
-];
-/**
- * ${lineContainsTriggerComment} 2 1
- * 3
- */
-const setNumberPerLine = [
-    'a', 'b',
-    'c',
-    'd', 'e',
-];
-`,
-    },
-    {
-        code: `// ${lineContainsTriggerComment} 2 1 3
-const setNumberPerLine = [
-    'a', 'b',
-    'c',
-    'd',
-    'e',
-    'f',
-    'g',
-    'h',
-    'i',
-    'j',
-    'k',
-];`,
-        expected: `// ${lineContainsTriggerComment} 2 1 3
-const setNumberPerLine = [
-    'a', 'b',
-    'c',
-    'd', 'e', 'f',
-    'g', 'h',
-    'i',
-    'j', 'k',
-];
-`,
-    },
-    {
-        code: `/**
- * ${lineContainsTriggerComment} 2 1
- * 3
- */
-const setNumberPerLine = [
-    'a', 'b',
-    'c',
-    'd',
-    'e',
-];`,
-        expected: `/**
- * ${lineContainsTriggerComment} 2 1
- * 3
- */
-const setNumberPerLine = [
-    'a', 'b',
-    'c',
-    'd', 'e',
-];
-`,
-    },
-    {
-        code: `const nestedArray = [
-    'q', 'r',
-    ['s', 't'],
-];`,
-        expected: `const nestedArray = [
-    'q',
-    'r',
-    [
-        's',
-        't',
-    ],
-];
-`,
-    },
-    {
-        code: `const myVar1: string[] = [];
-`,
-    },
-    {
-        code: `let anotherThing: string[] = ['1 1'];`,
-        expected: `let anotherThing: string[] = [
-    '1 1',
-];
-`,
-    },
-    {
-        code: `let anotherThing: string[] = ['1 1'
-];`,
-        expected: `let anotherThing: string[] = [
-    '1 1',
-];
-`,
-    },
-    {
+        name: 'multiple arrays and even one with a trigger comment',
         code: `
-const myVar2: string[] = [];
-let anotherThing: string[] = ['1 1'];
-let anotherThing2: string[] = ['1 1'
-];
-const also: string[] = [
-    '2, 1',
-    '2, 2',
-];`,
-        expected: `const myVar2: string[] = [];
-let anotherThing: string[] = [
-    '1 1',
-];
-let anotherThing2: string[] = [
-    '1 1',
-];
-const also: string[] = [
-    '2, 1',
-    '2, 2',
-];
-`,
+            const varNoLine = ['a', 'b'];
+            const varOneNewLine = [
+                'a', 'b',
+            ];
+            const nestedArray = [
+                'q', 'r',
+                ['s', 't'],
+            ];
+            /**
+             * ${lineContainsTriggerComment} 2 1
+             * 3
+             */
+            const setNumberPerLine = [
+                'a', 'b',
+                'c',
+                'd',
+                'e',
+            ];
+
+            `,
+        expected: `
+            const varNoLine = [
+                'a',
+                'b',
+            ];
+            const varOneNewLine = [
+                'a',
+                'b',
+            ];
+            const nestedArray = [
+                'q',
+                'r',
+                [
+                    's',
+                    't',
+                ],
+            ];
+            /**
+             * ${lineContainsTriggerComment} 2 1
+             * 3
+             */
+            const setNumberPerLine = [
+                'a', 'b',
+                'c',
+                'd', 'e',
+            ];
+            `,
     },
     {
+        name: 'array with single line trigger comment',
+        code: `
+        // ${lineContainsTriggerComment} 2 1 3
+        const setNumberPerLine = [
+            'a', 'b',
+            'c',
+            'd',
+            'e',
+            'f',
+            'g',
+            'h',
+            'i',
+            'j',
+            'k',
+        ];`,
+        expected: `
+            // ${lineContainsTriggerComment} 2 1 3
+            const setNumberPerLine = [
+                'a', 'b',
+                'c',
+                'd', 'e', 'f',
+                'g', 'h',
+                'i',
+                'j', 'k',
+            ];
+            `,
+    },
+    {
+        name: 'array with JSDoc style trigger comment spread across multiple lines',
+        code: `
+            /**
+            * ${lineContainsTriggerComment} 2 1
+            * 3
+            */
+            const setNumberPerLine = [
+                'a', 'b',
+                'c',
+                'd',
+                'e',
+            ];`,
+        expected: `
+            /**
+             * ${lineContainsTriggerComment} 2 1
+             * 3
+             */
+            const setNumberPerLine = [
+                'a', 'b',
+                'c',
+                'd', 'e',
+            ];
+            `,
+    },
+    {
+        name: 'nested array',
+        code: `
+            const nestedArray = [
+                'q', 'r',
+                ['s', 't'],
+            ];`,
+        expected: `
+            const nestedArray = [
+                'q',
+                'r',
+                [
+                    's',
+                    't',
+                ],
+            ];
+            `,
+    },
+    {
+        name: 'empty array',
+        code: `
+            const myVar1: string[] = [];
+            `,
+    },
+    {
+        name: 'single element array on one line',
+        code: `let anotherThing: string[] = ['1 1'];`,
+        expected: `
+            let anotherThing: string[] = [
+                '1 1',
+            ];
+            `,
+    },
+    {
+        name: 'single element array on multiple lines',
+        code: `
+            let anotherThing: string[] = ['1 1'
+            ];`,
+        expected: `
+            let anotherThing: string[] = [
+                '1 1',
+            ];
+            `,
+    },
+    {
+        name: 'multiple different styled arrays all together',
+        code: `
+            const myVar2: string[] = [];
+            let anotherThing: string[] = ['1 1'];
+            let anotherThing2: string[] = ['1 1'
+            ];
+            const also: string[] = [
+                '2, 1',
+                '2, 2',
+            ];`,
+        expected: `
+            const myVar2: string[] = [];
+            let anotherThing: string[] = [
+                '1 1',
+            ];
+            let anotherThing2: string[] = [
+                '1 1',
+            ];
+            const also: string[] = [
+                '2, 1',
+                '2, 2',
+            ];
+            `,
+    },
+    {
+        name: 'single element string array with type definition',
         code: `const myVar: string[] = ['hello'];`,
-        expected: `const myVar: string[] = [
-    'hello',
-];
-`,
+        expected: `
+            const myVar: string[] = [
+                'hello',
+            ];
+            `,
     },
     {
+        name: 'double element string array with type definition',
         code: `const myVar: string[] = ['hello', 'there'];`,
-        expected: `const myVar: string[] = [
-    'hello',
-    'there',
-];
-`,
+        expected: `
+            const myVar: string[] = [
+                'hello',
+                'there',
+            ];
+            `,
     },
     {
-        code: `const myVar:string=
-'hello';`,
-        expected: `const myVar: string = 'hello';
-`,
+        name: 'non-array string assignment',
+        code: `
+            const myVar:string=
+            'hello';`,
+        expected: `
+            const myVar: string = 'hello';
+            `,
     },
     {
-        code: `const myVar: object = {a: 'here', b: 'there'};
-`,
+        name: 'non-array single line object assignment',
+        code: `
+            const myVar: object = {a: 'here', b: 'there'};
+            `,
     },
     {
-        code: `const myVar: object = {
-    a: 'here',
-    b: 'there',
-};
-`,
+        name: 'non-array multi-line object assignment',
+        code: `
+            const myVar: object = {
+                a: 'here',
+                b: 'there',
+            };
+            `,
     },
     // the following test caught that path.getValue() can return undefined.
     {
-        code: `function doStuff() {}
+        name: 'array with an earlier function definition',
+        code: `
+            function doStuff() {}
 
-const what = ['a', 'b'];
+            const what = ['a', 'b'];
 
 
 
-`,
-        expected: `function doStuff() {}
+            `,
+        expected: `
+            function doStuff() {}
 
-const what = [
-    'a',
-    'b',
-];
-`,
+            const what = [
+                'a',
+                'b',
+            ];
+            `,
     },
     {
-        code: `const myVar: object = {a: 'where', b: 'everywhere'};
-`,
+        name: 'array with function definition inside of it',
+        code: `
+            const what = ['a', function doStuff() {}];
+            `,
+        expected: `
+            const what = [
+                'a',
+                function doStuff() {},
+            ];
+            `,
+    },
+    {
+        name: 'original parser with single line object assignment',
+        code: `
+            const myVar: object = {a: 'where', b: 'everywhere'};
+            `,
         parser: 'typescript',
     },
     {
-        code: `const myVar: object = {
-    a: 'where',
-    b: 'everywhere',
-};
-`,
+        name: 'original parser with multi-line object assignment',
+        code: `
+            const myVar: object = {
+                a: 'where',
+                b: 'everywhere',
+            };
+            `,
         parser: 'typescript',
     },
 ];
 
 let forced = false;
 
+function removeIndent(input: string): string {
+    return input.replace(/^\s*\n\s*/, '').replace(/\n {12}/g, '\n');
+}
+
 describe('plugin formatting', () => {
-    tests.forEach((test, index) => {
+    tests.forEach((test) => {
         const testCallback = () => {
-            const expected = test.expected ?? test.code;
-            const formatted = format(test.code, test.parser);
+            const inputCode = removeIndent(test.code);
+            const expected = removeIndent(test.expected ?? inputCode);
+            const formatted = format(inputCode, test.parser);
             if (formatted !== expected) {
                 console.log(formatted);
             }
@@ -246,9 +302,9 @@ describe('plugin formatting', () => {
 
         if (test.force) {
             forced = true;
-            fit(`should pass test ${index}`, testCallback);
+            fit(test.name, testCallback);
         } else {
-            it(`should pass test ${index}`, testCallback);
+            it(test.name, testCallback);
         }
     });
 });
