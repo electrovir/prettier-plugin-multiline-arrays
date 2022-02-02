@@ -14,8 +14,8 @@ const plugins = [
         return `./node_modules/virmator/node_modules/${pluginName}`;
     }
 });
-/** @type {import('prettier').Options} */
-const config = {
+
+module.exports = {
     arrowParens: 'always',
     bracketSpacing: false,
     endOfLine: 'lf',
@@ -28,5 +28,3 @@ const config = {
     tabWidth: 4,
     trailingComma: 'all',
 };
-
-module.exports = config;
