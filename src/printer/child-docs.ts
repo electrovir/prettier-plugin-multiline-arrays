@@ -30,21 +30,27 @@ export function extractChildDocs(input: Doc): Doc[] | undefined {
 export function walkDoc(
     startDoc: Doc,
     /** Return something truthy to prevent walking of child docs */
-    callback: (currentDoc: Doc) => boolean | void | undefined,
+    callback: (
+        currentDoc: Doc,
+        parent: Doc | undefined,
+        index: number | undefined,
+    ) => boolean | void | undefined,
+    parent: Doc | undefined = undefined,
+    index: number | undefined = undefined,
 ): void {
-    if (callback(startDoc)) {
+    if (callback(startDoc, parent, index)) {
         return;
     }
     if (typeof startDoc === 'string') {
         return;
     } else if (Array.isArray(startDoc)) {
-        startDoc.forEach((innerDoc) => walkDoc(innerDoc, callback));
+        startDoc.forEach((innerDoc, index) => walkDoc(innerDoc, callback, startDoc, index));
         return;
     } else if ('contents' in startDoc) {
-        walkDoc(startDoc.contents, callback);
+        walkDoc(startDoc.contents, callback, startDoc, undefined);
         return;
     } else if ('parts' in startDoc) {
-        walkDoc(startDoc.parts, callback);
+        walkDoc(startDoc.parts, callback, startDoc, undefined);
         return;
     } else {
         return;

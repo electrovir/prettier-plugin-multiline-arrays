@@ -16,6 +16,107 @@ function format(
 
 const tests: {name: string; code: string; expected?: string; parser?: string; force?: true}[] = [
     {
+        name: 'not arrays but callbacks with newline parser',
+        code: `
+            expose({
+                versions: process.versions,
+                apiRequest: async (
+                    details: ApiRequestDetails<ApiRequestType>,
+                ): Promise<ApiFullResponse<ApiRequestType>> => {
+                    async function waitForResponse(): Promise<ApiFullResponse<ApiRequestType>> {
+                        return new Promise((resolve) => {
+                            ipcRenderer.once(
+                                getApiResponseEventName(details.type, requestId),
+                                (event, data) => {
+                                    resolve(data);
+                                },
+                            );
+                        });
+                    }
+                },
+            });
+            `,
+    },
+    {
+        name: 'not arrays but callbacks with normal parser',
+        code: `
+            expose({
+                versions: process.versions,
+                apiRequest: async (
+                    details: ApiRequestDetails<ApiRequestType>,
+                ): Promise<ApiFullResponse<ApiRequestType>> => {
+                    async function waitForResponse(): Promise<ApiFullResponse<ApiRequestType>> {
+                        return new Promise((resolve) => {
+                            ipcRenderer.once(
+                                getApiResponseEventName(details.type, requestId),
+                                (event, data) => {
+                                    resolve(data);
+                                },
+                            );
+                        });
+                    }
+                },
+            });
+            `,
+        parser: 'typescript',
+    },
+    {
+        name: 'function parameters',
+        code: `
+            doTheThing('a', 'b', 'c');
+            `,
+    },
+    {
+        name: 'nested single-line objects on multiple lines',
+        code: `
+            const nested = [
+                {success: true, filePath: ''},
+                {success: false, error: 'hello there', filePath: ''},
+                {success: false, error: '', filePath: ''},
+            ];
+            `,
+    },
+    {
+        name: 'nested single-line objects all on one line',
+        code: `
+            const nested = [{success: true, filePath: ''}, {success: false, error: 'hello there', filePath: ''}, {success: false, error: '', filePath: ''}];
+            `,
+        expected: `
+            const nested = [
+                {success: true, filePath: ''},
+                {success: false, error: 'hello there', filePath: ''},
+                {success: false, error: '', filePath: ''},
+            ];
+            `,
+    },
+    {
+        name: 'nested multi-line objects',
+        code: `
+            const nested = [{
+                success: true, filePath: ''}, {
+                    success: false, error: 'hello there', filePath: ''}, {
+                        success: false, error: '', filePath: ''}];
+            `,
+        expected: `
+            const nested = [
+                {
+                    success: true,
+                    filePath: '',
+                },
+                {
+                    success: false,
+                    error: 'hello there',
+                    filePath: '',
+                },
+                {
+                    success: false,
+                    error: '',
+                    filePath: '',
+                },
+            ];
+            `,
+    },
+    {
         name: 'multiple arrays and even one with a trigger comment',
         code: `
             const varNoLine = ['a', 'b'];
@@ -292,11 +393,8 @@ describe('plugin formatting', () => {
     tests.forEach((test) => {
         const testCallback = () => {
             const inputCode = removeIndent(test.code);
-            const expected = removeIndent(test.expected ?? inputCode);
+            const expected = removeIndent(test.expected ?? test.code);
             const formatted = format(inputCode, test.parser);
-            if (formatted !== expected) {
-                console.log(formatted);
-            }
             expect(formatted).toBe(expected);
         };
 
