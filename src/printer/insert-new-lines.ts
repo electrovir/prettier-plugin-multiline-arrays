@@ -7,7 +7,7 @@ import {hasChildDocs, walkDoc} from './child-docs';
 const nestingSyntaxOpen = '[{(<' as const;
 const nestingSyntaxClose = ']})>' as const;
 
-function insertArrayLines(inputDoc: Doc, lineCounts: number[]): Doc {
+function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): Doc {
     let extractedDoc: Doc = inputDoc;
     // pull contents out of an array with just a single group in it
     if (Array.isArray(inputDoc) && inputDoc.filter((entry) => !!entry).length === 1) {
@@ -32,22 +32,36 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[]): Doc {
     // start at -1 because the first '[' will then stick us on level 0
     let nestedDepth = -1;
 
-    walkDoc(extractedDoc, (currentDoc, parentDoc, childIndex) => {
+    walkDoc(extractedDoc, (currentDoc, parentDoc, childIndex): boolean => {
         if (parentDoc && Array.isArray(parentDoc) && childIndex != undefined) {
             if (!currentDoc) {
-                return;
+                return true;
             } else if (typeof currentDoc === 'string') {
                 /**
                  * Track array depth so we can ignore nested arrays, otherwise they'd get formatted
                  * twice (cause nested arrays will already get formatted as an independent array).
                  */
                 if (nestingSyntaxOpen.includes(currentDoc)) {
+                    if (debug) {
+                        console.log({currentDoc, status: 'increase nestedDepth'});
+                    }
                     nestedDepth++;
                 } else if (nestingSyntaxClose.includes(currentDoc)) {
+                    if (debug) {
+                        console.log({currentDoc, status: 'decrease nestedDepth'});
+                    }
                     nestedDepth--;
+                } else {
+                    if (debug) {
+                        console.log({currentDoc, status: 'doing nothing'});
+                    }
                 }
+                return true;
             } else if (hasChildDocs(currentDoc)) {
-                return;
+                if (nestedDepth < 1) {
+                    parentDoc[childIndex] = doc.builders.group(currentDoc);
+                }
+                return false;
             } else if (nestedDepth < 1) {
                 if (currentDoc.type === 'line' && currentDoc.soft) {
                     parentDoc[childIndex] = doc.builders.hardlineWithoutBreakParent;
@@ -68,12 +82,19 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[]): Doc {
                     } else {
                         columnCount++;
                     }
+
                     if (shouldLineBreak) {
-                        parentDoc[childIndex] = doc.builders.hardlineWithoutBreakParent;
+                        if (debug) {
+                            console.log({currentDoc, status: 'setting hard line'});
+                        }
+                        parentDoc[childIndex] = doc.builders.hardline;
                     }
                 } else if (currentDoc.type === 'if-break') {
+                    if (debug) {
+                        console.log({currentDoc, status: 'setting break-if contents'});
+                    }
                     // all breaks should act like they're getting broken
-                    currentDoc.flatContents = currentDoc.breakContents;
+                    parentDoc[childIndex] = currentDoc.breakContents;
                 }
             }
             return true;
@@ -89,18 +110,18 @@ function hasComments(input: any): input is {comments: Comment[]} {
 }
 
 function extractComments(programNode: Program): Comment[] {
-    if (programNode.comments) {
-        return programNode.comments;
-    } else {
-        return programNode.body
+    const comments: Comment[] = programNode.comments ?? [];
+    // this might duplicate comments but our later code doesn't care
+    return comments.concat(
+        programNode.body
             .reduce((accum, entry) => {
                 if (hasComments(entry)) {
                     accum.push(...entry.comments);
                 }
                 return accum;
             }, [] as Comment[])
-            .flat();
-    }
+            .flat(),
+    );
 }
 
 const mappedComments = new WeakMap<Node, Record<number, number[]>>();
@@ -137,7 +158,11 @@ function setLineCounts(programNode: Program): Record<number, number[]> {
     return keyedCommentsByLastLine;
 }
 
-export function printWithNewLineArrays(originalFormattedOutput: Doc, path: AstPath): Doc {
+export function printWithNewLineArrays(
+    originalFormattedOutput: Doc,
+    path: AstPath,
+    debug: boolean,
+): Doc {
     const programNode = path.stack[0];
     if (!isProgramNode(programNode)) {
         throw new Error(`Could not find valid program node in ${path.stack.join(',')}`);
@@ -159,7 +184,7 @@ export function printWithNewLineArrays(originalFormattedOutput: Doc, path: AstPa
             const lineCountMap = mappedComments.get(programNode) ?? setLineCounts(programNode);
             const lineCounts = lineCountMap[lastLine] ?? [];
 
-            const newDoc = insertArrayLines(originalFormattedOutput, lineCounts);
+            const newDoc = insertArrayLines(originalFormattedOutput, lineCounts, debug);
             return newDoc;
         }
     }

@@ -16,6 +16,95 @@ function format(
 
 const tests: {name: string; code: string; expected?: string; parser?: string; force?: true}[] = [
     {
+        name: 'comment at end of argument list with newline parser',
+        code: `
+            export function hasProperty<ObjectGeneric extends object, KeyGeneric extends PropertyKey>(
+                inputObject: ObjectGeneric,
+                inputKey: KeyGeneric,
+                // @ts-ignore this type signature is actually exactly what I want
+            ): inputObject is ObjectGeneric extends Record<KeyGeneric, any>
+                ? Extract<ObjectGeneric, {[SubProperty in KeyGeneric]: unknown}>
+                : Record<KeyGeneric, unknown> {
+                return inputKey in inputObject;
+            }
+        `,
+    },
+    {
+        name: 'comment at end of argument list with normal parser',
+        code: `
+            export function hasProperty<ObjectGeneric extends object, KeyGeneric extends PropertyKey>(
+                inputObject: ObjectGeneric,
+                inputKey: KeyGeneric,
+                // @ts-ignore this type signature is actually exactly what I want
+            ): inputObject is ObjectGeneric extends Record<KeyGeneric, any>
+                ? Extract<ObjectGeneric, {[SubProperty in KeyGeneric]: unknown}>
+                : Record<KeyGeneric, unknown> {
+                return inputKey in inputObject;
+            }
+        `,
+        parser: 'typescript',
+    },
+    {
+        name: 'long function definition with newline parser',
+        code: `
+            export async function selectFiles(
+                inputProperties: OpenDialogProperty[] = [
+                    OpenDialogProperty.multiSelections,
+                    OpenDialogProperty.openFile,
+                    OpenDialogProperty.openDirectory,
+                ],
+            ): Promise<undefined | string[]> {}
+        `,
+    },
+    {
+        name: 'long function definition with normal parser',
+        code: `
+            export async function selectFiles(
+                inputProperties: OpenDialogProperty[] = [
+                    OpenDialogProperty.multiSelections,
+                    OpenDialogProperty.openFile,
+                    OpenDialogProperty.openDirectory,
+                ],
+            ): Promise<undefined | string[]> {}
+        `,
+        parser: 'typescript',
+    },
+    {
+        name: 'comment after end of block with newline parser',
+        code: `
+            if (thing) {
+            }
+            // otherwise we are editing currently existing songs
+            else {
+            }
+        `,
+    },
+    {
+        name: 'comment after end of block with normal parser',
+        code: `
+            if (thing) {
+            }
+            // otherwise we are editing currently existing songs
+            else {
+            }
+        `,
+        parser: 'typescript',
+    },
+    {
+        name: 'deep array call should include trailing comma still',
+        code: `
+            expect(createArrayValidator(typeofValidators.boolean)([3, 4])).toBe(false);
+        `,
+        expected: `
+            expect(
+                createArrayValidator(typeofValidators.boolean)([
+                    3,
+                    4,
+                ]),
+            ).toBe(false);
+        `,
+    },
+    {
         name: 'not arrays but callbacks with newline parser',
         code: `
             expose({
@@ -35,7 +124,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                     }
                 },
             });
-            `,
+        `,
     },
     {
         name: 'not arrays but callbacks with normal parser',
@@ -57,14 +146,14 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                     }
                 },
             });
-            `,
+        `,
         parser: 'typescript',
     },
     {
         name: 'function parameters',
         code: `
             doTheThing('a', 'b', 'c');
-            `,
+        `,
     },
     {
         name: 'nested single-line objects on multiple lines',
@@ -74,20 +163,20 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 {success: false, error: 'hello there', filePath: ''},
                 {success: false, error: '', filePath: ''},
             ];
-            `,
+        `,
     },
     {
         name: 'nested single-line objects all on one line',
         code: `
             const nested = [{success: true, filePath: ''}, {success: false, error: 'hello there', filePath: ''}, {success: false, error: '', filePath: ''}];
-            `,
+        `,
         expected: `
             const nested = [
                 {success: true, filePath: ''},
                 {success: false, error: 'hello there', filePath: ''},
                 {success: false, error: '', filePath: ''},
             ];
-            `,
+        `,
     },
     {
         name: 'nested multi-line objects',
@@ -96,7 +185,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 success: true, filePath: ''}, {
                     success: false, error: 'hello there', filePath: ''}, {
                         success: false, error: '', filePath: ''}];
-            `,
+        `,
         expected: `
             const nested = [
                 {
@@ -114,7 +203,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                     filePath: '',
                 },
             ];
-            `,
+        `,
     },
     {
         name: 'multiple arrays and even one with a trigger comment',
@@ -138,7 +227,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 'e',
             ];
 
-            `,
+        `,
         expected: `
             const varNoLine = [
                 'a',
@@ -165,7 +254,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 'c',
                 'd', 'e',
             ];
-            `,
+        `,
     },
     {
         name: 'array with single line trigger comment',
@@ -193,7 +282,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 'i',
                 'j', 'k',
             ];
-            `,
+        `,
     },
     {
         name: 'array with JSDoc style trigger comment spread across multiple lines',
@@ -218,7 +307,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 'c',
                 'd', 'e',
             ];
-            `,
+        `,
     },
     {
         name: 'nested array',
@@ -236,13 +325,13 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                     't',
                 ],
             ];
-            `,
+        `,
     },
     {
         name: 'empty array',
         code: `
             const myVar1: string[] = [];
-            `,
+        `,
     },
     {
         name: 'single element array on one line',
@@ -251,7 +340,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             let anotherThing: string[] = [
                 '1 1',
             ];
-            `,
+        `,
     },
     {
         name: 'single element array on multiple lines',
@@ -262,7 +351,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             let anotherThing: string[] = [
                 '1 1',
             ];
-            `,
+        `,
     },
     {
         name: 'multiple different styled arrays all together',
@@ -287,7 +376,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 '2, 1',
                 '2, 2',
             ];
-            `,
+        `,
     },
     {
         name: 'single element string array with type definition',
@@ -296,7 +385,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             const myVar: string[] = [
                 'hello',
             ];
-            `,
+        `,
     },
     {
         name: 'double element string array with type definition',
@@ -306,7 +395,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 'hello',
                 'there',
             ];
-            `,
+        `,
     },
     {
         name: 'non-array string assignment',
@@ -315,13 +404,13 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             'hello';`,
         expected: `
             const myVar: string = 'hello';
-            `,
+        `,
     },
     {
         name: 'non-array single line object assignment',
         code: `
             const myVar: object = {a: 'here', b: 'there'};
-            `,
+        `,
     },
     {
         name: 'non-array multi-line object assignment',
@@ -330,7 +419,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 a: 'here',
                 b: 'there',
             };
-            `,
+        `,
     },
     // the following test caught that path.getValue() can return undefined.
     {
@@ -342,7 +431,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
 
 
 
-            `,
+        `,
         expected: `
             function doStuff() {}
 
@@ -350,25 +439,25 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 'a',
                 'b',
             ];
-            `,
+        `,
     },
     {
         name: 'array with function definition inside of it',
         code: `
             const what = ['a', function doStuff() {}];
-            `,
+        `,
         expected: `
             const what = [
                 'a',
                 function doStuff() {},
             ];
-            `,
+        `,
     },
     {
         name: 'original parser with single line object assignment',
         code: `
             const myVar: object = {a: 'where', b: 'everywhere'};
-            `,
+        `,
         parser: 'typescript',
     },
     {
@@ -378,7 +467,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 a: 'where',
                 b: 'everywhere',
             };
-            `,
+        `,
         parser: 'typescript',
     },
 ];
@@ -386,7 +475,10 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
 let forced = false;
 
 function removeIndent(input: string): string {
-    return input.replace(/^\s*\n\s*/, '').replace(/\n {12}/g, '\n');
+    return input
+        .replace(/^\s*\n\s*/, '')
+        .replace(/\n {12}/g, '\n')
+        .replace(/\n\s+$/, '\n');
 }
 
 describe('plugin formatting', () => {

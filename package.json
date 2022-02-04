@@ -18,10 +18,11 @@
     },
     "main": "dist/index.js",
     "scripts": {
+        "debug": "tsc && cross-env NEW_LINE_DEBUG=true jest --config ./src/jest/jest.config.ts",
         "format": "virmator format write",
         "prepublishOnly": "npm run test:full",
         "spellcheck": "virmator spellcheck",
-        "test": "tsc && jest --config ./src/jest/jest.config.ts",
+        "test": "rm -rf dist && tsc && jest --config ./src/jest/jest.config.ts",
         "test:full": "npm test && npm run spellcheck && virmator format check",
         "watch": "nodemon -e ts --watch src -x \"npm test\""
     },
@@ -32,6 +33,7 @@
         "@types/esprima": "^4.0.3",
         "@types/jest": "^27.4.0",
         "@types/prettier": "^2.4.3",
+        "cross-env": "^7.0.3",
         "jest": "^27.4.7",
         "nodemon": "^2.0.15",
         "ts-jest": "^27.1.3",
