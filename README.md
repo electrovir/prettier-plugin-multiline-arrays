@@ -1,3 +1,3 @@
-# prettier-plugin-newline-arrays
+# prettier-plugin-multiline-arrays
 
 Currently only supports TypeScript.

@@ -1,6 +1,6 @@
 import {Node} from 'estree';
 import {Printer} from 'prettier';
-import {printWithNewLineArrays} from './insert-new-lines';
+import {printWithMultilineArrays} from './insert-new-lines';
 import {getJsPrinter} from './jsplugin';
 
 const debug = !!process.env.NEW_LINE_DEBUG;
@@ -17,7 +17,7 @@ function wrapInJsPrinterCall<T extends string = string>(property: keyof Printer,
         }
         if (property === 'print') {
             const originalOutput = jsPrinter.print.call(jsPrinter, ...(args as [any, any, any]));
-            return printWithNewLineArrays(originalOutput, args[0], debug);
+            return printWithMultilineArrays(originalOutput, args[0], debug);
         } else {
             let thisParent: any = jsPrinter;
             let printerProp = jsPrinter[property];
@@ -60,7 +60,7 @@ const handleComments: Printer['handleComments'] = {
     ),
 };
 
-export const newlineArrayPrinter = new Proxy<Printer<Node>>({} as Printer<Node>, {
+export const multilineArrayPrinter = new Proxy<Printer<Node>>({} as Printer<Node>, {
     get: (target, property: keyof Printer) => {
         /**
          * "handleComments" is the only printer property which isn't a callback function, so for

@@ -1,9 +1,9 @@
 import {Plugin} from 'prettier';
 import {parsers as tsParsers} from 'prettier/parser-typescript';
 import {astFormatName, parserName} from './metadata/package-phrases';
-import {newlineArrayPrinter} from './printer/newline-array-printer';
+import {multilineArrayPrinter} from './printer/multiline-array-printer';
 
-const newlineArraysPlugin: Plugin = {
+const multilineArraysPlugin: Plugin = {
     languages: [
         {
             name: 'typescript',
@@ -17,8 +17,8 @@ const newlineArraysPlugin: Plugin = {
         },
     },
     printers: {
-        [astFormatName]: newlineArrayPrinter,
+        [astFormatName]: multilineArrayPrinter,
     },
 };
 
-module.exports = newlineArraysPlugin;
+module.exports = multilineArraysPlugin;

@@ -1,15 +1,15 @@
 {
-    "name": "prettier-plugin-newline-arrays",
+    "name": "prettier-plugin-multiline-arrays",
     "version": "0.0.0",
     "description": "",
     "keywords": [],
-    "homepage": "https://github.com/electrovir/prettier-plugin-newline-arrays#readme",
+    "homepage": "https://github.com/electrovir/prettier-plugin-multiline-arrays#readme",
     "bugs": {
-        "url": "https://github.com/electrovir/prettier-plugin-newline-arrays/issues"
+        "url": "https://github.com/electrovir/prettier-plugin-multiline-arrays/issues"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/electrovir/prettier-plugin-newline-arrays.git"
+        "url": "git+https://github.com/electrovir/prettier-plugin-multiline-arrays.git"
     },
     "license": "MIT",
     "author": {

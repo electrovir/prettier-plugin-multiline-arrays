@@ -16,7 +16,7 @@ function format(
 
 const tests: {name: string; code: string; expected?: string; parser?: string; force?: true}[] = [
     {
-        name: 'comment at end of argument list with newline parser',
+        name: 'comment at end of argument list with multiline array parser',
         code: `
             export function hasProperty<ObjectGeneric extends object, KeyGeneric extends PropertyKey>(
                 inputObject: ObjectGeneric,
@@ -45,7 +45,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         parser: 'typescript',
     },
     {
-        name: 'long function definition with newline parser',
+        name: 'long function definition with multiline array parser',
         code: `
             export async function selectFiles(
                 inputProperties: OpenDialogProperty[] = [
@@ -70,7 +70,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         parser: 'typescript',
     },
     {
-        name: 'comment after end of block with newline parser',
+        name: 'comment after end of block with multiline array parser',
         code: `
             if (thing) {
             }
@@ -105,7 +105,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         `,
     },
     {
-        name: 'not arrays but callbacks with newline parser',
+        name: 'not arrays but callbacks with multiline array parser',
         code: `
             expose({
                 versions: process.versions,

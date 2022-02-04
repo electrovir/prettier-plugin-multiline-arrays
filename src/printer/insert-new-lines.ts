@@ -166,7 +166,7 @@ function setLineCounts(programNode: Program): Record<number, number[]> {
     return keyedCommentsByLastLine;
 }
 
-export function printWithNewLineArrays(
+export function printWithMultilineArrays(
     originalFormattedOutput: Doc,
     path: AstPath,
     debug: boolean,
