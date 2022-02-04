@@ -87,7 +87,15 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                         if (debug) {
                             console.log({currentDoc, status: 'setting hard line'});
                         }
-                        parentDoc[childIndex] = doc.builders.hardline;
+                        /**
+                         * Don't use doc.builders.hardline here. Even though it passes tests in this
+                         * package, it causes "invalid size error" which I don't understand and
+                         * which has no other useful information or stack trace.
+                         */
+                        parentDoc[childIndex] = [
+                            doc.builders.hardlineWithoutBreakParent,
+                            doc.builders.breakParent,
+                        ];
                     }
                 } else if (currentDoc.type === 'if-break') {
                     if (debug) {

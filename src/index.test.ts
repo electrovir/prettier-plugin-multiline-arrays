@@ -156,6 +156,23 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         `,
     },
     {
+        name: 'config object',
+        code: `
+            const config = {
+                directories: {
+                    output: 'dist',
+                    buildResources: 'build-resources',
+                },
+                files: [
+                    'packages/**/dist/**',
+                ],
+                extraMetadata: {
+                    version: viteVersion,
+                },
+            };
+        `,
+    },
+    {
         name: 'nested single-line objects on multiple lines',
         code: `
             const nested = [
