@@ -1,8 +1,14 @@
 {
     "name": "prettier-plugin-multiline-arrays",
     "version": "0.0.0",
-    "description": "",
-    "keywords": [],
+    "description": "Prettier plugin to force all arrays to be multiline.",
+    "keywords": [
+        "prettier",
+        "plugin",
+        "array",
+        "format",
+        "multiline"
+    ],
     "homepage": "https://github.com/electrovir/prettier-plugin-multiline-arrays#readme",
     "bugs": {
         "url": "https://github.com/electrovir/prettier-plugin-multiline-arrays/issues"

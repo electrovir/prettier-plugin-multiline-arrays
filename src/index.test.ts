@@ -1,5 +1,5 @@
 import {BuiltInParserName, format as prettierFormat, LiteralUnion} from 'prettier';
-import {lineContainsTriggerComment, parserName} from './metadata/package-phrases';
+import {elementsPerLineTrigger, parserName} from './metadata/package-phrases';
 import {repoConfig} from './metadata/prettier-config-for-tests';
 
 function format(
@@ -234,7 +234,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 ['s', 't'],
             ];
             /**
-             * ${lineContainsTriggerComment} 2 1
+             * ${elementsPerLineTrigger} 2 1
              * 3
              */
             const setNumberPerLine = [
@@ -263,7 +263,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 ],
             ];
             /**
-             * ${lineContainsTriggerComment} 2 1
+             * ${elementsPerLineTrigger} 2 1
              * 3
              */
             const setNumberPerLine = [
@@ -276,7 +276,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     {
         name: 'array with single line trigger comment',
         code: `
-        // ${lineContainsTriggerComment} 2 1 3
+        // ${elementsPerLineTrigger} 2 1 3
         const setNumberPerLine = [
             'a', 'b',
             'c',
@@ -290,7 +290,35 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             'k',
         ];`,
         expected: `
-            // ${lineContainsTriggerComment} 2 1 3
+            // ${elementsPerLineTrigger} 2 1 3
+            const setNumberPerLine = [
+                'a', 'b',
+                'c',
+                'd', 'e', 'f',
+                'g', 'h',
+                'i',
+                'j', 'k',
+            ];
+        `,
+    },
+    {
+        name: 'array with line trigger comment using commas',
+        code: `
+        // ${elementsPerLineTrigger} 2, 1, 3
+        const setNumberPerLine = [
+            'a', 'b',
+            'c',
+            'd',
+            'e',
+            'f',
+            'g',
+            'h',
+            'i',
+            'j',
+            'k',
+        ];`,
+        expected: `
+            // ${elementsPerLineTrigger} 2, 1, 3
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -305,7 +333,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         name: 'array with JSDoc style trigger comment spread across multiple lines',
         code: `
             /**
-            * ${lineContainsTriggerComment} 2 1
+            * ${elementsPerLineTrigger} 2 1
             * 3
             */
             const setNumberPerLine = [
@@ -316,7 +344,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             ];`,
         expected: `
             /**
-             * ${lineContainsTriggerComment} 2 1
+             * ${elementsPerLineTrigger} 2 1
              * 3
              */
             const setNumberPerLine = [

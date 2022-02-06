@@ -1,7 +1,7 @@
 import {Program} from 'esprima';
 import {Comment, Node} from 'estree';
 import {AstPath, Doc, doc} from 'prettier';
-import {lineContainsTriggerComment, untilLineTriggerRegExp} from '../metadata/package-phrases';
+import {elementsPerLineTrigger, untilLineTriggerRegExp} from '../metadata/package-phrases';
 import {hasChildDocs, walkDoc} from './child-docs';
 
 const nestingSyntaxOpen = '[{(<' as const;
@@ -144,8 +144,11 @@ function setLineCounts(programNode: Program): Record<number, number[]> {
     const keyedCommentsByLastLine: Record<number, number[]> = comments.reduce(
         (accum, currentComment) => {
             const commentText = currentComment.value?.replace(/\n/g, ' ');
-            if (commentText?.includes(lineContainsTriggerComment)) {
-                const split = commentText.replace(untilLineTriggerRegExp, '').split(' ');
+            if (commentText?.includes(elementsPerLineTrigger)) {
+                const split = commentText
+                    .replace(untilLineTriggerRegExp, '')
+                    .replace(/,/g, '')
+                    .split(' ');
                 const numbers = split
                     .map((entry) => (entry && entry.trim().match(/\d+/) ? Number(entry) : NaN))
                     .filter((entry) => !isNaN(entry));
