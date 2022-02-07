@@ -7,110 +7,227 @@ import {hasChildDocs, walkDoc} from './child-docs';
 const nestingSyntaxOpen = '[{(<' as const;
 const nestingSyntaxClose = ']})>' as const;
 
+function isDocCommand(inputDoc: Doc | undefined | null): inputDoc is doc.builders.DocCommand {
+    return !!inputDoc && typeof inputDoc !== 'string' && !Array.isArray(inputDoc);
+}
+
+const found = 'Found "[" but';
+
 function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): Doc {
-    let extractedDoc: Doc = inputDoc;
-    // pull contents out of an array with just a single group in it
-    if (Array.isArray(inputDoc) && inputDoc.filter((entry) => !!entry).length === 1) {
-        extractedDoc = inputDoc[0] ?? [];
-        if (typeof extractedDoc !== 'string') {
-            if ('contents' in extractedDoc) {
-                extractedDoc = extractedDoc.contents;
-            } else if ('parts' in extractedDoc) {
-                extractedDoc = extractedDoc.parts;
+    walkDoc(inputDoc, debug, (currentDoc, parentDocs, childIndex): boolean => {
+        const currentParent = parentDocs[0];
+        const parentDoc = currentParent?.parent;
+        if (typeof currentDoc === 'string' && currentDoc.trim() === '[') {
+            if (debug) {
+                console.info({currentDoc, parentDoc});
             }
-        }
-    }
-
-    if (typeof extractedDoc === 'string') {
-        return extractedDoc;
-    }
-
-    // lineIndex is 0 indexed
-    let lineIndex = 0;
-    // columnCount is 1 indexed
-    let columnCount = 1;
-    // start at -1 because the first '[' will then stick us on level 0
-    let nestedDepth = -1;
-
-    walkDoc(extractedDoc, (currentDoc, parentDoc, childIndex): boolean => {
-        if (parentDoc && Array.isArray(parentDoc) && childIndex != undefined) {
-            if (!currentDoc) {
-                return true;
-            } else if (typeof currentDoc === 'string') {
-                /**
-                 * Track array depth so we can ignore nested arrays, otherwise they'd get formatted
-                 * twice (cause nested arrays will already get formatted as an independent array).
-                 */
-                if (nestingSyntaxOpen.includes(currentDoc)) {
-                    if (debug) {
-                        console.log({currentDoc, status: 'increase nestedDepth'});
-                    }
-                    nestedDepth++;
-                } else if (nestingSyntaxClose.includes(currentDoc)) {
-                    if (debug) {
-                        console.log({currentDoc, status: 'decrease nestedDepth'});
-                    }
-                    nestedDepth--;
-                } else {
-                    if (debug) {
-                        console.log({currentDoc, status: 'doing nothing'});
-                    }
-                }
-                return true;
-            } else if (hasChildDocs(currentDoc)) {
-                if (nestedDepth < 1) {
-                    parentDoc[childIndex] = doc.builders.group(currentDoc);
-                }
+            if (!Array.isArray(parentDoc) || parentDoc.length !== 4) {
+                throw new Error(`${found} parentDoc is not an array.`);
+            }
+            if (childIndex !== 0) {
+                throw new Error(`${found} not at index 0 in its parent`);
+            }
+            const bracketSibling = parentDoc[childIndex + 1];
+            if (debug) {
+                console.info({bracketSibling});
+            }
+            if (bracketSibling === ']') {
                 return false;
-            } else if (nestedDepth < 1) {
-                if (currentDoc.type === 'line' && currentDoc.soft) {
-                    parentDoc[childIndex] = doc.builders.hardlineWithoutBreakParent;
-                } else if (currentDoc.type === 'line') {
-                    let shouldLineBreak = false;
-                    const currentLineCountIndex = lineIndex % lineCounts.length;
-                    const currentLineCount: number | undefined = lineCounts.length
-                        ? lineCounts[currentLineCountIndex]
-                        : undefined;
-                    if (
-                        (currentLineCount && columnCount === currentLineCount) ||
-                        !currentLineCount
-                    ) {
-                        // if we're on the last element of the line then increment to the next line
-                        lineIndex++;
-                        columnCount = 1;
-                        shouldLineBreak = true;
-                    } else {
-                        columnCount++;
-                    }
-
-                    if (shouldLineBreak) {
-                        if (debug) {
-                            console.log({currentDoc, status: 'setting hard line'});
-                        }
-                        /**
-                         * Don't use doc.builders.hardline here. Even though it passes tests in this
-                         * package, it causes "invalid size error" which I don't understand and
-                         * which has no other useful information or stack trace.
-                         */
-                        parentDoc[childIndex] = [
-                            doc.builders.hardlineWithoutBreakParent,
-                            doc.builders.breakParent,
-                        ];
-                    }
-                } else if (currentDoc.type === 'if-break') {
-                    if (debug) {
-                        console.log({currentDoc, status: 'setting break-if contents'});
-                    }
-                    // all breaks should act like they're getting broken
-                    parentDoc[childIndex] = currentDoc.breakContents;
-                }
             }
-            return true;
+            if (!isDocCommand(bracketSibling) || bracketSibling.type !== 'indent') {
+                throw new Error(`${found} its sibling was not an indent Doc.: ${bracketSibling}`);
+            }
+            const indentContents = bracketSibling.contents;
+            if (debug) {
+                console.info({indentContents});
+            }
+            if (!Array.isArray(indentContents)) {
+                throw new Error(`${found} indent didn't have array contents.`);
+            }
+            if (indentContents.length !== 3) {
+                throw new Error(`${found} indent contents did not have 3 children.`);
+            }
+
+            const startingLine = indentContents[0];
+            if (debug) {
+                console.info({firstIndentContentsChild: startingLine});
+            }
+            if (!isDocCommand(startingLine) || startingLine.type !== 'line') {
+                throw new Error(`${found} first indent child was not a line.`);
+            }
+            indentContents[0] = '';
+
+            const indentedContent = indentContents[1];
+
+            if (debug) {
+                console.info({
+                    secondIndentContentsChild: indentedContent,
+                    itsFirstChild: (indentedContent as any)[0],
+                });
+            }
+            if (!indentedContent) {
+                console.error('second indent child (indentedContent) is not defined:', {
+                    indentContents,
+                    indentedContent,
+                });
+                throw new Error(`${found} second indent child is not a fill.`);
+            }
+
+            if (
+                !Array.isArray(indentedContent) &&
+                !(isDocCommand(indentedContent) && indentedContent.type === 'fill')
+            ) {
+                console.error('second indent child (indentCode) is not a fill doc or an array:', {
+                    indentContents,
+                    indentCode: indentedContent,
+                });
+                throw new Error(`${found} second indent child is not a fill doc or an array.`);
+            }
+
+            if (
+                Array.isArray(indentedContent)
+                    ? indentedContent.length === 0
+                    : indentedContent.parts.length === 0
+            ) {
+                throw new Error(`${found} indentedContent has no length.`);
+            }
+
+            // lineIndex is 0 indexed
+            let lineIndex = 0;
+            // columnCount is 1 indexed
+            let columnCount = 1;
+
+            if (debug) {
+                console.info(`>>>>>>>>>>>>>> Walking children for commas`);
+            }
+
+            walkDoc(
+                indentedContent,
+                debug,
+                (currentDoc, commaParents, commaChildIndex): boolean => {
+                    const innerCurrentParent = commaParents[0];
+                    const commaParentDoc = innerCurrentParent?.parent;
+                    if (isDocCommand(currentDoc) && currentDoc.type === 'if-break') {
+                        if (!commaParentDoc) {
+                            throw new Error(`Found if-break without a parent`);
+                        }
+                        if (!Array.isArray(commaParentDoc)) {
+                            throw new Error(`if-break parent is not an array`);
+                        }
+                        if (commaChildIndex == undefined) {
+                            throw new Error(`if-break child index is undefined`);
+                        }
+                        commaParentDoc[commaChildIndex] = currentDoc.breakContents;
+                        commaParentDoc.splice(commaChildIndex + 1, 0, doc.builders.breakParent);
+                    } else if (typeof currentDoc === 'string') {
+                        if (nestingSyntaxOpen.includes(currentDoc)) {
+                            return false;
+                        } else if (nestingSyntaxClose.includes(currentDoc)) {
+                            throw new Error(`Found closing syntax which shouldn't be walked`);
+                        } else if (currentDoc === ',') {
+                            if (debug) {
+                                console.info({foundCommaIn: commaParentDoc});
+                            }
+                            if (!commaParentDoc) {
+                                console.error({innerParentDoc: commaParentDoc});
+                                throw new Error(`Found comma but innerParentDoc is not defined.`);
+                            }
+                            if (!Array.isArray(commaParentDoc)) {
+                                console.error({innerParentDoc: commaParentDoc});
+                                throw new Error(`Found comma but innerParentDoc is not an array.`);
+                            }
+                            if (commaChildIndex == undefined) {
+                                throw new Error(`Found comma but childIndex is undefined.`);
+                            }
+
+                            let siblingIndex: number = commaChildIndex + 1;
+                            let parentToMutate: Doc[] = commaParentDoc;
+                            if (commaChildIndex === commaParentDoc.length - 1) {
+                                const commaGrandParent = commaParents[1];
+                                if (commaGrandParent == undefined) {
+                                    throw new Error(`Could not find grandparent of comma group.`);
+                                }
+                                if (commaGrandParent.childIndexInThisParent == undefined) {
+                                    throw new Error(`Could not find index of comma group parent`);
+                                }
+                                if (!Array.isArray(commaGrandParent.parent)) {
+                                    throw new Error(`Comma group grandparent is not an array.`);
+                                }
+                                siblingIndex = commaGrandParent.childIndexInThisParent + 1;
+                                parentToMutate = commaGrandParent.parent;
+                            }
+
+                            if (debug) {
+                                console.info({commaParentDoc, parentToMutate, siblingIndex});
+                            }
+
+                            const commaSibling = parentToMutate[siblingIndex];
+                            if (!isDocCommand(commaSibling) || commaSibling.type !== 'line') {
+                                throw new Error(
+                                    `Found comma but its following sibling is not a line: ${commaSibling}`,
+                                );
+                            }
+
+                            const currentLineCountIndex = lineIndex % lineCounts.length;
+                            const currentLineCount: number | undefined = lineCounts.length
+                                ? lineCounts[currentLineCountIndex]
+                                : undefined;
+                            if (
+                                (currentLineCount && columnCount === currentLineCount) ||
+                                !currentLineCount
+                            ) {
+                                // if we're on the last element of the line then increment to the next line
+                                lineIndex++;
+                                columnCount = 1;
+                                /**
+                                 * Don't use doc.builders.hardline here. It causes "invalid size error"
+                                 * which I don't understand and which has no other useful information or
+                                 * stack trace.
+                                 */
+                                if (debug) {
+                                    console.info({breakingAfter: parentToMutate[siblingIndex - 1]});
+                                }
+                                parentToMutate[siblingIndex] =
+                                    doc.builders.hardlineWithoutBreakParent;
+                            } else {
+                                parentToMutate[siblingIndex] = ' ';
+                                columnCount++;
+                            }
+                        }
+                    }
+                    return true;
+                },
+            );
+
+            if (Array.isArray(indentedContent)) {
+                indentContents.splice(
+                    1,
+                    1,
+                    doc.builders.group([
+                        doc.builders.hardlineWithoutBreakParent,
+                        ...indentedContent,
+                    ]),
+                );
+            } else {
+                indentedContent.parts = [
+                    doc.builders.group([
+                        doc.builders.hardlineWithoutBreakParent,
+                        ...indentedContent.parts,
+                    ]),
+                ];
+            }
+
+            // don't walk any deeper
+            return false;
+        } else if (debug) {
+            console.info({ignoring: currentDoc});
         }
-        return false;
+
+        return true;
     });
 
-    return extractedDoc;
+    // return what is input because we perform mutations on it
+    return inputDoc;
 }
 
 function hasComments(input: any): input is {comments: Comment[]} {
@@ -195,6 +312,9 @@ export function printWithMultilineArrays(
             const lineCountMap = mappedComments.get(programNode) ?? setLineCounts(programNode);
             const lineCounts = lineCountMap[lastLine] ?? [];
 
+            if (debug) {
+                console.info(`======= Starting call to ${insertArrayLines.name}: =======`);
+            }
             const newDoc = insertArrayLines(originalFormattedOutput, lineCounts, debug);
             return newDoc;
         }

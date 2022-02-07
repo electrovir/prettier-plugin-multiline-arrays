@@ -10,13 +10,16 @@ function format(
         ...repoConfig,
         parser,
         filepath: 'blah.ts',
-        plugins: ['.'],
+        plugins: [
+            '.',
+        ],
     });
 }
 
 const tests: {name: string; code: string; expected?: string; parser?: string; force?: true}[] = [
     {
         name: 'comment at end of argument list with multiline array parser',
+        // prettier-ignore
         code: `
             export function hasProperty<ObjectGeneric extends object, KeyGeneric extends PropertyKey>(
                 inputObject: ObjectGeneric,
@@ -30,7 +33,48 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         `,
     },
     {
+        name: 'array elements with dots',
+        // prettier-ignore
+        code: `
+            parentDoc[childIndex] = [
+                doc.builders.hardlineWithoutBreakParent,
+                doc.builders.breakParent,
+            ];
+        `,
+    },
+    {
+        // caused a max call stack exceeded error once
+        name: 'single object element with multiline template',
+        // prettier-ignore
+        code: `
+        
+        
+        
+        
+            const stuff = [
+            
+            
+                {
+                    innerStuff: \`
+                        const myVar: object = {a: 'where', b: 'everywhere'};
+                    \`,
+                },
+            ];
+        `,
+        // prettier-ignore
+        expected: `
+            const stuff = [
+                {
+                    innerStuff: \`
+                        const myVar: object = {a: 'where', b: 'everywhere'};
+                    \`,
+                },
+            ];
+        `,
+    },
+    {
         name: 'comment at end of argument list with normal parser',
+        // prettier-ignore
         code: `
             export function hasProperty<ObjectGeneric extends object, KeyGeneric extends PropertyKey>(
                 inputObject: ObjectGeneric,
@@ -46,6 +90,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'long function definition with multiline array parser',
+        // prettier-ignore
         code: `
             export async function selectFiles(
                 inputProperties: OpenDialogProperty[] = [
@@ -58,6 +103,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'long function definition with normal parser',
+        // prettier-ignore
         code: `
             export async function selectFiles(
                 inputProperties: OpenDialogProperty[] = [
@@ -71,6 +117,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'comment after end of block with multiline array parser',
+        // prettier-ignore
         code: `
             if (thing) {
             }
@@ -81,6 +128,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'comment after end of block with normal parser',
+        // prettier-ignore
         code: `
             if (thing) {
             }
@@ -92,9 +140,11 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'deep array call should include trailing comma still',
+        // prettier-ignore
         code: `
             expect(createArrayValidator(typeofValidators.boolean)([3, 4])).toBe(false);
         `,
+        // prettier-ignore
         expected: `
             expect(
                 createArrayValidator(typeofValidators.boolean)([
@@ -106,6 +156,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'not arrays but callbacks with multiline array parser',
+        // prettier-ignore
         code: `
             expose({
                 versions: process.versions,
@@ -128,6 +179,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'not arrays but callbacks with normal parser',
+        // prettier-ignore
         code: `
             expose({
                 versions: process.versions,
@@ -151,12 +203,14 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'function parameters',
+        // prettier-ignore
         code: `
             doTheThing('a', 'b', 'c');
         `,
     },
     {
         name: 'config object',
+        // prettier-ignore
         code: `
             const config = {
                 directories: {
@@ -174,6 +228,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'nested single-line objects on multiple lines',
+        // prettier-ignore
         code: `
             const nested = [
                 {success: true, filePath: ''},
@@ -184,9 +239,11 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'nested single-line objects all on one line',
+        // prettier-ignore
         code: `
             const nested = [{success: true, filePath: ''}, {success: false, error: 'hello there', filePath: ''}, {success: false, error: '', filePath: ''}];
         `,
+        // prettier-ignore
         expected: `
             const nested = [
                 {success: true, filePath: ''},
@@ -197,12 +254,14 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'nested multi-line objects',
+        // prettier-ignore
         code: `
             const nested = [{
                 success: true, filePath: ''}, {
                     success: false, error: 'hello there', filePath: ''}, {
                         success: false, error: '', filePath: ''}];
         `,
+        // prettier-ignore
         expected: `
             const nested = [
                 {
@@ -224,6 +283,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'multiple arrays and even one with a trigger comment',
+        // prettier-ignore
         code: `
             const varNoLine = ['a', 'b'];
             const varOneNewLine = [
@@ -245,6 +305,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             ];
 
         `,
+        // prettier-ignore
         expected: `
             const varNoLine = [
                 'a',
@@ -275,6 +336,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'array with single line trigger comment',
+        // prettier-ignore
         code: `
         // ${elementsPerLineTrigger} 2 1 3
         const setNumberPerLine = [
@@ -289,6 +351,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             'j',
             'k',
         ];`,
+        // prettier-ignore
         expected: `
             // ${elementsPerLineTrigger} 2 1 3
             const setNumberPerLine = [
@@ -303,6 +366,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'array with line trigger comment using commas',
+        // prettier-ignore
         code: `
         // ${elementsPerLineTrigger} 2, 1, 3
         const setNumberPerLine = [
@@ -317,6 +381,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             'j',
             'k',
         ];`,
+        // prettier-ignore
         expected: `
             // ${elementsPerLineTrigger} 2, 1, 3
             const setNumberPerLine = [
@@ -331,6 +396,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'array with JSDoc style trigger comment spread across multiple lines',
+        // prettier-ignore
         code: `
             /**
             * ${elementsPerLineTrigger} 2 1
@@ -342,6 +408,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 'd',
                 'e',
             ];`,
+        // prettier-ignore
         expected: `
             /**
              * ${elementsPerLineTrigger} 2 1
@@ -356,11 +423,13 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'nested array',
+        // prettier-ignore
         code: `
             const nestedArray = [
                 'q', 'r',
                 ['s', 't'],
             ];`,
+        // prettier-ignore
         expected: `
             const nestedArray = [
                 'q',
@@ -374,13 +443,16 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'empty array',
+        // prettier-ignore
         code: `
             const myVar1: string[] = [];
         `,
     },
     {
         name: 'single element array on one line',
+        // prettier-ignore
         code: `let anotherThing: string[] = ['1 1'];`,
+        // prettier-ignore
         expected: `
             let anotherThing: string[] = [
                 '1 1',
@@ -389,9 +461,11 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'single element array on multiple lines',
+        // prettier-ignore
         code: `
             let anotherThing: string[] = ['1 1'
             ];`,
+        // prettier-ignore
         expected: `
             let anotherThing: string[] = [
                 '1 1',
@@ -400,6 +474,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'multiple different styled arrays all together',
+        // prettier-ignore
         code: `
             const myVar2: string[] = [];
             let anotherThing: string[] = ['1 1'];
@@ -409,6 +484,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 '2, 1',
                 '2, 2',
             ];`,
+        // prettier-ignore
         expected: `
             const myVar2: string[] = [];
             let anotherThing: string[] = [
@@ -425,7 +501,9 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'single element string array with type definition',
+        // prettier-ignore
         code: `const myVar: string[] = ['hello'];`,
+        // prettier-ignore
         expected: `
             const myVar: string[] = [
                 'hello',
@@ -434,7 +512,9 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'double element string array with type definition',
+        // prettier-ignore
         code: `const myVar: string[] = ['hello', 'there'];`,
+        // prettier-ignore
         expected: `
             const myVar: string[] = [
                 'hello',
@@ -444,21 +524,25 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'non-array string assignment',
+        // prettier-ignore
         code: `
             const myVar:string=
             'hello';`,
+        // prettier-ignore
         expected: `
             const myVar: string = 'hello';
         `,
     },
     {
         name: 'non-array single line object assignment',
+        // prettier-ignore
         code: `
             const myVar: object = {a: 'here', b: 'there'};
         `,
     },
     {
         name: 'non-array multi-line object assignment',
+        // prettier-ignore
         code: `
             const myVar: object = {
                 a: 'here',
@@ -469,6 +553,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     // the following test caught that path.getValue() can return undefined.
     {
         name: 'array with an earlier function definition',
+        // prettier-ignore
         code: `
             function doStuff() {}
 
@@ -477,6 +562,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
 
 
         `,
+        // prettier-ignore
         expected: `
             function doStuff() {}
 
@@ -488,9 +574,11 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'array with function definition inside of it',
+        // prettier-ignore
         code: `
             const what = ['a', function doStuff() {}];
         `,
+        // prettier-ignore
         expected: `
             const what = [
                 'a',
@@ -500,6 +588,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'original parser with single line object assignment',
+        // prettier-ignore
         code: `
             const myVar: object = {a: 'where', b: 'everywhere'};
         `,
@@ -507,6 +596,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
     },
     {
         name: 'original parser with multi-line object assignment',
+        // prettier-ignore
         code: `
             const myVar: object = {
                 a: 'where',
@@ -526,13 +616,23 @@ function removeIndent(input: string): string {
         .replace(/\n\s+$/, '\n');
 }
 
+let allPassed = true;
+
 describe('plugin formatting', () => {
     tests.forEach((test) => {
         const testCallback = () => {
-            const inputCode = removeIndent(test.code);
-            const expected = removeIndent(test.expected ?? test.code);
-            const formatted = format(inputCode, test.parser);
-            expect(formatted).toBe(expected);
+            try {
+                const inputCode = removeIndent(test.code);
+                const expected = removeIndent(test.expected ?? test.code);
+                const formatted = format(inputCode, test.parser);
+                expect(formatted).toBe(expected);
+                if (formatted !== expected) {
+                    allPassed = false;
+                }
+            } catch (error) {
+                allPassed = false;
+                throw error;
+            }
         };
 
         if (test.force) {
@@ -542,12 +642,12 @@ describe('plugin formatting', () => {
             it(test.name, testCallback);
         }
     });
-});
 
-describe('forced tests', () => {
-    const testCallback = forced ? fit : it;
-
-    testCallback('should not remain in the code', () => {
-        expect(forced).toBe(false);
-    });
+    if (forced) {
+        fit('forced tests should not remain in the code', () => {
+            if (allPassed) {
+                expect(forced).toBe(false);
+            }
+        });
+    }
 });

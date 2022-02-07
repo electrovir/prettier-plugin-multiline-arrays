@@ -13,13 +13,17 @@ export function hasChildDocs(
     return extractChildDocs(input) !== undefined;
 }
 
-export function extractChildDocs(input: Doc): Doc[] | undefined {
+function extractChildDocs(input: Doc): Doc[] | undefined {
     if (typeof input === 'string') {
         return undefined;
     } else if (Array.isArray(input)) {
         return input;
     } else if ('contents' in input) {
-        return Array.isArray(input.contents) ? input.contents : [input.contents];
+        return Array.isArray(input.contents)
+            ? input.contents
+            : [
+                  input.contents,
+              ];
     } else if ('parts' in input) {
         return input.parts;
     } else {
@@ -27,32 +31,85 @@ export function extractChildDocs(input: Doc): Doc[] | undefined {
     }
 }
 
+type Parents = {parent: Doc; childIndexInThisParent: number | undefined};
+
 export function walkDoc(
     startDoc: Doc,
-    /** Return something truthy to prevent walking of child docs */
+    /** Return something falsy to prevent walking of child docs */
+    debug: boolean,
     callback: (
         currentDoc: Doc,
-        parent: Doc | undefined,
+        parents: Parents[],
         index: number | undefined,
     ) => boolean | void | undefined,
-    parent: Doc | undefined = undefined,
+    parents: Parents[] = [],
     index: number | undefined = undefined,
-): void {
-    if (callback(startDoc, parent, index)) {
-        return;
+): boolean {
+    if (debug) {
+        const parent = parents[0];
+        console.info({
+            firingCallbackFor: startDoc,
+            status: 'Calling callback',
+            parent: parent
+                ? {
+                      isArray: Array.isArray(parent),
+                      type: (parent as any)?.type ?? typeof parent,
+                  }
+                : undefined,
+            index,
+        });
+    }
+    if (!callback(startDoc, parents, index)) {
+        // if the callback returns something falsy, don't try to walk its children
+        return false;
     }
     if (typeof startDoc === 'string') {
-        return;
+        return true;
     } else if (Array.isArray(startDoc)) {
-        startDoc.forEach((innerDoc, index) => walkDoc(innerDoc, callback, startDoc, index));
-        return;
+        if (debug) {
+            console.info('walking array children');
+        }
+        // one a child returns false, abort walking this array
+        startDoc.every((innerDoc, index): boolean => {
+            return walkDoc(
+                innerDoc,
+                debug,
+                callback,
+                [
+                    {parent: startDoc, childIndexInThisParent: index},
+                    ...parents,
+                ],
+                index,
+            );
+        });
     } else if ('contents' in startDoc) {
-        walkDoc(startDoc.contents, callback, startDoc, undefined);
-        return;
+        if (debug) {
+            console.info('walking contents property');
+        }
+        return walkDoc(
+            startDoc.contents,
+            debug,
+            callback,
+            [
+                {parent: startDoc, childIndexInThisParent: undefined},
+                ...parents,
+            ],
+            undefined,
+        );
     } else if ('parts' in startDoc) {
-        walkDoc(startDoc.parts, callback, startDoc, undefined);
-        return;
-    } else {
-        return;
+        if (debug) {
+            console.info('walking parts property');
+        }
+        return walkDoc(
+            startDoc.parts,
+            debug,
+            callback,
+            [
+                {parent: startDoc, childIndexInThisParent: undefined},
+                ...parents,
+            ],
+            undefined,
+        );
     }
+    return true;
 }

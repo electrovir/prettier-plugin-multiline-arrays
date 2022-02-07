@@ -7,7 +7,9 @@ const multilineArraysPlugin: Plugin = {
     languages: [
         {
             name: 'typescript',
-            parsers: [parserName],
+            parsers: [
+                parserName,
+            ],
         },
     ],
     parsers: {

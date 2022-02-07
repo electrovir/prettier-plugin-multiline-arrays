@@ -39,7 +39,11 @@ export function getAndSetJsPlugin(options: ParserOptions<any>) {
 }
 
 function findOptionsArgument(input: any[]): ParserOptions<any> | undefined {
-    const props: (keyof RequiredOptions)[] = ['semi', 'singleQuote', 'tabWidth'];
+    const props: (keyof RequiredOptions)[] = [
+        'semi',
+        'singleQuote',
+        'tabWidth',
+    ];
     return input.find((entry) => {
         return props.every((prop) => entry.hasOwnProperty(prop));
     });
