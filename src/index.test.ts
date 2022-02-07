@@ -42,6 +42,54 @@ const tests: {name: string; code: string; expected?: string; force?: true}[] = [
         `,
     },
     {
+        name: 'single line comment with just one line count',
+        // prettier-ignore
+        code: `
+            // prettier-elements-per-line: 2
+            const originalArray: Readonly<number[]> = [
+                0,
+                1,
+                2,
+                3,
+                4,
+            ] as const;
+        `,
+        expected: `
+            // prettier-elements-per-line: 2
+            const originalArray: Readonly<number[]> = [
+                0, 1,
+                2, 3,
+                4,
+            ] as const;
+        `,
+    },
+    {
+        name: 'single line comment with just one line wrapped',
+        // prettier-ignore
+        code: `
+            describe(filterMap.name, () => {
+                // prettier-elements-per-line: 2
+                const originalArray: Readonly<number[]> = [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                ] as const;
+            });
+        `,
+        expected: `
+            describe(filterMap.name, () => {
+                // prettier-elements-per-line: 2
+                const originalArray: Readonly<number[]> = [
+                    0, 1,
+                    2, 3,
+                    4,
+                ] as const;
+            });
+        `,
+    },
+    {
         // caused a max call stack exceeded error once
         name: 'single object element with multiline template',
         // prettier-ignore

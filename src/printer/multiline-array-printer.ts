@@ -14,18 +14,6 @@ function wrapInJsPrinterCall<T extends string = string>(property: keyof Printer,
         if (property === 'print') {
             const path = args[0] as AstPath;
             const options = args[1] as ParserOptions;
-            if (debug) {
-                options.plugins
-                    .filter((plugin) => (plugin as {name: string}).name)
-                    .forEach((plugin) => {
-                        console.info(plugin);
-                    });
-                console.info(
-                    'options here >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
-                    options,
-                    'options here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
-                );
-            }
             const originalOutput = originalPrinter.print.call(
                 jsPrinter,
                 path,

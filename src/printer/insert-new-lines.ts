@@ -230,23 +230,53 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
     return inputDoc;
 }
 
-function hasComments(input: any): input is {comments: Comment[]} {
-    return !!input.comments;
+const ignoreTheseKeys = [
+    'tokens',
+];
+const ignoreTheseChildTypes = [
+    'string',
+    'number',
+];
+
+function isMaybeComment(input: any): input is Comment {
+    if (!input || typeof input !== 'object') {
+        return false;
+    }
+    if (!('type' in input)) {
+        return false;
+    }
+    if (input.type.toLowerCase() !== 'block' && input.type.toLowerCase() !== 'line') {
+        return false;
+    }
+    if (!('value' in input)) {
+        return false;
+    }
+
+    return true;
 }
 
-function extractComments(programNode: Program): Comment[] {
-    const comments: Comment[] = programNode.comments ?? [];
+function extractComments(node: any): Comment[] {
+    debugger;
+    if (!node || typeof node !== 'object') {
+        return [];
+    }
+    let comments: Comment[] = [];
+
+    if (Array.isArray(node)) {
+        comments.push(...node.filter(isMaybeComment));
+    }
+
+    Object.keys(node).forEach((nodeKey) => {
+        if (!ignoreTheseKeys.includes(nodeKey)) {
+            const nodeChild = node[nodeKey];
+            if (!ignoreTheseChildTypes.includes(typeof nodeChild)) {
+                comments.push(...extractComments(nodeChild));
+            }
+        }
+    });
+
     // this might duplicate comments but our later code doesn't care
-    return comments.concat(
-        programNode.body
-            .reduce((accum, entry) => {
-                if (hasComments(entry)) {
-                    accum.push(...entry.comments);
-                }
-                return accum;
-            }, [] as Comment[])
-            .flat(),
-    );
+    return comments;
 }
 
 const mappedComments = new WeakMap<Node, Record<number, number[]>>();
@@ -255,9 +285,12 @@ function isProgramNode(input: any): input is Program {
     return input.type === 'Program';
 }
 
-function setLineCounts(programNode: Program): Record<number, number[]> {
+function setLineCounts(programNode: Program, debug: boolean): Record<number, number[]> {
     // parse comments only on the program node so it only happens once
     const comments: Comment[] = extractComments(programNode);
+    if (debug) {
+        console.info({comments});
+    }
     const keyedCommentsByLastLine: Record<number, number[]> = comments.reduce(
         (accum, currentComment) => {
             const commentText = currentComment.value?.replace(/\n/g, ' ');
@@ -310,11 +343,13 @@ export function printWithMultilineArrays(
             }
 
             const lastLine = node.loc.start.line - 1;
-            const lineCountMap = mappedComments.get(programNode) ?? setLineCounts(programNode);
+            const lineCountMap =
+                mappedComments.get(programNode) ?? setLineCounts(programNode, debug);
             const lineCounts = lineCountMap[lastLine] ?? [];
 
             if (debug) {
                 console.info(`======= Starting call to ${insertArrayLines.name}: =======`);
+                console.info({lineCounts});
             }
             const newDoc = insertArrayLines(originalFormattedOutput, lineCounts, debug);
             return newDoc;
