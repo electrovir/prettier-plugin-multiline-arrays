@@ -8,7 +8,9 @@ const multilineArraysPlugin: Plugin = {
     languages: [
         {
             name: 'typescript',
-            parsers: [parserName],
+            parsers: [
+                parserName,
+            ],
         },
     ],
     parsers: {
@@ -57,7 +59,15 @@ function addMultilinePrinter(options: ParserOptions): void {
 }
 
 const languages = getSupportInfo().languages.filter(({name}) =>
-    ['JavaScript', 'Flow', 'JSX', 'TSX', 'TypeScript', 'Markdown', 'MDX'].includes(name),
+    [
+        'JavaScript',
+        'Flow',
+        'JSX',
+        'TSX',
+        'TypeScript',
+        'Markdown',
+        'MDX',
+    ].includes(name),
 );
 
 function findPluginsByParserName(parserName: string, options: ParserOptions): Plugin[] {

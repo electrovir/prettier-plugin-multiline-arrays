@@ -8,7 +8,10 @@ function format(code: string): string {
         ...repoConfig,
         // parser,
         filepath: 'blah.ts',
-        plugins: ['.', ...(repoConfig.plugins ?? [])],
+        plugins: [
+            '.',
+            ...(repoConfig.plugins ?? []),
+        ],
     });
 }
 

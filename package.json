@@ -3,11 +3,12 @@
     "version": "0.0.0",
     "description": "Prettier plugin to force all arrays to be multiline.",
     "keywords": [
-        "prettier",
-        "plugin",
         "array",
         "format",
-        "multiline"
+        "multiline",
+        "plugin",
+        "prettier",
+        "printer"
     ],
     "homepage": "https://github.com/electrovir/prettier-plugin-multiline-arrays#readme",
     "bugs": {
@@ -29,7 +30,7 @@
         "prepublishOnly": "npm run test:full",
         "spellcheck": "virmator spellcheck",
         "test": "rm -rf dist && tsc && jest --config ./src/jest/jest.config.ts",
-        "test:full": "npm test && npm run spellcheck && virmator format check --no-write-config && virmator code-in-markdown --check",
+        "test:full": "npm test && npm run spellcheck && virmator format check --no-write-config && virmator code-in-markdown --check README.md",
         "watch": "nodemon -e ts --watch src -x \"npm test\""
     },
     "dependencies": {
@@ -40,7 +41,7 @@
         "@types/jest": "^27.4.0",
         "@types/prettier": "^2.4.3",
         "cross-env": "^7.0.3",
-        "jest": "^27.4.7",
+        "jest": "^27.5.0",
         "nodemon": "^2.0.15",
         "ts-jest": "^27.1.3",
         "ts-node": "^10.4.0",

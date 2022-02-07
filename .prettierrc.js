@@ -16,24 +16,13 @@ const plugins = [
 });
 
 module.exports = {
-    // overrides: [
-    //     {
-    //         files: [
-    //             '*.ts',
-    //             '*.js',
-    //         ],
-    //         options: {
-    //             parser: 'multiline-arrays',
-    //         },
-    //     },
-    // ],
     arrowParens: 'always',
     bracketSpacing: false,
     endOfLine: 'lf',
     htmlWhitespaceSensitivity: 'ignore',
     jsonRecursiveSort: true,
     bracketSameLine: false,
-    plugins: plugins,
+    plugins: ['./dist', ...plugins],
     printWidth: 100,
     singleQuote: true,
     tabWidth: 4,
