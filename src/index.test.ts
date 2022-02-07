@@ -1,24 +1,9 @@
-import {BuiltInParserName, format as prettierFormat, LiteralUnion} from 'prettier';
-import {elementsPerLineTrigger, parserName} from './metadata/package-phrases';
+import {format as prettierFormat} from 'prettier';
+import {capitalizeFirst} from './augments/string';
+import {elementsPerLineTrigger} from './metadata/package-phrases';
 import {repoConfig} from './metadata/prettier-config-for-tests';
 
-// const plugins = repoConfig.plugins?.map((entry) => {
-//     if (entry === './dist') {
-//         return '';
-//     } else if (typeof entry === 'string') {
-//         return entry;
-//         // return entry.replace('./node_modules', join(process.cwd(), 'node_modules'));
-//     } else {
-//         return entry;
-//     }
-// }) || ['.'];
-
-console.log({plugins: repoConfig.plugins});
-
-function format(
-    code: string,
-    parser: LiteralUnion<BuiltInParserName, string> = parserName,
-): string {
+function format(code: string): string {
     return prettierFormat(code, {
         ...repoConfig,
         // parser,
@@ -27,7 +12,7 @@ function format(
     });
 }
 
-const tests: {name: string; code: string; expected?: string; parser?: string; force?: true}[] = [
+const tests: {name: string; code: string; expected?: string; force?: true}[] = [
     {
         name: 'comment at end of argument list with multiline array parser',
         // prettier-ignore
@@ -84,22 +69,6 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         `,
     },
     {
-        name: 'comment at end of argument list with normal parser',
-        // prettier-ignore
-        code: `
-            export function hasProperty<ObjectGeneric extends object, KeyGeneric extends PropertyKey>(
-                inputObject: ObjectGeneric,
-                inputKey: KeyGeneric,
-                // @ts-ignore this type signature is actually exactly what I want
-            ): inputObject is ObjectGeneric extends Record<KeyGeneric, any>
-                ? Extract<ObjectGeneric, {[SubProperty in KeyGeneric]: unknown}>
-                : Record<KeyGeneric, unknown> {
-                return inputKey in inputObject;
-            }
-        `,
-        parser: 'typescript',
-    },
-    {
         name: 'long function definition with multiline array parser',
         // prettier-ignore
         code: `
@@ -113,20 +82,6 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         `,
     },
     {
-        name: 'long function definition with normal parser',
-        // prettier-ignore
-        code: `
-            export async function selectFiles(
-                inputProperties: OpenDialogProperty[] = [
-                    OpenDialogProperty.multiSelections,
-                    OpenDialogProperty.openFile,
-                    OpenDialogProperty.openDirectory,
-                ],
-            ): Promise<undefined | string[]> {}
-        `,
-        parser: 'typescript',
-    },
-    {
         name: 'comment after end of block with multiline array parser',
         // prettier-ignore
         code: `
@@ -136,19 +91,6 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             else {
             }
         `,
-    },
-    {
-        name: 'should still sort imports with normal parser',
-        // prettier-ignore
-        code: `
-            import {notUsed} from 'blah';
-            const thingie = ['a', 'b'];
-        `,
-        expected: `
-            const thingie = ['a', 'b'];
-        `,
-        parser: 'typescript',
-        force: true,
     },
     {
         name: 'should still sort imports with multiline parser',
@@ -166,19 +108,6 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 'b',
             ];
         `,
-        force: true,
-    },
-    {
-        name: 'comment after end of block with normal parser',
-        // prettier-ignore
-        code: `
-            if (thing) {
-            }
-            // otherwise we are editing currently existing songs
-            else {
-            }
-        `,
-        parser: 'typescript',
     },
     {
         name: 'deep array call should include trailing comma still',
@@ -218,30 +147,6 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 },
             });
         `,
-    },
-    {
-        name: 'not arrays but callbacks with normal parser',
-        // prettier-ignore
-        code: `
-            expose({
-                versions: process.versions,
-                apiRequest: async (
-                    details: ApiRequestDetails<ApiRequestType>,
-                ): Promise<ApiFullResponse<ApiRequestType>> => {
-                    async function waitForResponse(): Promise<ApiFullResponse<ApiRequestType>> {
-                        return new Promise((resolve) => {
-                            ipcRenderer.once(
-                                getApiResponseEventName(details.type, requestId),
-                                (event, data) => {
-                                    resolve(data);
-                                },
-                            );
-                        });
-                    }
-                },
-            });
-        `,
-        parser: 'typescript',
     },
     {
         name: 'function parameters',
@@ -336,8 +241,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 ['s', 't'],
             ];
             /**
-             * ${elementsPerLineTrigger} 2 1
-             * 3
+             * ${capitalizeFirst(elementsPerLineTrigger)} 2 1 3
              */
             const setNumberPerLine = [
                 'a', 'b',
@@ -365,10 +269,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                     't',
                 ],
             ];
-            /**
-             * ${elementsPerLineTrigger} 2 1
-             * 3
-             */
+            /** ${capitalizeFirst(elementsPerLineTrigger)} 2 1 3 */
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -395,7 +296,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         ];`,
         // prettier-ignore
         expected: `
-            // ${elementsPerLineTrigger} 2 1 3
+            // ${(elementsPerLineTrigger)} 2 1 3
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -441,7 +342,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         // prettier-ignore
         code: `
             /**
-            * ${elementsPerLineTrigger} 2 1
+            * ${capitalizeFirst(elementsPerLineTrigger)} 2 1
             * 3
             */
             const setNumberPerLine = [
@@ -452,10 +353,7 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             ];`,
         // prettier-ignore
         expected: `
-            /**
-             * ${elementsPerLineTrigger} 2 1
-             * 3
-             */
+            /** ${capitalizeFirst(elementsPerLineTrigger)} 2 1 3 */
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -634,7 +532,6 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
         code: `
             const myVar: object = {a: 'where', b: 'everywhere'};
         `,
-        parser: 'typescript',
     },
     {
         name: 'original parser with multi-line object assignment',
@@ -645,7 +542,6 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
                 b: 'everywhere',
             };
         `,
-        parser: 'typescript',
     },
 ];
 
@@ -666,7 +562,7 @@ describe('plugin formatting', () => {
             try {
                 const inputCode = removeIndent(test.code);
                 const expected = removeIndent(test.expected ?? test.code);
-                const formatted = format(inputCode, test.parser);
+                const formatted = format(inputCode);
                 expect(formatted).toBe(expected);
                 if (formatted !== expected) {
                     allPassed = false;

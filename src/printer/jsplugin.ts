@@ -38,29 +38,39 @@ export function getAndSetJsPlugin(options: ParserOptions<any>) {
     return jsPlugin;
 }
 
+let originalPrinter: Printer | undefined;
+
+export function setOriginalPrinter(input: Printer) {
+    originalPrinter = input;
+}
+
+export function getOriginalPrinter(): Printer {
+    if (!originalPrinter) {
+        throw new Error(`originalPrinter hasn't been defined yet!`);
+    }
+    return originalPrinter;
+}
+
 function findOptionsArgument(input: any[]): ParserOptions<any> | undefined {
-    const props: (keyof RequiredOptions)[] = [
-        'semi',
-        'singleQuote',
-        'tabWidth',
-    ];
+    const props: (keyof RequiredOptions)[] = ['semi', 'singleQuote', 'tabWidth'];
     return input.find((entry) => {
         return props.every((prop) => entry.hasOwnProperty(prop));
     });
 }
 
 export function getJsPrinter(args: any[]): Printer<any> {
-    if (!jsPlugin) {
-        const options = findOptionsArgument(args);
-        if (options) {
-            getAndSetJsPlugin(options);
-        } else {
-            throw new Error(`Could not find options argument.`);
-        }
-    }
-    if (jsPlugin) {
-        return jsPlugin.printers.estree;
-    } else {
-        throw new Error('could not find js plugin for making a printer call');
-    }
+    return getOriginalPrinter();
+    // if (!jsPlugin) {
+    //     const options = findOptionsArgument(args);
+    //     if (options) {
+    //         getAndSetJsPlugin(options);
+    //     } else {
+    //         throw new Error(`Could not find options argument.`);
+    //     }
+    // }
+    // if (jsPlugin) {
+    //     return jsPlugin.printers.estree;
+    // } else {
+    //     throw new Error('could not find js plugin for making a printer call');
+    // }
 }

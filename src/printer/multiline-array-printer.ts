@@ -1,7 +1,7 @@
 import {Node} from 'estree';
-import {Printer, ParserOptions, AstPath} from 'prettier';
+import {AstPath, ParserOptions, Printer} from 'prettier';
 import {printWithMultilineArrays} from './insert-new-lines';
-import {getJsPrinter, getAndSetJsPlugin} from './jsplugin';
+import {getOriginalPrinter} from './jsplugin';
 
 const debug = !!process.env.NEW_LINE_DEBUG;
 
@@ -9,18 +9,12 @@ let jsPrinter: undefined | Printer;
 
 function wrapInJsPrinterCall<T extends string = string>(property: keyof Printer, subProperty?: T) {
     return (...args: any[]) => {
-        if (!jsPrinter) {
-            jsPrinter = getJsPrinter(args);
-        }
-        if (!jsPrinter && debug) {
-            throw new Error(`Could not find jsPrinter!`);
-        }
+        const originalPrinter = getOriginalPrinter();
+
         if (property === 'print') {
             const path = args[0] as AstPath;
             const options = args[1] as ParserOptions;
-            const jsPlugin = getAndSetJsPlugin(options);
             if (debug) {
-                console.info({printers: jsPlugin.printers});
                 options.plugins
                     .filter((plugin) => (plugin as {name: string}).name)
                     .forEach((plugin) => {
@@ -32,7 +26,7 @@ function wrapInJsPrinterCall<T extends string = string>(property: keyof Printer,
                     'options here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
                 );
             }
-            const originalOutput = jsPrinter.print.call(
+            const originalOutput = originalPrinter.print.call(
                 jsPrinter,
                 path,
                 {
@@ -42,11 +36,11 @@ function wrapInJsPrinterCall<T extends string = string>(property: keyof Printer,
                 } as any,
                 ...(args.slice(2) as [any]),
             );
-            return originalOutput;
-            // return printWithMultilineArrays(originalOutput, args[0], debug);
+            // return originalOutput;
+            return printWithMultilineArrays(originalOutput, args[0], debug);
         } else {
             let thisParent: any = jsPrinter;
-            let printerProp = jsPrinter[property];
+            let printerProp = originalPrinter[property];
             if (subProperty) {
                 thisParent = printerProp;
                 printerProp = (printerProp as any)[subProperty];

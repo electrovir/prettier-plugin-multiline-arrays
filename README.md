@@ -6,25 +6,7 @@ Only supports JavaScript and TypeScript.
 
 # Usage
 
-**For this plugin to work you _must_ override the Prettier parser to `multiline-arrays` for `.ts` and `.js` files (or other JavaScript / TypeScript file extensions you're using).** This is a due to the limited nature of Prettier's plugin system.
-
-Add this to your prettierrc file:
-
-```
-overrides: [
-        {
-            files: [
-                '*.ts',
-                '*.js',
-            ],
-            options: {
-                parser: 'multiline-arrays',
-            },
-        },
-    ],
-```
-
-So, as an example, your prettierrc file might look like this:
+This plugin must be listed last in the list of prettier plugins in your config.
 
 <!-- example-link: src/readme-examples/prettier-options.ts -->
 
@@ -32,16 +14,10 @@ So, as an example, your prettierrc file might look like this:
 import {Config} from 'prettier';
 
 const prettierConfig: Config = {
-    overrides: [
-        {
-            files: [
-                '*.ts',
-                '*.js',
-            ],
-            options: {
-                parser: 'multiline-arrays',
-            },
-        },
+    plugins: [
+        'prettier-plugin-organize-imports',
+        'prettier-plugin-sort-json',
+        'prettier-plugin-multiline-arrays',
     ],
     printWidth: 100,
     singleQuote: true,

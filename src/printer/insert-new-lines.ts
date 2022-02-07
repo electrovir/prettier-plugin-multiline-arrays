@@ -2,7 +2,7 @@ import {Program} from 'esprima';
 import {Comment, Node} from 'estree';
 import {AstPath, Doc, doc} from 'prettier';
 import {elementsPerLineTrigger, untilLineTriggerRegExp} from '../metadata/package-phrases';
-import {hasChildDocs, walkDoc} from './child-docs';
+import {walkDoc} from './child-docs';
 
 const nestingSyntaxOpen = '[{(<' as const;
 const nestingSyntaxClose = ']})>' as const;
@@ -180,9 +180,9 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                                 lineIndex++;
                                 columnCount = 1;
                                 /**
-                                 * Don't use doc.builders.hardline here. It causes "invalid size error"
-                                 * which I don't understand and which has no other useful information or
-                                 * stack trace.
+                                 * Don't use doc.builders.hardline here. It causes "invalid size
+                                 * error" which I don't understand and which has no other useful
+                                 * information or stack trace.
                                  */
                                 if (debug) {
                                     console.info({breakingAfter: parentToMutate[siblingIndex - 1]});
@@ -261,8 +261,9 @@ function setLineCounts(programNode: Program): Record<number, number[]> {
     const keyedCommentsByLastLine: Record<number, number[]> = comments.reduce(
         (accum, currentComment) => {
             const commentText = currentComment.value?.replace(/\n/g, ' ');
-            if (commentText?.includes(elementsPerLineTrigger)) {
+            if (commentText?.toLowerCase().includes(elementsPerLineTrigger)) {
                 const split = commentText
+                    .toLowerCase()
                     .replace(untilLineTriggerRegExp, '')
                     .replace(/,/g, '')
                     .split(' ');

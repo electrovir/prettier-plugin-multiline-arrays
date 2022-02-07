@@ -1,16 +1,10 @@
 import {Config} from 'prettier';
 
 const prettierConfig: Config = {
-    overrides: [
-        {
-            files: [
-                '*.ts',
-                '*.js',
-            ],
-            options: {
-                parser: 'multiline-arrays',
-            },
-        },
+    plugins: [
+        'prettier-plugin-organize-imports',
+        'prettier-plugin-sort-json',
+        'prettier-plugin-multiline-arrays',
     ],
     printWidth: 100,
     singleQuote: true,
