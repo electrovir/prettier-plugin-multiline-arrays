@@ -1,7 +1,7 @@
 import {Node} from 'estree';
-import {Printer} from 'prettier';
+import {Printer, ParserOptions, AstPath} from 'prettier';
 import {printWithMultilineArrays} from './insert-new-lines';
-import {getJsPrinter} from './jsplugin';
+import {getJsPrinter, getAndSetJsPlugin} from './jsplugin';
 
 const debug = !!process.env.NEW_LINE_DEBUG;
 
@@ -16,8 +16,34 @@ function wrapInJsPrinterCall<T extends string = string>(property: keyof Printer,
             throw new Error(`Could not find jsPrinter!`);
         }
         if (property === 'print') {
-            const originalOutput = jsPrinter.print.call(jsPrinter, ...(args as [any, any, any]));
-            return printWithMultilineArrays(originalOutput, args[0], debug);
+            const path = args[0] as AstPath;
+            const options = args[1] as ParserOptions;
+            const jsPlugin = getAndSetJsPlugin(options);
+            if (debug) {
+                console.info({printers: jsPlugin.printers});
+                options.plugins
+                    .filter((plugin) => (plugin as {name: string}).name)
+                    .forEach((plugin) => {
+                        console.info(plugin);
+                    });
+                console.info(
+                    'options here >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>',
+                    options,
+                    'options here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+                );
+            }
+            const originalOutput = jsPrinter.print.call(
+                jsPrinter,
+                path,
+                {
+                    ...options,
+                    parser: 'typescript',
+                    astFormat: 'estree',
+                } as any,
+                ...(args.slice(2) as [any]),
+            );
+            return originalOutput;
+            // return printWithMultilineArrays(originalOutput, args[0], debug);
         } else {
             let thisParent: any = jsPrinter;
             let printerProp = jsPrinter[property];

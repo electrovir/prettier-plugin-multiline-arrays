@@ -2,17 +2,28 @@ import {BuiltInParserName, format as prettierFormat, LiteralUnion} from 'prettie
 import {elementsPerLineTrigger, parserName} from './metadata/package-phrases';
 import {repoConfig} from './metadata/prettier-config-for-tests';
 
+// const plugins = repoConfig.plugins?.map((entry) => {
+//     if (entry === './dist') {
+//         return '';
+//     } else if (typeof entry === 'string') {
+//         return entry;
+//         // return entry.replace('./node_modules', join(process.cwd(), 'node_modules'));
+//     } else {
+//         return entry;
+//     }
+// }) || ['.'];
+
+console.log({plugins: repoConfig.plugins});
+
 function format(
     code: string,
     parser: LiteralUnion<BuiltInParserName, string> = parserName,
 ): string {
     return prettierFormat(code, {
         ...repoConfig,
-        parser,
+        // parser,
         filepath: 'blah.ts',
-        plugins: [
-            '.',
-        ],
+        plugins: ['.', ...(repoConfig.plugins ?? [])],
     });
 }
 
@@ -125,6 +136,37 @@ const tests: {name: string; code: string; expected?: string; parser?: string; fo
             else {
             }
         `,
+    },
+    {
+        name: 'should still sort imports with normal parser',
+        // prettier-ignore
+        code: `
+            import {notUsed} from 'blah';
+            const thingie = ['a', 'b'];
+        `,
+        expected: `
+            const thingie = ['a', 'b'];
+        `,
+        parser: 'typescript',
+        force: true,
+    },
+    {
+        name: 'should still sort imports with multiline parser',
+        // prettier-ignore
+        code: `
+            import {notUsed} from 'blah';
+            const thingie = [
+                'a',
+                'b',
+            ];
+        `,
+        expected: `
+            const thingie = [
+                'a',
+                'b',
+            ];
+        `,
+        force: true,
     },
     {
         name: 'comment after end of block with normal parser',
