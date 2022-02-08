@@ -29,16 +29,7 @@ module.exports = prettierConfig;
 
 ## Controlling elements per line
 
-Add a comment with `prettier-elements-per-line:` followed by a pattern of numbers to control how many elements will appear on each line. The default is just `1`. Any given pattern will repeat endlessly. See the example below.
-
-## Compatibility
-
-Tested to be compatible with the following plugins. This is likely compatible with all others as well.
-
--   `prettier-plugin-sort-json`
--   `prettier-plugin-packagejson`
--   `prettier-plugin-organize-imports`
--   `prettier-plugin-jsdoc`
+Add a comment with `prettier-elements-per-line:` followed by a pattern of numbers to control how many elements will appear on each line: `// prettier-elements-per-line: 2 1 3`. The default is just `1`. Any given pattern will repeat endlessly. See the example section below.
 
 ## Example
 
@@ -73,3 +64,12 @@ export const myCustomArray = [
     'd', 'e',
 ];
 ```
+
+## Compatibility
+
+Tested to be compatible with the following plugins. It is likely compatible with most/all others as well.
+
+-   `prettier-plugin-sort-json`
+-   `prettier-plugin-packagejson`
+-   `prettier-plugin-organize-imports`
+-   `prettier-plugin-jsdoc`

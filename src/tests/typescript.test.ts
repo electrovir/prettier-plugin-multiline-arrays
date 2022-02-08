@@ -1,21 +1,8 @@
-import {format as prettierFormat} from 'prettier';
-import {capitalizeFirst} from './augments/string';
-import {elementsPerLineTrigger} from './metadata/package-phrases';
-import {repoConfig} from './metadata/prettier-config-for-tests';
+import {capitalizeFirst} from '../augments/string';
+import {elementsPerLineTrigger} from '../metadata/package-phrases';
+import {MultilineArrayTest, runTests} from './test-config';
 
-function format(code: string): string {
-    return prettierFormat(code, {
-        ...repoConfig,
-        // parser,
-        filepath: 'blah.ts',
-        plugins: [
-            '.',
-            ...(repoConfig.plugins ?? []),
-        ],
-    });
-}
-
-const tests: {name: string; code: string; expected?: string; force?: true}[] = [
+const typescriptTests: MultilineArrayTest[] = [
     {
         name: 'comment at end of argument list with multiline array parser',
         // prettier-ignore
@@ -596,47 +583,6 @@ const tests: {name: string; code: string; expected?: string; force?: true}[] = [
     },
 ];
 
-let forced = false;
-
-function removeIndent(input: string): string {
-    return input
-        .replace(/^\s*\n\s*/, '')
-        .replace(/\n {12}/g, '\n')
-        .replace(/\n\s+$/, '\n');
-}
-
-let allPassed = true;
-
-describe('plugin formatting', () => {
-    tests.forEach((test) => {
-        const testCallback = () => {
-            try {
-                const inputCode = removeIndent(test.code);
-                const expected = removeIndent(test.expected ?? test.code);
-                const formatted = format(inputCode);
-                expect(formatted).toBe(expected);
-                if (formatted !== expected) {
-                    allPassed = false;
-                }
-            } catch (error) {
-                allPassed = false;
-                throw error;
-            }
-        };
-
-        if (test.force) {
-            forced = true;
-            fit(test.name, testCallback);
-        } else {
-            it(test.name, testCallback);
-        }
-    });
-
-    if (forced) {
-        fit('forced tests should not remain in the code', () => {
-            if (allPassed) {
-                expect(forced).toBe(false);
-            }
-        });
-    }
+describe('typescript multiline array formatting', () => {
+    runTests('.ts', typescriptTests);
 });
