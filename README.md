@@ -1,12 +1,12 @@
 # prettier-plugin-multiline-arrays
 
-_**This is currently highly experimental and only supports TypeScript files.**_
-
 Prettier plugin to force array elements to wrap onto new lines, even when there's only one element. Supports control of how many elements appear on each line.
+
+TypeScript, JavaScript, and JSON files are supported.
 
 # Usage
 
-Add this config to your prettierrc file. Based on testing, the order of your plugins array doesn't matter. Example:
+Add this config to your prettierrc file. The order of your plugins array is very important, so if it doesn't work initial try rearranging them. For example, here is the plugin ordering for this package's Prettier config:
 
 <!-- example-link: src/readme-examples/prettier-options.ts -->
 
@@ -15,9 +15,11 @@ import {Config} from 'prettier';
 
 const prettierConfig: Config = {
     plugins: [
-        'prettier-plugin-organize-imports',
-        'prettier-plugin-multiline-arrays', // plugin added here
         'prettier-plugin-sort-json',
+        'prettier-plugin-packagejson',
+        'prettier-plugin-multiline-arrays', // plugin added here
+        'prettier-plugin-organize-imports',
+        'prettier-plugin-jsdoc',
     ],
     printWidth: 100,
     singleQuote: true,

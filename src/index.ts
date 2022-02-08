@@ -1,28 +1,8 @@
 import {getSupportInfo, Parser, ParserOptions, Plugin, Printer} from 'prettier';
+import {parsers as babelParsers} from 'prettier/parser-babel';
 import {parsers as tsParsers} from 'prettier/parser-typescript';
-import {astFormatName, parserName} from './metadata/package-phrases';
-import {setOriginalPrinter} from './printer/jsplugin';
 import {multilineArrayPrinter} from './printer/multiline-array-printer';
-
-const multilineArraysPlugin: Plugin = {
-    languages: [
-        {
-            name: 'typescript',
-            parsers: [
-                parserName,
-            ],
-        },
-    ],
-    parsers: {
-        [parserName]: {
-            ...tsParsers['typescript'],
-            astFormat: astFormatName,
-        },
-    },
-    printers: {
-        [astFormatName]: multilineArrayPrinter,
-    },
-};
+import {setOriginalPrinter} from './printer/original-printer';
 
 function addMultilinePrinter(options: ParserOptions): void {
     if ('printer' in options) {
@@ -30,16 +10,20 @@ function addMultilinePrinter(options: ParserOptions): void {
         // overwrite the printer with ours
         (options as any as {printer: Printer}).printer = multilineArrayPrinter;
     } else {
+        const astFormat = (options as any).astFormat;
+        if (!astFormat) {
+            throw new Error(`Could not find astFormat while adding printer.`);
+        }
         /** If the printer hasn't already been assigned in options, rearrange plugins so that ours gets chosen. */
         const plugins = options.plugins;
         const firstMatchedPlugin = plugins.find(
             (plugin): plugin is Plugin =>
-                typeof plugin !== 'string' && !!plugin.printers && !!plugin.printers.estree,
+                typeof plugin !== 'string' && !!plugin.printers && !!plugin.printers[astFormat],
         );
         if (!firstMatchedPlugin || typeof firstMatchedPlugin === 'string') {
             throw new Error(`Matched invalid first plugin: ${firstMatchedPlugin}`);
         }
-        const matchedPrinter = firstMatchedPlugin.printers?.estree;
+        const matchedPrinter = firstMatchedPlugin.printers?.[astFormat];
         if (!matchedPrinter) {
             throw new Error(`Printer not found on matched plugin: ${firstMatchedPlugin}`);
         }
@@ -65,8 +49,10 @@ const languages = getSupportInfo().languages.filter(({name}) =>
         'JSX',
         'TSX',
         'TypeScript',
-        'Markdown',
-        'MDX',
+        'JSON',
+        'JSON5',
+        'JSON with Comments',
+        'JSON.stringify',
     ].includes(name),
 );
 
@@ -105,11 +91,6 @@ function mergeParsers(originalParser: Parser, parserName: string) {
 
         addMultilinePrinter(options);
 
-        // Object.assign(parser, {
-        //     ...parser,
-        //     preprocess: thisPluginPreprocess,
-        // });
-
         return processedText;
     };
 
@@ -120,7 +101,6 @@ function mergeParsers(originalParser: Parser, parserName: string) {
 
     return parser;
 }
-const typescriptParser = mergeParsers(tsParsers.typescript, 'typescript');
 
 const pluginMarker = {};
 
@@ -129,10 +109,15 @@ const plugin: Plugin = {
     ...({pluginMarker: pluginMarker} as any),
     languages,
     parsers: {
-        typescript: typescriptParser,
+        typescript: mergeParsers(tsParsers.typescript, 'typescript'),
+        babel: mergeParsers(babelParsers.babel, 'babel'),
+        'babel-ts': mergeParsers(babelParsers['babel-ts'], 'babel-ts'),
+        json: mergeParsers(babelParsers.json, 'json'),
+        json5: mergeParsers(babelParsers.json5, 'json5'),
     },
     printers: {
         estree: multilineArrayPrinter,
+        'estree-json': multilineArrayPrinter,
     },
 };
 

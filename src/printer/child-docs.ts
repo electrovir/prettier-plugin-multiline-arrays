@@ -33,6 +33,10 @@ function extractChildDocs(input: Doc): Doc[] | undefined {
 
 type Parents = {parent: Doc; childIndexInThisParent: number | undefined};
 
+/**
+ * @returns Boolean true means keep walking children and siblings, false means stop walking children
+ *   and siblings. Returning false does not stop walking of aunts/uncles or ancestors.
+ */
 export function walkDoc(
     startDoc: Doc,
     /** Return something falsy to prevent walking of child docs */
@@ -45,6 +49,9 @@ export function walkDoc(
     parents: Parents[] = [],
     index: number | undefined = undefined,
 ): boolean {
+    if (!startDoc) {
+        return true;
+    }
     if (debug) {
         const parent = parents[0];
         console.info({
@@ -112,4 +119,20 @@ export function walkDoc(
         );
     }
     return true;
+}
+
+type NestedStringArray = (string | NestedStringArray)[];
+
+export function stringifyDoc(input: Doc): NestedStringArray {
+    if (typeof input === 'string') {
+        return [
+            input,
+        ];
+    } else if (Array.isArray(input)) {
+        return input.map((entry) => stringifyDoc(entry));
+    } else {
+        return [
+            input.type,
+        ];
+    }
 }

@@ -2,18 +2,16 @@ import {capitalizeFirst} from '../augments/string';
 import {elementsPerLineTrigger} from '../metadata/package-phrases';
 import {MultilineArrayTest, runTests} from './test-config';
 
-const typescriptTests: MultilineArrayTest[] = [
+const javascriptTests: MultilineArrayTest[] = [
     {
         name: 'comment at end of argument list with multiline array parser',
         // prettier-ignore
         code: `
-            export function hasProperty<ObjectGeneric extends object, KeyGeneric extends PropertyKey>(
-                inputObject: ObjectGeneric,
-                inputKey: KeyGeneric,
-                // @ts-ignore this type signature is actually exactly what I want
-            ): inputObject is ObjectGeneric extends Record<KeyGeneric, any>
-                ? Extract<ObjectGeneric, {[SubProperty in KeyGeneric]: unknown}>
-                : Record<KeyGeneric, unknown> {
+            export function hasProperty(
+                inputObject,
+                inputKey,
+                // this comment shouldn't get moved
+            ) {
                 return inputKey in inputObject;
             }
         `,
@@ -33,21 +31,21 @@ const typescriptTests: MultilineArrayTest[] = [
         // prettier-ignore
         code: `
             // prettier-elements-per-line: 2
-            const originalArray: Readonly<number[]> = [
+            const originalArray = [
                 0,
                 1,
                 2,
                 3,
                 4,
-            ] as const;
+            ];
         `,
         expected: `
             // prettier-elements-per-line: 2
-            const originalArray: Readonly<number[]> = [
+            const originalArray = [
                 0, 1,
                 2, 3,
                 4,
-            ] as const;
+            ];
         `,
     },
     {
@@ -56,23 +54,23 @@ const typescriptTests: MultilineArrayTest[] = [
         code: `
             describe(filterMap.name, () => {
                 // prettier-elements-per-line: 2
-                const originalArray: Readonly<number[]> = [
+                const originalArray = [
                     0,
                     1,
                     2,
                     3,
                     4,
-                ] as const;
+                ];
             });
         `,
         expected: `
             describe(filterMap.name, () => {
                 // prettier-elements-per-line: 2
-                const originalArray: Readonly<number[]> = [
+                const originalArray = [
                     0, 1,
                     2, 3,
                     4,
-                ] as const;
+                ];
             });
         `,
     },
@@ -90,7 +88,7 @@ const typescriptTests: MultilineArrayTest[] = [
             
                 {
                     innerStuff: \`
-                        const myVar: object = {a: 'where', b: 'everywhere'};
+                        const myVar = {a: 'where', b: 'everywhere'};
                     \`,
                 },
             ];
@@ -100,7 +98,7 @@ const typescriptTests: MultilineArrayTest[] = [
             const stuff = [
                 {
                     innerStuff: \`
-                        const myVar: object = {a: 'where', b: 'everywhere'};
+                        const myVar = {a: 'where', b: 'everywhere'};
                     \`,
                 },
             ];
@@ -111,12 +109,12 @@ const typescriptTests: MultilineArrayTest[] = [
         // prettier-ignore
         code: `
             export async function selectFiles(
-                inputProperties: OpenDialogProperty[] = [
+                inputProperties = [
                     OpenDialogProperty.multiSelections,
                     OpenDialogProperty.openFile,
                     OpenDialogProperty.openDirectory,
                 ],
-            ): Promise<undefined | string[]> {}
+            ) {}
         `,
     },
     {
@@ -168,11 +166,9 @@ const typescriptTests: MultilineArrayTest[] = [
         // prettier-ignore
         code: `
             expose({
-                versions: process.versions,
-                apiRequest: async (
-                    details: ApiRequestDetails<ApiRequestType>,
-                ): Promise<ApiFullResponse<ApiRequestType>> => {
-                    async function waitForResponse(): Promise<ApiFullResponse<ApiRequestType>> {
+                versions,
+                apiRequest: async (details) => {
+                    async function waitForResponse() {
                         return new Promise((resolve) => {
                             ipcRenderer.once(
                                 getApiResponseEventName(details.type, requestId),
@@ -583,10 +579,6 @@ const typescriptTests: MultilineArrayTest[] = [
     },
 ];
 
-describe('typescript multiline array formatting', () => {
-    runTests('.ts', typescriptTests);
-});
-
-describe('babel-ts multiline array formatting', () => {
-    runTests('.ts', typescriptTests, 'babel-ts');
+describe('javascript multiline array formatting', () => {
+    runTests('.js', javascriptTests);
 });

@@ -5,25 +5,33 @@ import * as importedRepoConfig from '../../.prettierrc.js';
 
 const repoConfig: Options = importedRepoConfig as Options;
 
-function format(code: string, extension: string): string {
+function format(code: string, extension: string, parser: string | undefined): string {
     if (extension.startsWith('.')) {
         extension = extension.slice(1);
     }
+
+    const plugins = repoConfig.plugins?.map((entry) => {
+        if (entry === './dist/') {
+            return '.';
+        } else {
+            return entry;
+        }
+    }) ?? [
+        '.',
+    ];
+
     return prettierFormat(code, {
         ...repoConfig,
-        // parser,
+        ...(parser ? {parser} : {}),
         filepath: `blah.${extension}`,
-        plugins: [
-            '.',
-            ...(repoConfig.plugins ?? []),
-        ],
+        plugins,
     });
 }
 
 export type MultilineArrayTest = {
     name: string;
     code: string;
-    expected?: string;
+    expected?: string | undefined;
     force?: true;
 };
 
@@ -38,13 +46,13 @@ function removeIndent(input: string): string {
         .replace(/\n\s+$/, '\n');
 }
 
-export function runTests(extension: string, tests: MultilineArrayTest[]) {
+export function runTests(extension: string, tests: MultilineArrayTest[], parser?: string) {
     tests.forEach((test) => {
         const testCallback = () => {
             try {
                 const inputCode = removeIndent(test.code);
                 const expected = removeIndent(test.expected ?? test.code);
-                const formatted = format(inputCode, extension);
+                const formatted = format(inputCode, extension, parser);
                 expect(formatted).toBe(expected);
                 if (formatted !== expected) {
                     allPassed = false;

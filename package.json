@@ -25,11 +25,12 @@
     },
     "main": "dist/index.js",
     "scripts": {
-        "debug": "tsc && cross-env NEW_LINE_DEBUG=true jest --config ./src/jest/jest.config.ts",
+        "debug": "tsc && cross-env NEW_LINE_DEBUG=true npm run jest",
         "format": "tsc && virmator format write --no-write-config",
+        "jest": "jest --config ./src/jest/jest.config.ts",
         "prepublishOnly": "npm run test:full",
         "spellcheck": "virmator spellcheck",
-        "test": "rm -rf dist && tsc && jest --config ./src/jest/jest.config.ts",
+        "test": "rm -rf dist && tsc && npm run jest",
         "test:full": "npm test && npm run spellcheck && virmator format check --no-write-config && virmator code-in-markdown --check README.md",
         "watch": "nodemon -e ts --watch src -x \"npm test\""
     },

@@ -1,12 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 
+// the ordering of plugins here is VERY IMPORTANT
 const plugins = [
     'prettier-plugin-sort-json',
     'prettier-plugin-packagejson',
+    './dist/',
     'prettier-plugin-organize-imports',
     'prettier-plugin-jsdoc',
 ].map((pluginName) => {
+    if (pluginName.startsWith('.')) {
+        return pluginName;
+    }
     const defaultPath = `./node_modules/${pluginName}`;
     if (fs.existsSync(path.resolve(__dirname, defaultPath))) {
         return defaultPath;
@@ -22,7 +27,7 @@ module.exports = {
     htmlWhitespaceSensitivity: 'ignore',
     jsonRecursiveSort: true,
     bracketSameLine: false,
-    plugins: ['./dist', ...plugins],
+    plugins: plugins,
     printWidth: 100,
     singleQuote: true,
     tabWidth: 4,

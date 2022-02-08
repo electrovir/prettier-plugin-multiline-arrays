@@ -1,13 +1,14 @@
 import {Node} from 'estree';
 import {AstPath, ParserOptions, Printer} from 'prettier';
 import {printWithMultilineArrays} from './insert-new-lines';
-import {getOriginalPrinter} from './jsplugin';
+import {getOriginalPrinter} from './original-printer';
 
 const debug = !!process.env.NEW_LINE_DEBUG;
 
-let jsPrinter: undefined | Printer;
-
-function wrapInJsPrinterCall<T extends string = string>(property: keyof Printer, subProperty?: T) {
+function wrapInOriginalPrinterCall<T extends string = string>(
+    property: keyof Printer,
+    subProperty?: T,
+) {
     return (...args: any[]) => {
         const originalPrinter = getOriginalPrinter();
 
@@ -15,19 +16,24 @@ function wrapInJsPrinterCall<T extends string = string>(property: keyof Printer,
             const path = args[0] as AstPath;
             const options = args[1] as ParserOptions;
             const originalOutput = originalPrinter.print.call(
-                jsPrinter,
+                originalPrinter,
                 path,
-                {
-                    ...options,
-                    parser: 'typescript',
-                    astFormat: 'estree',
-                } as any,
+                options,
                 ...(args.slice(2) as [any]),
             );
-            // return originalOutput;
+            if (
+                options.filepath.endsWith('package.json') &&
+                options.plugins.find(
+                    (plugin) =>
+                        typeof plugin === 'object' &&
+                        (plugin as {name?: string}).name?.includes('prettier-plugin-packagejson'),
+                )
+            ) {
+                return originalOutput;
+            }
             return printWithMultilineArrays(originalOutput, args[0], debug);
         } else {
-            let thisParent: any = jsPrinter;
+            let thisParent: any = originalPrinter;
             let printerProp = originalPrinter[property];
             if (subProperty) {
                 thisParent = printerProp;
@@ -54,15 +60,15 @@ const handleComments: Printer['handleComments'] = {
     // the avoidAstMutation property is not defined in the types
     // @ts-expect-error
     avoidAstMutation: true,
-    endOfLine: wrapInJsPrinterCall<keyof NonNullable<Printer['handleComments']>>(
+    endOfLine: wrapInOriginalPrinterCall<keyof NonNullable<Printer['handleComments']>>(
         'handleComments',
         'endOfLine',
     ),
-    ownLine: wrapInJsPrinterCall<keyof NonNullable<Printer['handleComments']>>(
+    ownLine: wrapInOriginalPrinterCall<keyof NonNullable<Printer['handleComments']>>(
         'handleComments',
         'ownLine',
     ),
-    remaining: wrapInJsPrinterCall<keyof NonNullable<Printer['handleComments']>>(
+    remaining: wrapInOriginalPrinterCall<keyof NonNullable<Printer['handleComments']>>(
         'handleComments',
         'remaining',
     ),
@@ -78,6 +84,6 @@ export const multilineArrayPrinter = new Proxy<Printer<Node>>({} as Printer<Node
             return handleComments;
         }
         /** We have to return a callback so that we can extract the jsPlugin from the options argument */
-        return wrapInJsPrinterCall(property);
+        return wrapInOriginalPrinterCall(property);
     },
 });

@@ -1,8 +1,7 @@
-import {Program} from 'esprima';
 import {Comment, Node} from 'estree';
 import {AstPath, Doc, doc} from 'prettier';
 import {elementsPerLineTrigger, untilLineTriggerRegExp} from '../metadata/package-phrases';
-import {walkDoc} from './child-docs';
+import {stringifyDoc, walkDoc} from './child-docs';
 
 const nestingSyntaxOpen = '[{(<' as const;
 const nestingSyntaxClose = ']})>' as const;
@@ -45,7 +44,14 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                 throw new Error(`${found} indent didn't have array contents.`);
             }
             if (indentContents.length !== 3) {
-                throw new Error(`${found} indent contents did not have 3 children.`);
+                console.error();
+                throw new Error(
+                    `${found} indent contents did not have 3 children:\n\t${stringifyDoc(
+                        indentContents,
+                    )
+                        .flat()
+                        .join(',\n\t')}`,
+                );
             }
 
             const startingLine = indentContents[0];
@@ -101,13 +107,17 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                 console.info(`>>>>>>>>>>>>>> Walking children for commas`);
             }
 
+            let finalLineBreakExists = false;
+
             walkDoc(
                 indentedContent,
                 debug,
                 (currentDoc, commaParents, commaChildIndex): boolean => {
+                    finalLineBreakExists = false;
                     const innerCurrentParent = commaParents[0];
                     const commaParentDoc = innerCurrentParent?.parent;
                     if (isDocCommand(currentDoc) && currentDoc.type === 'if-break') {
+                        finalLineBreakExists = true;
                         if (!commaParentDoc) {
                             throw new Error(`Found if-break without a parent`);
                         }
@@ -120,17 +130,44 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                         commaParentDoc[commaChildIndex] = currentDoc.breakContents;
                         commaParentDoc.splice(commaChildIndex + 1, 0, doc.builders.breakParent);
                     } else if (typeof currentDoc === 'string') {
-                        if (nestingSyntaxOpen.includes(currentDoc)) {
+                        if (!commaParentDoc) {
+                            console.error({innerParentDoc: commaParentDoc});
+                            throw new Error(`Found string but innerParentDoc is not defined.`);
+                        }
+                        if (currentDoc && nestingSyntaxOpen.includes(currentDoc)) {
+                            if (!Array.isArray(commaParentDoc)) {
+                                throw new Error(`Found opening syntax but parent is not an array.`);
+                            }
+                            const closingIndex = commaParentDoc.findIndex(
+                                (sibling) =>
+                                    typeof sibling === 'string' &&
+                                    sibling &&
+                                    nestingSyntaxClose.includes(sibling),
+                            );
+                            if (closingIndex < 0) {
+                                throw new Error(`Could not find closing match for ${currentDoc}`);
+                            }
+                            if (commaParentDoc[closingIndex] !== ']') {
+                                const closingSibling = commaParentDoc[closingIndex - 1];
+                                if (debug) {
+                                    console.info({closingIndex, closingSibling});
+                                }
+                                if (closingSibling) {
+                                    if (
+                                        typeof closingSibling === 'object' &&
+                                        !Array.isArray(closingSibling) &&
+                                        closingSibling.type === 'line'
+                                    ) {
+                                        finalLineBreakExists = true;
+                                    }
+                                }
+                            }
                             return false;
-                        } else if (nestingSyntaxClose.includes(currentDoc)) {
+                        } else if (currentDoc && nestingSyntaxClose.includes(currentDoc)) {
                             throw new Error(`Found closing syntax which shouldn't be walked`);
                         } else if (currentDoc === ',') {
                             if (debug) {
                                 console.info({foundCommaIn: commaParentDoc});
-                            }
-                            if (!commaParentDoc) {
-                                console.error({innerParentDoc: commaParentDoc});
-                                throw new Error(`Found comma but innerParentDoc is not defined.`);
                             }
                             if (!Array.isArray(commaParentDoc)) {
                                 console.error({innerParentDoc: commaParentDoc});
@@ -199,6 +236,19 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                 },
             );
 
+            if (!finalLineBreakExists) {
+                if (debug) {
+                    console.info(
+                        `Parsed all array children but finalBreakHappened = ${finalLineBreakExists}`,
+                    );
+                }
+
+                const closingBracketIndex: number = parentDoc.findIndex(
+                    (openingBracketSibling) => openingBracketSibling === ']',
+                );
+                parentDoc.splice(closingBracketIndex, 0, doc.builders.hardlineWithoutBreakParent);
+            }
+
             if (Array.isArray(indentedContent)) {
                 indentContents.splice(
                     1,
@@ -238,6 +288,13 @@ const ignoreTheseChildTypes = [
     'number',
 ];
 
+const commentTypes = [
+    'Line',
+    'Block',
+    'CommentBlock',
+    'CommentLine',
+] as const;
+
 function isMaybeComment(input: any): input is Comment {
     if (!input || typeof input !== 'object') {
         return false;
@@ -245,7 +302,7 @@ function isMaybeComment(input: any): input is Comment {
     if (!('type' in input)) {
         return false;
     }
-    if (input.type.toLowerCase() !== 'block' && input.type.toLowerCase() !== 'line') {
+    if (!commentTypes.includes(input.type)) {
         return false;
     }
     if (!('value' in input)) {
@@ -256,7 +313,6 @@ function isMaybeComment(input: any): input is Comment {
 }
 
 function extractComments(node: any): Comment[] {
-    debugger;
     if (!node || typeof node !== 'object') {
         return [];
     }
@@ -281,13 +337,9 @@ function extractComments(node: any): Comment[] {
 
 const mappedComments = new WeakMap<Node, Record<number, number[]>>();
 
-function isProgramNode(input: any): input is Program {
-    return input.type === 'Program';
-}
-
-function setLineCounts(programNode: Program, debug: boolean): Record<number, number[]> {
-    // parse comments only on the program node so it only happens once
-    const comments: Comment[] = extractComments(programNode);
+function setLineCounts(rootNode: Node, debug: boolean): Record<number, number[]> {
+    // parse comments only on the root node so it only happens once
+    const comments: Comment[] = extractComments(rootNode);
     if (debug) {
         console.info({comments});
     }
@@ -316,7 +368,7 @@ function setLineCounts(programNode: Program, debug: boolean): Record<number, num
     );
 
     // save to a map so we don't have to recalculate these every time
-    mappedComments.set(programNode, keyedCommentsByLastLine);
+    mappedComments.set(rootNode, keyedCommentsByLastLine);
     return keyedCommentsByLastLine;
 }
 
@@ -325,9 +377,11 @@ export function printWithMultilineArrays(
     path: AstPath,
     debug: boolean,
 ): Doc {
-    const programNode = path.stack[0];
-    if (!isProgramNode(programNode)) {
-        throw new Error(`Could not find valid program node in ${path.stack.join(',')}`);
+    const rootNode = path.stack[0];
+    if (!rootNode) {
+        throw new Error(
+            `Could not find valid root node in ${path.stack.map((entry) => entry.type).join(',')}`,
+        );
     }
     const node = path.getValue() as Node | undefined;
     if (node) {
@@ -343,8 +397,7 @@ export function printWithMultilineArrays(
             }
 
             const lastLine = node.loc.start.line - 1;
-            const lineCountMap =
-                mappedComments.get(programNode) ?? setLineCounts(programNode, debug);
+            const lineCountMap = mappedComments.get(rootNode) ?? setLineCounts(rootNode, debug);
             const lineCounts = lineCountMap[lastLine] ?? [];
 
             if (debug) {

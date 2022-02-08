@@ -19,5 +19,10 @@
         "target": "ES2018",
         "useUnknownInCatchVariables": true
     },
-    "exclude": ["node_modules", "dist", "test-repos", "scripts"]
+    "exclude": [
+        "node_modules",
+        "dist",
+        "test-repos",
+        "scripts"
+    ]
 }

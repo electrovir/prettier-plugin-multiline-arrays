@@ -1,4 +1,9 @@
 {
     "import": ".cspell-base.json",
-    "words": ["estree", "hardline", "jsplugin", "vite"]
+    "words": [
+        "estree",
+        "hardline",
+        "jsplugin",
+        "vite"
+    ]
 }
