@@ -1,14 +1,11 @@
-import {Comment, Node} from 'estree';
+import {Node} from 'estree';
 import {AstPath, Doc, doc} from 'prettier';
-import {elementsPerLineTrigger, untilLineTriggerRegExp} from '../metadata/package-phrases';
-import {stringifyDoc, walkDoc} from './child-docs';
+import {isDocCommand, stringifyDoc} from '../augments/doc';
+import {walkDoc} from './child-docs';
+import {getMappedLineCounts} from './line-counts';
 
 const nestingSyntaxOpen = '[{(<' as const;
 const nestingSyntaxClose = ']})>' as const;
-
-function isDocCommand(inputDoc: Doc | undefined | null): inputDoc is doc.builders.DocCommand {
-    return !!inputDoc && typeof inputDoc !== 'string' && !Array.isArray(inputDoc);
-}
 
 const found = 'Found "[" but';
 
@@ -280,98 +277,6 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
     return inputDoc;
 }
 
-const ignoreTheseKeys = [
-    'tokens',
-];
-const ignoreTheseChildTypes = [
-    'string',
-    'number',
-];
-
-const commentTypes = [
-    'Line',
-    'Block',
-    'CommentBlock',
-    'CommentLine',
-] as const;
-
-function isMaybeComment(input: any): input is Comment {
-    if (!input || typeof input !== 'object') {
-        return false;
-    }
-    if (!('type' in input)) {
-        return false;
-    }
-    if (!commentTypes.includes(input.type)) {
-        return false;
-    }
-    if (!('value' in input)) {
-        return false;
-    }
-
-    return true;
-}
-
-function extractComments(node: any): Comment[] {
-    if (!node || typeof node !== 'object') {
-        return [];
-    }
-    let comments: Comment[] = [];
-
-    if (Array.isArray(node)) {
-        comments.push(...node.filter(isMaybeComment));
-    }
-
-    Object.keys(node).forEach((nodeKey) => {
-        if (!ignoreTheseKeys.includes(nodeKey)) {
-            const nodeChild = node[nodeKey];
-            if (!ignoreTheseChildTypes.includes(typeof nodeChild)) {
-                comments.push(...extractComments(nodeChild));
-            }
-        }
-    });
-
-    // this might duplicate comments but our later code doesn't care
-    return comments;
-}
-
-const mappedComments = new WeakMap<Node, Record<number, number[]>>();
-
-function setLineCounts(rootNode: Node, debug: boolean): Record<number, number[]> {
-    // parse comments only on the root node so it only happens once
-    const comments: Comment[] = extractComments(rootNode);
-    if (debug) {
-        console.info({comments});
-    }
-    const keyedCommentsByLastLine: Record<number, number[]> = comments.reduce(
-        (accum, currentComment) => {
-            const commentText = currentComment.value?.replace(/\n/g, ' ');
-            if (commentText?.toLowerCase().includes(elementsPerLineTrigger)) {
-                const split = commentText
-                    .toLowerCase()
-                    .replace(untilLineTriggerRegExp, '')
-                    .replace(/,/g, '')
-                    .split(' ');
-                const numbers = split
-                    .map((entry) => (entry && entry.trim().match(/\d+/) ? Number(entry) : NaN))
-                    .filter((entry) => !isNaN(entry));
-                if (!currentComment.loc) {
-                    throw new Error(
-                        `Cannot read line location for comment ${currentComment.value}`,
-                    );
-                }
-                accum[currentComment.loc.end.line] = numbers;
-            }
-            return accum;
-        },
-        {} as Record<number, number[]>,
-    );
-
-    // save to a map so we don't have to recalculate these every time
-    mappedComments.set(rootNode, keyedCommentsByLastLine);
-    return keyedCommentsByLastLine;
-}
-
 export function printWithMultilineArrays(
     originalFormattedOutput: Doc,
     path: AstPath,
@@ -397,7 +302,7 @@ export function printWithMultilineArrays(
             }
 
             const lastLine = node.loc.start.line - 1;
-            const lineCountMap = mappedComments.get(rootNode) ?? setLineCounts(rootNode, debug);
+            const lineCountMap = getMappedLineCounts(rootNode, debug);
             const lineCounts = lineCountMap[lastLine] ?? [];
 
             if (debug) {

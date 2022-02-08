@@ -1,35 +1,4 @@
-import {Doc, doc} from 'prettier';
-
-export function hasChildDocs(
-    input: Doc,
-): input is
-    | doc.builders.Doc[]
-    | doc.builders.Align
-    | doc.builders.Concat
-    | doc.builders.Fill
-    | doc.builders.Group
-    | doc.builders.Indent
-    | doc.builders.LineSuffix {
-    return extractChildDocs(input) !== undefined;
-}
-
-function extractChildDocs(input: Doc): Doc[] | undefined {
-    if (typeof input === 'string') {
-        return undefined;
-    } else if (Array.isArray(input)) {
-        return input;
-    } else if ('contents' in input) {
-        return Array.isArray(input.contents)
-            ? input.contents
-            : [
-                  input.contents,
-              ];
-    } else if ('parts' in input) {
-        return input.parts;
-    } else {
-        return undefined;
-    }
-}
+import {Doc} from 'prettier';
 
 type Parents = {parent: Doc; childIndexInThisParent: number | undefined};
 
@@ -119,20 +88,4 @@ export function walkDoc(
         );
     }
     return true;
-}
-
-type NestedStringArray = (string | NestedStringArray)[];
-
-export function stringifyDoc(input: Doc): NestedStringArray {
-    if (typeof input === 'string') {
-        return [
-            input,
-        ];
-    } else if (Array.isArray(input)) {
-        return input.map((entry) => stringifyDoc(entry));
-    } else {
-        return [
-            input.type,
-        ];
-    }
 }

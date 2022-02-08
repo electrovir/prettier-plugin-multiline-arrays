@@ -74,6 +74,7 @@ const handleComments: Printer['handleComments'] = {
     ),
 };
 
+/** This is a proxy because the original printer is only set at run time. */
 export const multilineArrayPrinter = new Proxy<Printer<Node>>({} as Printer<Node>, {
     get: (target, property: keyof Printer) => {
         /**
