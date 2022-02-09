@@ -60,11 +60,28 @@ const typescriptTests: MultilineArrayTest[] = [
             ];
         `,
         options: {
-            elementsPerLinePattern: [
-                1,
-                2,
-                3,
-            ],
+            multilineArrayElementsPerLine: '1 2 3',
+        },
+    },
+    {
+        name: 'invalid elements per line reverts to default',
+        code: `
+            const thingieArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+        `,
+        expected: `
+            const thingieArray = [
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                'g',
+                'h',
+            ];
+        `,
+        options: {
+            multilineArrayElementsPerLine: '1 2 3 fff',
         },
     },
     {
@@ -82,11 +99,7 @@ const typescriptTests: MultilineArrayTest[] = [
             ];
         `,
         options: {
-            elementsPerLinePattern: [
-                1,
-                2,
-                3,
-            ],
+            multilineArrayElementsPerLine: '1 2 3',
             multilineArrayWrapThreshold: 20,
         },
     },

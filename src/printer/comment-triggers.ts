@@ -39,7 +39,7 @@ function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
                 throw new Error(`Cannot read line location for comment ${currentComment.value}`);
             }
 
-            const lineCounts = getLineCounts(commentText);
+            const lineCounts = getLineCounts(commentText, debug);
             if (lineCounts.length) {
                 accum.lineCounts[currentComment.loc.end.line] = lineCounts;
             }
@@ -75,32 +75,71 @@ function getWrapThreshold(commentText?: string): number | undefined {
     }
 }
 
-function getLineCounts(commentText?: string): number[] {
+export function parseLineCounts(input: string, debug: boolean): number[] {
+    if (!input) {
+        return [];
+    }
+    const split = input
+        .toLowerCase()
+        .replace(untilLineTriggerRegExp, '')
+        .replace(/,/g, '')
+        .split(' ')
+        .filter((entry) => !!entry);
+
+    const firstSplit = split[0];
+    if (firstSplit === '[') {
+        split.splice(0, 1);
+    } else if (firstSplit?.startsWith('[')) {
+        split[0] = firstSplit.replace(/^\[/, '');
+    }
+
+    const lastSplitIndex = split.length - 1;
+    const lastSplit = split[lastSplitIndex];
+    if (lastSplit === ']') {
+        split.splice(split.length - 1, 1);
+    } else if (lastSplit?.endsWith(']')) {
+        split[lastSplitIndex] = lastSplit.replace(/\]$/, '');
+    }
+
+    const numbers = split.map((entry) =>
+        entry && !!entry.trim().match(/^\d+$/) ? Number(entry.trim()) : NaN,
+    );
+
+    const invalidNumbers = numbers
+        .map((entry, index) => ({index, entry, original: split[index]}))
+        .filter((entry) => {
+            return isNaN(entry.entry);
+        });
+
+    if (invalidNumbers.length) {
+        if (debug) {
+            console.error(
+                invalidNumbers.map((entry) => ({
+                    index: entry.index,
+                    original: entry.original,
+                    parsed: entry,
+                    split,
+                    input,
+                    numbers,
+                    trim: entry.original?.trim(),
+                    match: entry.original?.trim().match(/^\d+$/),
+                    matched: !!entry.original?.trim().match(/^\d+$/),
+                })),
+            );
+        }
+        console.error(
+            `Invalid number(s) for elements per line option/comment: ${invalidNumbers
+                .map((entry) => entry.original)
+                .join()}`,
+        );
+        return [];
+    }
+    return numbers;
+}
+
+function getLineCounts(commentText: string | undefined, debug: boolean): number[] {
     if (commentText?.toLowerCase().includes(elementsPerLineTrigger)) {
-        const split = commentText
-            .toLowerCase()
-            .replace(untilLineTriggerRegExp, '')
-            .replace(/,/g, '')
-            .split(' ');
-
-        const firstSplit = split[0];
-        if (firstSplit === '[') {
-            split.splice(0, 1);
-        } else if (firstSplit?.startsWith('[')) {
-            split[0] = firstSplit.replace(/^\[/, '');
-        }
-
-        const lastSplitIndex = split.length - 1;
-        const lastSplit = split[lastSplitIndex];
-        if (lastSplit === ']') {
-            split.splice(split.length - 1, 1);
-        } else if (lastSplit?.endsWith(']')) {
-            split[lastSplitIndex] = lastSplit.replace(/\]$/, '');
-        }
-        const numbers = split
-            .map((entry) => (entry && entry.trim().match(/^\d+$/) ? Number(entry) : NaN))
-            .filter((entry) => !isNaN(entry));
-        return numbers;
+        return parseLineCounts(commentText, debug);
     } else {
         return [];
     }

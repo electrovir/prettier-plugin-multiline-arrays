@@ -70,11 +70,7 @@ const jsonTests: MultilineArrayTest[] = [
             ]
         `,
         options: {
-            elementsPerLinePattern: [
-                1,
-                2,
-                3,
-            ],
+            multilineArrayElementsPerLine: '1 2 3',
         },
     },
     {
@@ -92,11 +88,7 @@ const jsonTests: MultilineArrayTest[] = [
             ]
         `,
         options: {
-            elementsPerLinePattern: [
-                1,
-                2,
-                3,
-            ],
+            multilineArrayElementsPerLine: '1 2 3',
             multilineArrayWrapThreshold: 20,
         },
     },
@@ -107,6 +99,21 @@ const jsonTests: MultilineArrayTest[] = [
             [
                 "hello"
             ]
+        `,
+    },
+    {
+        name: 'should leave trailing newline',
+        code: `
+            {
+                "import": ".cspell-base.json",
+                "words": [
+                    "estree",
+                    "hardline",
+                    "jsplugin",
+                    "mmultiline",
+                    "vite"
+                ]
+            }
         `,
     },
     {

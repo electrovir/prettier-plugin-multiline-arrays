@@ -58,11 +58,7 @@ const javascriptTests: MultilineArrayTest[] = [
             ];
         `,
         options: {
-            elementsPerLinePattern: [
-                1,
-                2,
-                3,
-            ],
+            multilineArrayElementsPerLine: '1 2 3',
         },
     },
     {
@@ -80,11 +76,7 @@ const javascriptTests: MultilineArrayTest[] = [
             ];
         `,
         options: {
-            elementsPerLinePattern: [
-                1,
-                2,
-                3,
-            ],
+            multilineArrayElementsPerLine: '1 2 3',
             multilineArrayWrapThreshold: 20,
         },
     },

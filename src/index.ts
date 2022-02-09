@@ -1,5 +1,13 @@
 import {getObjectTypedKeys} from 'augment-vir';
-import {getSupportInfo, Parser, Plugin, Printer, SupportLanguage, SupportOption} from 'prettier';
+import {
+    getSupportInfo,
+    Parser,
+    Plugin,
+    Printer,
+    RequiredOptions,
+    SupportLanguage,
+    SupportOption,
+} from 'prettier';
 import {parsers as babelParsers} from 'prettier/parser-babel';
 import {parsers as tsParsers} from 'prettier/parser-typescript';
 import {defaultMultilineArrayOptions, MultilineArrayOptions, optionHelp} from './options';
@@ -52,24 +60,28 @@ export const options: Record<keyof MultilineArrayOptions, SupportOption> = getOb
     const defaultValue = defaultMultilineArrayOptions[key];
     const supportOption: SupportOption = {
         name: key,
-        type: 'int',
-        category: 'multiline-array',
+        type:
+            typeof defaultValue === 'number'
+                ? 'int'
+                : // prettier's types are wrong here, string is expected
+                  ('string' as any),
+        category: 'multilineArray',
         since: '0.0.1',
-        ...(Array.isArray(defaultValue) ? {array: true} : {}),
-        /**
-         * Can't use default values here because Prettier can't handle empty array defaults, which
-         * is what one of our options defaults to.
-         */
+        default: Array.isArray(defaultValue) ? defaultValue.join(' ') : (defaultValue as any),
         description: optionHelp[key],
     };
     accum[key] = supportOption;
     return accum;
 }, {} as Record<keyof MultilineArrayOptions, SupportOption>);
 
+export const defaultOptions: Partial<RequiredOptions> & Required<MultilineArrayOptions> =
+    defaultMultilineArrayOptions;
+
 /** Not actually exported. Just for type checking purposes. */
 const plugin: Plugin = {
     options,
     printers,
+    defaultOptions,
     parsers,
     languages,
 };

@@ -15,12 +15,12 @@ export type MultilineArrayOptions = {
      * Set to 1 to only wrap if there are more than 1 element. Etc.
      */
     multilineArrayWrapThreshold: number;
-    elementsPerLinePattern: number[];
+    multilineArrayElementsPerLine: string;
 };
 
 export const optionHelp: Record<keyof MultilineArrayOptions, string> = {
     multilineArrayWrapThreshold: `A number indicating that all arrays should wrap when they have MORE than the specified number. Defaults to 0, indicating that all arrays will wrap.\nExample: multilineArrayWrapThreshold: 3,\nCan be overridden with a comment starting with ${elementWrapThreshold}.\nComment example: // ${elementWrapThreshold} 5`,
-    elementsPerLinePattern: `An array of numbers indicating how many elements should be on each line. The pattern repeats if an array is longer than the pattern. Defaults to an empty array. Any invalid array elements causes the whole pattern to revert to the default.\nThis overrides the wrap threshold option.\nExample: elementsPerLinePattern: [3, 2, 1],\nCan be overridden with a comment starting with ${elementsPerLineTrigger}.\nComment example: // ${elementsPerLineTrigger} 3 2 1`,
+    multilineArrayElementsPerLine: `A string with a space separated list of numbers indicating how many elements should be on each line. The pattern repeats if an array is longer than the pattern. Defaults to an empty string. Any invalid numbers causes the whole pattern to revert to the default. This overrides the wrap threshold option.\nExample: elementsPerLinePattern: "3 2 1"\nCan be overridden with a comment starting with ${elementsPerLineTrigger}.\nComment example: // ${elementsPerLineTrigger} 3 2 1`,
 };
 
 const optionPropertyValidators: {
@@ -30,15 +30,12 @@ const optionPropertyValidators: {
 } = {
     multilineArrayWrapThreshold: (input): input is number =>
         typeof input === 'number' && !isNaN(input),
-    elementsPerLinePattern: (input): input is number[] =>
-        Array.isArray(input) &&
-        !!input.length &&
-        input.every((entry) => typeof entry === 'number' && !isNaN(entry)),
+    multilineArrayElementsPerLine: (input): input is string => typeof input === 'string',
 };
 
 export const defaultMultilineArrayOptions: MultilineArrayOptions = {
     multilineArrayWrapThreshold: 0,
-    elementsPerLinePattern: [],
+    multilineArrayElementsPerLine: '',
 };
 
 export function fillInOptions(input: unknown): MultilineArrayOptions {

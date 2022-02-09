@@ -19,13 +19,16 @@ export function stringifyDoc(input: Doc, recursive = false): NestedStringArray {
     } else if (recursive) {
         const children = childProperties.reduce((accum: NestedStringArray, currentProperty) => {
             if (currentProperty in input) {
-                accum.push(`${currentProperty}:`)
+                accum.push(`${currentProperty}:`);
                 accum.push(stringifyDoc((input as any)[currentProperty], recursive));
             }
             return accum;
         }, []);
         if (children.length) {
-            return [`${input.type}:`, children];
+            return [
+                `${input.type}:`,
+                children,
+            ];
         }
     }
     return [

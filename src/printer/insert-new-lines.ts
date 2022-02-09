@@ -3,7 +3,7 @@ import {AstPath, Doc, doc} from 'prettier';
 import {isDocCommand, stringifyDoc} from '../augments/doc';
 import {MultilineArrayOptions} from '../options';
 import {walkDoc} from './child-docs';
-import {getCommentTriggers} from './comment-triggers';
+import {getCommentTriggers, parseLineCounts} from './comment-triggers';
 
 const nestingSyntaxOpen = '[{(<`' as const;
 const nestingSyntaxClose = ']})>`' as const;
@@ -344,7 +344,8 @@ export function printWithMultilineArrays(
             const lastLine = node.loc.start.line - 1;
             const commentTriggers = getCommentTriggers(rootNode, debug);
             const lineCounts =
-                commentTriggers.lineCounts[lastLine] ?? multilineOptions.elementsPerLinePattern;
+                commentTriggers.lineCounts[lastLine] ??
+                parseLineCounts(multilineOptions.multilineArrayElementsPerLine, debug);
             const wrapThreshold =
                 commentTriggers.wrapThresholds[lastLine] ??
                 multilineOptions.multilineArrayWrapThreshold;

@@ -4,6 +4,7 @@
         "estree",
         "hardline",
         "jsplugin",
+        "mmultiline",
         "vite"
     ]
 }
