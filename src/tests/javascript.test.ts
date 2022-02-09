@@ -32,7 +32,7 @@ const javascriptTests: MultilineArrayTest[] = [
             multilineArrayWrapThreshold: 'fifty two' as any,
         },
         failureMessage:
-            'Invalid \x1B[31mmultilineArrayWrapThreshold\x1B[39m value. Expected \x1B[34man integer\x1B[39m, but received \x1B[31m"fifty two"\x1B[39m.',
+            'Invalid multilineArrayWrapThreshold value. Expected an integer, but received "fifty two".',
     },
     {
         name: 'wrap threshold through options',

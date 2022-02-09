@@ -2,6 +2,7 @@ import {format as prettierFormat, Options} from 'prettier';
 // ignore this import cause it's not typed. We're typing it here!
 // @ts-expect-error
 import * as importedRepoConfig from '../../.prettierrc.js';
+import {stripColor} from '../augments/string';
 import {MultilineArrayOptions} from '../options';
 
 const repoConfig: Options = importedRepoConfig as Options;
@@ -69,10 +70,11 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser?
             } catch (error) {
                 allPassed = false;
                 if (test.failureMessage && error instanceof Error) {
-                    if (test.failureMessage !== error.message) {
-                        console.info({message: error.message});
+                    const strippedMessage = stripColor(error.message);
+                    if (test.failureMessage !== strippedMessage) {
+                        console.info({strippedMessage});
                     }
-                    expect(error.message).toBe(test.failureMessage);
+                    expect(stripColor(strippedMessage)).toBe(test.failureMessage);
                 } else {
                     throw error;
                 }
