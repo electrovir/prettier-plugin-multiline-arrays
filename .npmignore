@@ -17,5 +17,7 @@ static/
 test-repos/
 tsconfig-base.json
 tsconfig.json
+
 dist/jest/
+dist/tests/
 dist/readme-examples/
