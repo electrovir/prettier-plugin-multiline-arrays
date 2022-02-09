@@ -1,4 +1,5 @@
-import {MultilineArrayTest, runTests} from './test-config';
+import {elementWrapThreshold} from '../options';
+import {MultilineArrayTest, runTests} from './run-tests';
 
 const json5Tests: MultilineArrayTest[] = [
     {
@@ -23,6 +24,87 @@ const json5Tests: MultilineArrayTest[] = [
                 ],
                 object: {example: 'instance'},
             }
+        `,
+    },
+    {
+        name: 'basic wrap threshold comment',
+        code: `
+            // ${elementWrapThreshold} 3
+            ['hello']
+        `,
+    },
+    {
+        name: 'invalid wrap threshold triggers error',
+        code: `
+            ['hello']
+        `,
+        options: {
+            multilineArrayWrapThreshold: 'fifty two' as any,
+        },
+        failureMessage:
+            'Invalid \x1B[31mmultilineArrayWrapThreshold\x1B[39m value. Expected \x1B[34man integer\x1B[39m, but received \x1B[31m"fifty two"\x1B[39m.',
+    },
+    {
+        name: 'wrap threshold through options',
+        code: `
+            ['hello']
+        `,
+        options: {
+            multilineArrayWrapThreshold: 3,
+        },
+    },
+    {
+        name: 'line count through options',
+        code: `
+            ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        `,
+        expected: `
+            [
+                'a',
+                'b', 'c',
+                'd', 'e', 'f',
+                'g',
+                'h',
+            ]
+        `,
+        options: {
+            elementsPerLinePattern: [
+                1,
+                2,
+                3,
+            ],
+        },
+    },
+    {
+        name: 'line count overrides threshold',
+        code: `
+            ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        `,
+        expected: `
+            [
+                'a',
+                'b', 'c',
+                'd', 'e', 'f',
+                'g',
+                'h',
+            ]
+        `,
+        options: {
+            elementsPerLinePattern: [
+                1,
+                2,
+                3,
+            ],
+            multilineArrayWrapThreshold: 20,
+        },
+    },
+    {
+        name: 'pointless wrap threshold comment',
+        code: `
+            // ${elementWrapThreshold} 0
+            [
+                'hello',
+            ]
         `,
     },
     {

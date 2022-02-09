@@ -1,24 +1,33 @@
 import {Node} from 'estree';
 import {AstPath, Doc, doc} from 'prettier';
 import {isDocCommand, stringifyDoc} from '../augments/doc';
+import {MultilineArrayOptions} from '../options';
 import {walkDoc} from './child-docs';
-import {getMappedLineCounts} from './line-counts';
+import {getCommentTriggers} from './comment-triggers';
 
-const nestingSyntaxOpen = '[{(<' as const;
-const nestingSyntaxClose = ']})>' as const;
+const nestingSyntaxOpen = '[{(<`' as const;
+const nestingSyntaxClose = ']})>`' as const;
 
 const found = 'Found "[" but';
 
-function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): Doc {
+function insertArrayLines(
+    inputDoc: Doc,
+    lineCounts: number[],
+    wrapThreshold: number,
+    debug: boolean,
+): Doc {
     walkDoc(inputDoc, debug, (currentDoc, parentDocs, childIndex): boolean => {
         const currentParent = parentDocs[0];
         const parentDoc = currentParent?.parent;
         if (typeof currentDoc === 'string' && currentDoc.trim() === '[') {
-            if (debug) {
-                console.info({currentDoc, parentDoc});
-            }
+            const undoMutations: (() => void)[] = [];
+
             if (!Array.isArray(parentDoc) || parentDoc.length !== 4) {
                 throw new Error(`${found} parentDoc is not an array.`);
+            }
+            if (debug) {
+                console.info({currentDoc, parentDoc});
+                console.info(JSON.stringify(stringifyDoc(parentDoc, true), null, 4));
             }
             if (childIndex !== 0) {
                 throw new Error(`${found} not at index 0 in its parent`);
@@ -41,7 +50,6 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                 throw new Error(`${found} indent didn't have array contents.`);
             }
             if (indentContents.length !== 3) {
-                console.error();
                 throw new Error(
                     `${found} indent contents did not have 3 children:\n\t${stringifyDoc(
                         indentContents,
@@ -59,6 +67,9 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                 throw new Error(`${found} first indent child was not a line.`);
             }
             indentContents[0] = '';
+            undoMutations.push(() => {
+                indentContents[0] = startingLine;
+            });
 
             const indentedContent = indentContents[1];
 
@@ -106,6 +117,8 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
 
             let finalLineBreakExists = false;
 
+            let arrayChildCount = 0;
+
             walkDoc(
                 indentedContent,
                 debug,
@@ -126,6 +139,10 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                         }
                         commaParentDoc[commaChildIndex] = currentDoc.breakContents;
                         commaParentDoc.splice(commaChildIndex + 1, 0, doc.builders.breakParent);
+                        undoMutations.push(() => {
+                            commaParentDoc.splice(commaChildIndex + 1, 1);
+                            commaParentDoc[commaChildIndex] = currentDoc;
+                        });
                     } else if (typeof currentDoc === 'string') {
                         if (!commaParentDoc) {
                             console.error({innerParentDoc: commaParentDoc});
@@ -144,6 +161,7 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                             if (closingIndex < 0) {
                                 throw new Error(`Could not find closing match for ${currentDoc}`);
                             }
+                            // check that there's a line break before the ending of the array
                             if (commaParentDoc[closingIndex] !== ']') {
                                 const closingSibling = commaParentDoc[closingIndex - 1];
                                 if (debug) {
@@ -206,6 +224,7 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                             const currentLineCount: number | undefined = lineCounts.length
                                 ? lineCounts[currentLineCountIndex]
                                 : undefined;
+                            arrayChildCount++;
                             if (
                                 (currentLineCount && columnCount === currentLineCount) ||
                                 !currentLineCount
@@ -227,6 +246,9 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                                 parentToMutate[siblingIndex] = ' ';
                                 columnCount++;
                             }
+                            undoMutations.push(() => {
+                                parentToMutate[siblingIndex] = commaSibling;
+                            });
                         }
                     }
                     return true;
@@ -244,9 +266,13 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                     (openingBracketSibling) => openingBracketSibling === ']',
                 );
                 parentDoc.splice(closingBracketIndex, 0, doc.builders.hardlineWithoutBreakParent);
+                undoMutations.push(() => {
+                    parentDoc.splice(closingBracketIndex, 1);
+                });
             }
 
             if (Array.isArray(indentedContent)) {
+                const oldIndentContentChild = indentContents[1];
                 indentContents.splice(
                     1,
                     1,
@@ -255,13 +281,26 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
                         ...indentedContent,
                     ]),
                 );
+                undoMutations.push(() => {
+                    indentContents[1] = oldIndentContentChild!;
+                });
             } else {
+                const oldParts = indentedContent.parts;
                 indentedContent.parts = [
                     doc.builders.group([
                         doc.builders.hardlineWithoutBreakParent,
                         ...indentedContent.parts,
                     ]),
                 ];
+                undoMutations.push(() => {
+                    indentedContent.parts = oldParts;
+                });
+            }
+
+            if (arrayChildCount < wrapThreshold && !lineCounts.length) {
+                undoMutations.reverse().forEach((undoMutation) => {
+                    undoMutation();
+                });
             }
 
             // don't walk any deeper
@@ -280,6 +319,7 @@ function insertArrayLines(inputDoc: Doc, lineCounts: number[], debug: boolean): 
 export function printWithMultilineArrays(
     originalFormattedOutput: Doc,
     path: AstPath,
+    multilineOptions: MultilineArrayOptions,
     debug: boolean,
 ): Doc {
     const rootNode = path.stack[0];
@@ -302,14 +342,23 @@ export function printWithMultilineArrays(
             }
 
             const lastLine = node.loc.start.line - 1;
-            const lineCountMap = getMappedLineCounts(rootNode, debug);
-            const lineCounts = lineCountMap[lastLine] ?? [];
+            const commentTriggers = getCommentTriggers(rootNode, debug);
+            const lineCounts =
+                commentTriggers.lineCounts[lastLine] ?? multilineOptions.elementsPerLinePattern;
+            const wrapThreshold =
+                commentTriggers.wrapThresholds[lastLine] ??
+                multilineOptions.multilineArrayWrapThreshold;
 
             if (debug) {
                 console.info(`======= Starting call to ${insertArrayLines.name}: =======`);
-                console.info({lineCounts});
+                console.info({options: {lineCounts, wrapThreshold}});
             }
-            const newDoc = insertArrayLines(originalFormattedOutput, lineCounts, debug);
+            const newDoc = insertArrayLines(
+                originalFormattedOutput,
+                lineCounts,
+                wrapThreshold,
+                debug,
+            );
             return newDoc;
         }
     }

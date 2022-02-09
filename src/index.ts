@@ -1,11 +1,16 @@
-import {getSupportInfo, Parser, Plugin} from 'prettier';
+import {getObjectTypedKeys} from 'augment-vir';
+import {getSupportInfo, Parser, Plugin, Printer, SupportLanguage, SupportOption} from 'prettier';
 import {parsers as babelParsers} from 'prettier/parser-babel';
 import {parsers as tsParsers} from 'prettier/parser-typescript';
-import {pluginMarker} from './metadata/plugin-marker';
+import {defaultMultilineArrayOptions, MultilineArrayOptions, optionHelp} from './options';
 import {addCustomPreprocessing} from './preprocessing';
 import {multilineArrayPrinter} from './printer/multiline-array-printer';
 
-const languages = getSupportInfo().languages.filter(({name}) =>
+// exports in case others want to utilize these
+export * from './options';
+export {pluginMarker} from './plugin-marker';
+
+export const languages: SupportLanguage[] = getSupportInfo().languages.filter(({name}) =>
     [
         'JavaScript',
         'TypeScript',
@@ -16,7 +21,7 @@ const languages = getSupportInfo().languages.filter(({name}) =>
     ].includes(name),
 );
 
-const parsers = Object.entries({
+export const parsers: Record<string, Parser<any>> = Object.entries({
     typescript: tsParsers.typescript,
     babel: babelParsers.babel,
     'babel-ts': babelParsers['babel-ts'],
@@ -36,15 +41,35 @@ const parsers = Object.entries({
     {} as Record<string, Parser>,
 );
 
-const plugin: Plugin = {
-    // used to ensuring tracking of this plugin later
-    ...({pluginMarker} as any),
-    languages,
-    parsers,
-    printers: {
-        estree: multilineArrayPrinter,
-        'estree-json': multilineArrayPrinter,
-    },
+export const printers: Record<string, Printer<any>> = {
+    estree: multilineArrayPrinter,
+    'estree-json': multilineArrayPrinter,
 };
 
-module.exports = plugin;
+export const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTypedKeys(
+    defaultMultilineArrayOptions,
+).reduce((accum, key) => {
+    const defaultValue = defaultMultilineArrayOptions[key];
+    const supportOption: SupportOption = {
+        name: key,
+        type: 'int',
+        category: 'multiline-array',
+        since: '0.0.1',
+        ...(Array.isArray(defaultValue) ? {array: true} : {}),
+        /**
+         * Can't use default values here because Prettier can't handle empty array defaults, which
+         * is what one of our options defaults to.
+         */
+        description: optionHelp[key],
+    };
+    accum[key] = supportOption;
+    return accum;
+}, {} as Record<keyof MultilineArrayOptions, SupportOption>);
+
+/** Not actually exported. Just for type checking purposes. */
+const plugin: Plugin = {
+    options,
+    printers,
+    parsers,
+    languages,
+};

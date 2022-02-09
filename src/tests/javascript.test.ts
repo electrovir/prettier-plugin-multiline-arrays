@@ -1,6 +1,6 @@
 import {capitalizeFirst} from '../augments/string';
-import {elementsPerLineTrigger} from '../metadata/package-phrases';
-import {MultilineArrayTest, runTests} from './test-config';
+import {elementsPerLineTrigger, elementWrapThreshold} from '../options';
+import {MultilineArrayTest, runTests} from './run-tests';
 
 const javascriptTests: MultilineArrayTest[] = [
     {
@@ -13,6 +13,97 @@ const javascriptTests: MultilineArrayTest[] = [
                 // this comment shouldn't get moved
             ) {
                 return inputKey in inputObject;
+            }
+        `,
+    },
+    {
+        name: 'basic wrap threshold comment',
+        code: `
+            // ${elementWrapThreshold} 3
+            const thingieArray = ['hello'];
+        `,
+    },
+    {
+        name: 'invalid wrap threshold triggers error',
+        code: `
+            const thingieArray = ['hello'];
+        `,
+        options: {
+            multilineArrayWrapThreshold: 'fifty two' as any,
+        },
+        failureMessage:
+            'Invalid \x1B[31mmultilineArrayWrapThreshold\x1B[39m value. Expected \x1B[34man integer\x1B[39m, but received \x1B[31m"fifty two"\x1B[39m.',
+    },
+    {
+        name: 'wrap threshold through options',
+        code: `
+            const thingieArray = ['hello'];
+        `,
+        options: {
+            multilineArrayWrapThreshold: 3,
+        },
+    },
+    {
+        name: 'line count through options',
+        code: `
+            const thingieArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+        `,
+        expected: `
+            const thingieArray = [
+                'a',
+                'b', 'c',
+                'd', 'e', 'f',
+                'g',
+                'h',
+            ];
+        `,
+        options: {
+            elementsPerLinePattern: [
+                1,
+                2,
+                3,
+            ],
+        },
+    },
+    {
+        name: 'line count overrides threshold',
+        code: `
+            const thingieArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+        `,
+        expected: `
+            const thingieArray = [
+                'a',
+                'b', 'c',
+                'd', 'e', 'f',
+                'g',
+                'h',
+            ];
+        `,
+        options: {
+            elementsPerLinePattern: [
+                1,
+                2,
+                3,
+            ],
+            multilineArrayWrapThreshold: 20,
+        },
+    },
+    {
+        name: 'pointless wrap threshold comment',
+        code: `
+            // ${elementWrapThreshold} 0
+            const thingieArray = [
+                'hello',
+            ];
+        `,
+    },
+    {
+        // this was causing an error on the closing "}" at one point
+        name: 'interpolated string example',
+        code: `
+            if (children.length) {
+                // ${elementWrapThreshold} 1
+                return [\`\${input.type}:\`];
             }
         `,
     },

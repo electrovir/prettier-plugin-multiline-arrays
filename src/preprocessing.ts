@@ -1,5 +1,5 @@
 import {Parser, ParserOptions, Plugin, Printer} from 'prettier';
-import {pluginMarker} from './metadata/plugin-marker';
+import {pluginMarker} from './plugin-marker';
 import {multilineArrayPrinter} from './printer/multiline-array-printer';
 import {setOriginalPrinter} from './printer/original-printer';
 

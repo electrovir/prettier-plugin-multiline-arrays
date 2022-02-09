@@ -1,5 +1,6 @@
 import {Node} from 'estree';
 import {AstPath, ParserOptions, Printer} from 'prettier';
+import {fillInOptions, MultilineArrayOptions} from '../options';
 import {printWithMultilineArrays} from './insert-new-lines';
 import {getOriginalPrinter} from './original-printer';
 
@@ -31,7 +32,9 @@ function wrapInOriginalPrinterCall<T extends string = string>(
             ) {
                 return originalOutput;
             }
-            return printWithMultilineArrays(originalOutput, args[0], debug);
+
+            const multilineOptions: MultilineArrayOptions = fillInOptions(options);
+            return printWithMultilineArrays(originalOutput, args[0], multilineOptions, debug);
         } else {
             let thisParent: any = originalPrinter;
             let printerProp = originalPrinter[property];
