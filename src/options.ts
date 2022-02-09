@@ -1,5 +1,7 @@
 import {getObjectTypedKeys} from 'augment-vir/dist/web-index';
 
+export const envDebugKey = 'NEW_LINE_DEBUG';
+
 export const elementsPerLineTrigger = 'prettier-elements-per-line:';
 export const untilLineTriggerRegExp = new RegExp(`.*${elementsPerLineTrigger}`);
 

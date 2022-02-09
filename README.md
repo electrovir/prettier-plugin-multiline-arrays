@@ -4,6 +4,8 @@ Prettier plugin to force array elements to wrap onto new lines, even when there'
 
 TypeScript, JavaScript, and JSON files are supported.
 
+[Please file issues in the GitHub repo](https://github.com/electrovir/prettier-plugin-multiline-arrays/issues/new) and include code examples if you come across formatting errors. You can set the `NEW_LINE_DEBUG` environment variable to something truthy to get extra debug output when formatting.
+
 # Usage
 
 Add this config to your prettierrc file. The order of your plugins array is very important, so if it doesn't work initial try rearranging them. For example, here is the plugin ordering for this package's Prettier config:
