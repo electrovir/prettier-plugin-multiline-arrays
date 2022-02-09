@@ -26,6 +26,33 @@ const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        name: 'still wraps really long text below the threshold',
+        code: `
+            // ${elementWrapThreshold} 3
+            const thingieArray = ['HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello'];
+        `,
+        expected: `
+            // ${elementWrapThreshold} 3
+            const thingieArray = [
+                'HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello',
+            ];
+        `,
+    },
+    {
+        name: 'does not wrap really long text when the line count prevents it',
+        code: `
+            // ${elementsPerLineTrigger} 1 3
+            const thingieArray = ['hello', 'hello', 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello', 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHello'];
+        `,
+        expected: `
+            // ${elementsPerLineTrigger} 1 3
+            const thingieArray = [
+                'hello',
+                'hello', 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello', 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHello',
+            ];
+        `,
+    },
+    {
         name: 'invalid wrap threshold triggers error',
         code: `
             const thingieArray = ['hello'];

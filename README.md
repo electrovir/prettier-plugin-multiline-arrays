@@ -29,11 +29,19 @@ const prettierConfig: Config = {
 module.exports = prettierConfig;
 ```
 
-## Controlling elements per line
+# Options
 
-Add a comment with `prettier-elements-per-line:` followed by a pattern of numbers to control how many elements will appear on each line: `// prettier-elements-per-line: 2 1 3`. The default is just `1`. Any given pattern will repeat endlessly. See the example section below.
+This plugin makes two new options available to your Prettier config:
 
-## Example
+-   **`multilineArrayWrapThreshold`**: This is a single number which controls when arrays wrap. If an array has _more_ elements than the number specified here, it will be forced to wrap. This option defaults to `0`, which indicates that _all_ non-empty arrays will wrap. Example: `"multilineArrayWrapThreshold": 3,`.
+-   **`multilineArrayElementsPerLine`**: This is a single string which contains a space separated list of numbers. These numbers allow fine grained control over how many elements appear in each line. The pattern will repeat if the array has more elements than the pattern. See the `Examples` section for how this works. Defaults to just `1`, which indicates all array lines have just a single element. Example: `"multilineArrayElementsPerLine": "2 1"`, which means the first line will have 2 elements, the second will have 1, the third will have 2, the fourth will have 1, and so on. _This option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._
+
+# Comment overrides
+
+-   Add a comment with `prettier-wrap-threshold:` followed by a single number to control the wrap threshold for the following line. When an array has _more_ elements than this number, it wraps. The default is `0`, which indicates that _all_ arrays will wrap unless they're empty.
+-   Add a comment with `prettier-elements-per-line:` followed by a pattern of numbers to control how many elements will appear on each line for an array on the following line. Example: `// prettier-elements-per-line: 2 1 3`. The default is just `1`. Any given pattern will repeat endlessly. See the `Examples` section below. _This option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._
+
+# Examples
 
 Not formatted:
 
@@ -67,9 +75,9 @@ export const myCustomArray = [
 ];
 ```
 
-## Compatibility
+# Compatibility
 
-Tested to be compatible with the following plugins. It is likely compatible with most/all others as well.
+Tested to be compatible with the following plugins. It is likely compatible with most/all others as well. This plugin must be placed in the order specified above in the `Usage` section.
 
 -   `prettier-plugin-sort-json`
 -   `prettier-plugin-packagejson`

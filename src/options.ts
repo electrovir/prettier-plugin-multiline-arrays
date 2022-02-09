@@ -20,7 +20,7 @@ export type MultilineArrayOptions = {
 
 export const optionHelp: Record<keyof MultilineArrayOptions, string> = {
     multilineArrayWrapThreshold: `A number indicating that all arrays should wrap when they have MORE than the specified number. Defaults to 0, indicating that all arrays will wrap.\nExample: multilineArrayWrapThreshold: 3,\nCan be overridden with a comment starting with ${elementWrapThreshold}.\nComment example: // ${elementWrapThreshold} 5`,
-    multilineArrayElementsPerLine: `A string with a space separated list of numbers indicating how many elements should be on each line. The pattern repeats if an array is longer than the pattern. Defaults to an empty string. Any invalid numbers causes the whole pattern to revert to the default. This overrides the wrap threshold option.\nExample: elementsPerLinePattern: "3 2 1"\nCan be overridden with a comment starting with ${elementsPerLineTrigger}.\nComment example: // ${elementsPerLineTrigger} 3 2 1`,
+    multilineArrayElementsPerLine: `A string with a space separated list of numbers indicating how many elements should be on each line. The pattern repeats if an array is longer than the pattern. Defaults to an empty string. Any invalid numbers causes the whole pattern to revert to the default. This overrides the wrap threshold option.\nExample: elementsPerLinePattern: "3 2 1"\nCan be overridden with a comment starting with ${elementsPerLineTrigger}.\nComment example: // ${elementsPerLineTrigger} 3 2 1\nThis option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count.`,
 };
 
 const optionPropertyValidators: {
