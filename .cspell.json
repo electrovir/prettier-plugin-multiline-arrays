@@ -5,6 +5,7 @@
         "hardline",
         "jsplugin",
         "mmultiline",
+        "robinfr",
         "vite"
     ]
 }
