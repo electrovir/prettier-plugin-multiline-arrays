@@ -19,6 +19,14 @@ const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        name: 'works with greater than or less than inside of an array in typescript',
+        code: `
+            const thingie = [
+                otherThingie < 5 ? 'owl' : 'goat',
+            ];
+        `,
+    },
+    {
         name: 'basic wrap threshold comment',
         code: `
             // ${elementWrapThreshold} 3

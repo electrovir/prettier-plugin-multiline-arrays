@@ -24,6 +24,14 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        name: 'works with greater than or less than inside of an array in javascript',
+        code: `
+            const thingie = [
+                otherThingie < 5 ? 'owl' : 'goat',
+            ];
+        `,
+    },
+    {
         name: 'invalid wrap threshold triggers error',
         code: `
             const thingieArray = ['hello'];

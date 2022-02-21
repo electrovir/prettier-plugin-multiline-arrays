@@ -5,8 +5,8 @@ import {MultilineArrayOptions} from '../options';
 import {walkDoc} from './child-docs';
 import {getCommentTriggers, parseLineCounts} from './comment-triggers';
 
-const nestingSyntaxOpen = '[{(<`' as const;
-const nestingSyntaxClose = ']})>`' as const;
+const nestingSyntaxOpen = '[{(`' as const;
+const nestingSyntaxClose = ']})`' as const;
 
 const found = 'Found "[" but';
 

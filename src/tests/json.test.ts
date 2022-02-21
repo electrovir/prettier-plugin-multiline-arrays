@@ -47,6 +47,18 @@ const jsonTests: MultilineArrayTest[] = [
             'Invalid multilineArrayWrapThreshold value. Expected an integer, but received "fifty two".',
     },
     {
+        name: 'exact code desired by Robinfr',
+        code: `
+            [
+                ["thing1"],
+                ["thing2"]
+            ]
+        `,
+        options: {
+            multilineArrayWrapThreshold: 1,
+        },
+    },
+    {
         name: 'wrap threshold through options',
         code: `
             ["hello"]
