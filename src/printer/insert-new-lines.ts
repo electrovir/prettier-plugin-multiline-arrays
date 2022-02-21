@@ -22,9 +22,13 @@ function insertArrayLines(
         if (typeof currentDoc === 'string' && currentDoc.trim() === '[') {
             const undoMutations: (() => void)[] = [];
 
-            if (!Array.isArray(parentDoc) || parentDoc.length !== 4) {
+            if (!Array.isArray(parentDoc)) {
+                if (debug) {
+                    console.error({brokenParent: parentDoc, currentDoc});
+                }
                 throw new Error(`${found} parentDoc is not an array.`);
             }
+
             if (debug) {
                 console.info({currentDoc, parentDoc});
                 console.info(JSON.stringify(stringifyDoc(parentDoc, true), null, 4));
@@ -32,6 +36,15 @@ function insertArrayLines(
             if (childIndex !== 0) {
                 throw new Error(`${found} not at index 0 in its parent`);
             }
+
+            const maybeBreak = parentDoc[childIndex + 2];
+            if (isDocCommand(maybeBreak) && maybeBreak.type === 'if-break') {
+                undoMutations.push(() => {
+                    parentDoc[childIndex + 2] = maybeBreak;
+                });
+                parentDoc[childIndex + 2] = maybeBreak.breakContents;
+            }
+
             const bracketSibling = parentDoc[childIndex + 1];
             if (debug) {
                 console.info({bracketSibling});
@@ -49,14 +62,11 @@ function insertArrayLines(
             if (!Array.isArray(indentContents)) {
                 throw new Error(`${found} indent didn't have array contents.`);
             }
-            if (indentContents.length !== 3) {
-                throw new Error(
-                    `${found} indent contents did not have 3 children:\n\t${stringifyDoc(
-                        indentContents,
-                    )
-                        .flat()
-                        .join(',\n\t')}`,
-                );
+            if (indentContents.length < 2) {
+                if (debug) {
+                    console.error(JSON.stringify(stringifyDoc(indentContents, true), null, 4));
+                }
+                throw new Error(`${found} indent contents did not have at least 2 children`);
             }
 
             const startingLine = indentContents[0];

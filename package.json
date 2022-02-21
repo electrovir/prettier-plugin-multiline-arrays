@@ -1,6 +1,6 @@
 {
     "name": "prettier-plugin-multiline-arrays",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Prettier plugin to force all arrays to be multiline.",
     "keywords": [
         "array",

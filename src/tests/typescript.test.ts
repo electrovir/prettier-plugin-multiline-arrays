@@ -2,7 +2,7 @@ import {capitalizeFirst} from '../augments/string';
 import {elementsPerLineTrigger, elementWrapThreshold} from '../options';
 import {MultilineArrayTest, runTests} from './run-tests';
 
-const typescriptTests: MultilineArrayTest[] = [
+export const typescriptTests: MultilineArrayTest[] = [
     {
         name: 'comment at end of argument list with multiline array parser',
         // prettier-ignore
@@ -24,6 +24,34 @@ const typescriptTests: MultilineArrayTest[] = [
             const thingie = [
                 otherThingie < 5 ? 'owl' : 'goat',
             ];
+        `,
+    },
+    {
+        name: 'works with array expansion in function parameters',
+        code: `
+            export function update(
+                partInfo: PartInfo,
+                [
+                    callback,
+                ]: [
+                    OnOsThemeChangeCallback,
+                ],
+            ) {}
+        `,
+    },
+    {
+        name: 'works with array expansion in function parameters with multiple entries',
+        code: `
+            export function update(
+                partInfo: PartInfo,
+                [
+                    callback,
+                    otherThing,
+                ]: [
+                    OnOsThemeChangeCallback,
+                    OtherThingHereToo,
+                ],
+            ) {}
         `,
     },
     {
@@ -724,8 +752,4 @@ const typescriptTests: MultilineArrayTest[] = [
 
 describe('typescript multiline array formatting', () => {
     runTests('.ts', typescriptTests);
-});
-
-describe('babel-ts multiline array formatting', () => {
-    runTests('.ts', typescriptTests, 'babel-ts');
 });
