@@ -1,4 +1,4 @@
-import {getObjectTypedKeys} from 'augment-vir/dist/web-index';
+import {getObjectTypedKeys} from 'augment-vir';
 
 export const envDebugKey = 'NEW_LINE_DEBUG';
 
