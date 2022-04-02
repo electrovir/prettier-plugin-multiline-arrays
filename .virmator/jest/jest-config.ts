@@ -1,23 +1,24 @@
 import {join} from 'path';
 import {InitialOptionsTsJest} from 'ts-jest';
 
-const config: InitialOptionsTsJest = {
+const cwd = process.cwd();
+
+export const virmatorJestConfig: InitialOptionsTsJest = {
     preset: 'ts-jest',
     testEnvironment: 'node',
-    verbose: false,
-
-    /** Can't import from the common package to use repoDir so we have to redefine the path manually here */
-    rootDir: process.cwd(),
-    silent: false,
+    rootDir: cwd,
+    modulePathIgnorePatterns: [
+        '.*.type.test.ts$',
+    ],
     roots: [
-        join(process.cwd(), 'src'),
+        join(cwd, 'src'),
     ],
     setupFilesAfterEnv: [
-        join(__dirname, 'jest.setup.ts'),
+        join(__dirname, 'jest-setup.ts'),
     ],
     globals: {
         'ts-jest': {
-            tsconfig: join(process.cwd(), 'tsconfig.json'),
+            tsconfig: join(cwd, 'tsconfig.json'),
             diagnostics: {
                 warnOnly: true,
                 ignoreCodes: [
@@ -28,4 +29,4 @@ const config: InitialOptionsTsJest = {
     },
 };
 
-export default config;
+export default virmatorJestConfig;

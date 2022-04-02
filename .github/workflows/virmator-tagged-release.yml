@@ -20,8 +20,19 @@ jobs:
               run: |
                   npm ci
                   npm run test:full
+            - name: pack and set vars
+              id: vars
+              run: |
+                  tagName="${GITHUB_REF#refs/*/}"
+                  originalTarName="$(npm pack)"
+                  packageName="$(npm -s run env echo '$npm_package_name')"
+                  newTarName="$packageName-$tagName.tgz"
+                  mv "$originalTarName" "$newTarName"
+                  echo ::set-output name=tarName::"$newTarName"
 
             - uses: 'marvinpinto/action-automatic-releases@latest'
               with:
                   repo_token: '${{ secrets.GITHUB_TOKEN }}'
                   prerelease: false
+                  files: |
+                      ${{ steps.vars.outputs.tarName }}

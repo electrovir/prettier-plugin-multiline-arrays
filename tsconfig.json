@@ -1,11 +1,13 @@
 {
     "compilerOptions": {
         "alwaysStrict": true,
+        "baseUrl": ".",
         "declaration": true,
         "esModuleInterop": true,
         "exactOptionalPropertyTypes": true,
         "forceConsistentCasingInFileNames": true,
-        "module": "commonjs",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
         "noImplicitAny": true,
         "noImplicitOverride": true,
         "noImplicitReturns": true,
@@ -16,13 +18,18 @@
         "skipDefaultLibCheck": true,
         "skipLibCheck": true,
         "strict": true,
-        "target": "ES2018",
+        "target": "ESNext",
         "useUnknownInCatchVariables": true
     },
     "exclude": [
-        "node_modules",
         "dist",
-        "test-repos",
-        "scripts"
-    ]
+        "node_modules",
+        "separate-configs",
+        "test-files"
+    ],
+    "ts-node": {
+        "compilerOptions": {
+            "module": "CommonJS"
+        }
+    }
 }

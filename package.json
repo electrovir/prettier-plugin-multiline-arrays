@@ -1,6 +1,6 @@
 {
     "name": "prettier-plugin-multiline-arrays",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "Prettier plugin to force all arrays to be multiline.",
     "keywords": [
         "array",
@@ -25,17 +25,16 @@
     },
     "main": "dist/index.js",
     "scripts": {
-        "debug": "tsc && cross-env NEW_LINE_DEBUG=true npm run jest",
-        "format": "tsc && virmator format write --no-write-config",
-        "jest": "jest --config ./src/jest/jest.config.ts",
+        "compile": "rm -rf dist && virmator compile",
+        "debug": "cross-env NEW_LINE_DEBUG=true npm run test",
+        "format": "npm run compile && virmator format write --no-write-config",
         "prepublishOnly": "npm run test:full",
         "spellcheck": "virmator spellcheck",
-        "test": "rm -rf node_modules/prettier-plugin-multiline-arrays rm -rf dist && tsc && npm run jest",
-        "test:full": "npm test && npm run spellcheck && virmator format check --no-write-config && virmator code-in-markdown --check README.md",
-        "watch": "nodemon -e ts --watch src -x \"npm test\""
+        "test": "rm -rf node_modules/prettier-plugin-multiline-arrays rm -rf dist && npm run compile && virmator test --no-write-config",
+        "test:full": "npm test && npm run spellcheck && virmator format check --no-write-config && virmator code-in-markdown --check README.md"
     },
     "dependencies": {
-        "augment-vir": "1.7.0"
+        "augment-vir": "1.9.1"
     },
     "devDependencies": {
         "@types/esprima": "4.0.3",
@@ -44,9 +43,9 @@
         "cross-env": "7.0.3",
         "jest": "27.5.1",
         "nodemon": "2.0.15",
-        "ts-jest": "27.1.3",
+        "ts-jest": "27.1.4",
         "ts-node": "10.7.0",
-        "typescript": "4.6.2",
-        "virmator": "1.4.4"
+        "typescript": "4.6.3",
+        "virmator": "2.0.3"
     }
 }

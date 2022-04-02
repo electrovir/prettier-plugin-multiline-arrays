@@ -27,6 +27,53 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        name: 'should work with multiple nested arrays',
+        code: `
+            const thingie = [
+                [
+                    1,
+                    2,
+                    3,
+                ],
+                [
+                    4,
+                    5,
+                    6,
+                    0,
+                ],
+                [
+                    7,
+                    8,
+                    9,
+                ],
+                [10],
+            ];
+        `,
+        expected: `
+            const thingie = [
+                [
+                    1,
+                    2,
+                    3,
+                ],
+                [
+                    4,
+                    5,
+                    6,
+                    0,
+                ],
+                [
+                    7,
+                    8,
+                    9,
+                ],
+                [
+                    10,
+                ],
+            ];
+        `,
+    },
+    {
         name: 'works with array expansion in function parameters',
         code: `
             export function update(

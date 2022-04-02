@@ -12,6 +12,7 @@ const plugins = [
     if (pluginName.startsWith('.')) {
         return pluginName;
     }
+    // account for installations where deps are flattened and installations where they're nested
     const defaultPath = `./node_modules/${pluginName}`;
     if (fs.existsSync(path.resolve(__dirname, defaultPath))) {
         return defaultPath;
@@ -20,16 +21,24 @@ const plugins = [
     }
 });
 
-module.exports = {
+/**
+ * @typedef {import('prettier-plugin-multiline-arrays').MultilineArrayOptions} MultilineOptions
+ *
+ * @typedef {import('prettier').Options} PrettierOptions
+ * @type {PrettierOptions & MultilineOptions}
+ */
+const prettierConfig = {
     arrowParens: 'always',
     bracketSpacing: false,
     endOfLine: 'lf',
     htmlWhitespaceSensitivity: 'ignore',
     jsonRecursiveSort: true,
     bracketSameLine: false,
-    plugins: plugins,
+    plugins,
     printWidth: 100,
     singleQuote: true,
     tabWidth: 4,
     trailingComma: 'all',
 };
+
+module.exports = prettierConfig;
