@@ -1,5 +1,5 @@
 import {capitalizeFirst} from '../augments/string';
-import {elementsPerLineTrigger, elementWrapThreshold} from '../options';
+import {linePatternComment, wrapThresholdComment} from '../options';
 import {MultilineArrayTest, runTests} from './run-tests';
 
 const javascriptTests: MultilineArrayTest[] = [
@@ -19,7 +19,7 @@ const javascriptTests: MultilineArrayTest[] = [
     {
         name: 'basic wrap threshold comment',
         code: `
-            // ${elementWrapThreshold} 3
+            // ${wrapThresholdComment} 3
             const thingieArray = ['hello'];
         `,
     },
@@ -37,10 +37,10 @@ const javascriptTests: MultilineArrayTest[] = [
             const thingieArray = ['hello'];
         `,
         options: {
-            multilineArrayWrapThreshold: 'fifty two' as any,
+            multilineArraysWrapThreshold: 'fifty two' as any,
         },
         failureMessage:
-            'Invalid multilineArrayWrapThreshold value. Expected an integer, but received "fifty two".',
+            'Invalid multilineArraysWrapThreshold value. Expected an integer, but received "fifty two".',
     },
     {
         name: 'wrap threshold through options',
@@ -48,7 +48,7 @@ const javascriptTests: MultilineArrayTest[] = [
             const thingieArray = ['hello'];
         `,
         options: {
-            multilineArrayWrapThreshold: 3,
+            multilineArraysWrapThreshold: 3,
         },
     },
     {
@@ -66,7 +66,7 @@ const javascriptTests: MultilineArrayTest[] = [
             ];
         `,
         options: {
-            multilineArrayElementsPerLine: '1 2 3',
+            multilineArraysLinePattern: '1 2 3',
         },
     },
     {
@@ -84,14 +84,14 @@ const javascriptTests: MultilineArrayTest[] = [
             ];
         `,
         options: {
-            multilineArrayElementsPerLine: '1 2 3',
-            multilineArrayWrapThreshold: 20,
+            multilineArraysLinePattern: '1 2 3',
+            multilineArraysWrapThreshold: 20,
         },
     },
     {
         name: 'pointless wrap threshold comment',
         code: `
-            // ${elementWrapThreshold} 0
+            // ${wrapThresholdComment} 0
             const thingieArray = [
                 'hello',
             ];
@@ -102,7 +102,7 @@ const javascriptTests: MultilineArrayTest[] = [
         name: 'interpolated string example',
         code: `
             if (children.length) {
-                // ${elementWrapThreshold} 1
+                // ${wrapThresholdComment} 1
                 return [\`\${input.type}:\`];
             }
         `,
@@ -121,7 +121,7 @@ const javascriptTests: MultilineArrayTest[] = [
         name: 'single line comment with just one line count',
         // prettier-ignore
         code: `
-            // prettier-elements-per-line: 2
+            // ${linePatternComment} 2
             const originalArray = [
                 0,
                 1,
@@ -131,7 +131,7 @@ const javascriptTests: MultilineArrayTest[] = [
             ];
         `,
         expected: `
-            // prettier-elements-per-line: 2
+            // ${linePatternComment} 2
             const originalArray = [
                 0, 1,
                 2, 3,
@@ -144,7 +144,7 @@ const javascriptTests: MultilineArrayTest[] = [
         // prettier-ignore
         code: `
             describe(filterMap.name, () => {
-                // prettier-elements-per-line: 2
+                // ${linePatternComment} 2
                 const originalArray = [
                     0,
                     1,
@@ -156,7 +156,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
         expected: `
             describe(filterMap.name, () => {
-                // prettier-elements-per-line: 2
+                // ${linePatternComment} 2
                 const originalArray = [
                     0, 1,
                     2, 3,
@@ -366,7 +366,7 @@ const javascriptTests: MultilineArrayTest[] = [
                 ['s', 't'],
             ];
             /**
-             * ${capitalizeFirst(elementsPerLineTrigger)} 2 1 3
+             * ${capitalizeFirst(linePatternComment)} 2 1 3
              */
             const setNumberPerLine = [
                 'a', 'b',
@@ -394,7 +394,7 @@ const javascriptTests: MultilineArrayTest[] = [
                     't',
                 ],
             ];
-            /** ${capitalizeFirst(elementsPerLineTrigger)} 2 1 3 */
+            /** ${capitalizeFirst(linePatternComment)} 2 1 3 */
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -406,7 +406,7 @@ const javascriptTests: MultilineArrayTest[] = [
         name: 'array with single line trigger comment',
         // prettier-ignore
         code: `
-        // ${elementsPerLineTrigger} 2 1 3
+        // ${linePatternComment} 2 1 3
         const setNumberPerLine = [
             'a', 'b',
             'c',
@@ -421,7 +421,7 @@ const javascriptTests: MultilineArrayTest[] = [
         ];`,
         // prettier-ignore
         expected: `
-            // ${(elementsPerLineTrigger)} 2 1 3
+            // ${(linePatternComment)} 2 1 3
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -436,7 +436,7 @@ const javascriptTests: MultilineArrayTest[] = [
         name: 'array with line trigger comment using commas',
         // prettier-ignore
         code: `
-        // ${elementsPerLineTrigger} 2, 1, 3
+        // ${linePatternComment} 2, 1, 3
         const setNumberPerLine = [
             'a', 'b',
             'c',
@@ -451,7 +451,7 @@ const javascriptTests: MultilineArrayTest[] = [
         ];`,
         // prettier-ignore
         expected: `
-            // ${elementsPerLineTrigger} 2, 1, 3
+            // ${linePatternComment} 2, 1, 3
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -467,7 +467,7 @@ const javascriptTests: MultilineArrayTest[] = [
         // prettier-ignore
         code: `
             /**
-            * ${capitalizeFirst(elementsPerLineTrigger)} 2 1
+            * ${capitalizeFirst(linePatternComment)} 2 1
             * 3
             */
             const setNumberPerLine = [
@@ -478,7 +478,7 @@ const javascriptTests: MultilineArrayTest[] = [
             ];`,
         // prettier-ignore
         expected: `
-            /** ${capitalizeFirst(elementsPerLineTrigger)} 2 1 3 */
+            /** ${capitalizeFirst(linePatternComment)} 2 1 3 */
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -523,6 +523,9 @@ const javascriptTests: MultilineArrayTest[] = [
                 '1 1',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         name: 'single element array on multiple lines',
@@ -536,6 +539,9 @@ const javascriptTests: MultilineArrayTest[] = [
                 '1 1',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         name: 'multiple different styled arrays all together',
@@ -563,6 +569,9 @@ const javascriptTests: MultilineArrayTest[] = [
                 '2, 2',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         name: 'single element string array with type definition',
@@ -574,6 +583,9 @@ const javascriptTests: MultilineArrayTest[] = [
                 'hello',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         name: 'double element string array with type definition',

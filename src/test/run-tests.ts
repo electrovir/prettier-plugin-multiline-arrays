@@ -7,7 +7,7 @@ import {MultilineArrayOptions} from '../options';
 
 const repoConfig: Options = importedRepoConfig as Options;
 
-function format(
+function runPrettierFormat(
     code: string,
     extension: string,
     options: Partial<MultilineArrayOptions> = {},
@@ -62,7 +62,7 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser?
             try {
                 const inputCode = removeIndent(test.code);
                 const expected = removeIndent(test.expected ?? test.code);
-                const formatted = format(inputCode, extension, test.options, parser);
+                const formatted = runPrettierFormat(inputCode, extension, test.options, parser);
                 expect(formatted).toBe(expected);
                 if (formatted !== expected) {
                     allPassed = false;

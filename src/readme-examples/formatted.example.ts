@@ -4,9 +4,10 @@ export const myArray = [
     'c',
 ];
 
-// prettier-elements-per-line: 2 1
 export const myCustomArray = [
-    'a', 'b',
+    'a',
+    'b',
     'c',
-    'd', 'e',
+    'd',
+    'e',
 ];

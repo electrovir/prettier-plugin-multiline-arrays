@@ -63,8 +63,8 @@ export const options: Record<keyof MultilineArrayOptions, SupportOption> = getOb
         type:
             typeof defaultValue === 'number'
                 ? 'int'
-                : // prettier's types are wrong here, string is expected
-                  ('string' as any),
+                : // prettier's types are wrong here, 'string' is expected
+                  (typeof defaultValue as any),
         category: 'multilineArray',
         since: '0.0.1',
         default: Array.isArray(defaultValue) ? defaultValue.join(' ') : (defaultValue as any),

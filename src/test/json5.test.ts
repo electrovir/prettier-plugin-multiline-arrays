@@ -1,4 +1,4 @@
-import {elementWrapThreshold} from '../options';
+import {wrapThresholdComment} from '../options';
 import {MultilineArrayTest, runTests} from './run-tests';
 
 const json5Tests: MultilineArrayTest[] = [
@@ -29,7 +29,7 @@ const json5Tests: MultilineArrayTest[] = [
     {
         name: 'basic wrap threshold comment',
         code: `
-            // ${elementWrapThreshold} 3
+            // ${wrapThresholdComment} 3
             ['hello']
         `,
     },
@@ -39,10 +39,10 @@ const json5Tests: MultilineArrayTest[] = [
             ['hello']
         `,
         options: {
-            multilineArrayWrapThreshold: 'fifty two' as any,
+            multilineArraysWrapThreshold: 'fifty two' as any,
         },
         failureMessage:
-            'Invalid multilineArrayWrapThreshold value. Expected an integer, but received "fifty two".',
+            'Invalid multilineArraysWrapThreshold value. Expected an integer, but received "fifty two".',
     },
     {
         name: 'wrap threshold through options',
@@ -50,7 +50,7 @@ const json5Tests: MultilineArrayTest[] = [
             ['hello']
         `,
         options: {
-            multilineArrayWrapThreshold: 3,
+            multilineArraysWrapThreshold: 3,
         },
     },
     {
@@ -68,7 +68,7 @@ const json5Tests: MultilineArrayTest[] = [
             ]
         `,
         options: {
-            multilineArrayElementsPerLine: '1 2 3',
+            multilineArraysLinePattern: '1 2 3',
         },
     },
     {
@@ -86,14 +86,14 @@ const json5Tests: MultilineArrayTest[] = [
             ]
         `,
         options: {
-            multilineArrayElementsPerLine: '1 2 3',
-            multilineArrayWrapThreshold: 20,
+            multilineArraysLinePattern: '1 2 3',
+            multilineArraysWrapThreshold: 20,
         },
     },
     {
         name: 'pointless wrap threshold comment',
         code: `
-            // ${elementWrapThreshold} 0
+            // ${wrapThresholdComment} 0
             [
                 'hello',
             ]

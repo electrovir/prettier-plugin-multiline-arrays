@@ -5,6 +5,7 @@ const path = require('path');
 const plugins = [
     'prettier-plugin-sort-json',
     'prettier-plugin-packagejson',
+    // "dist" below represents "prettier-plugin-multiline-arrays"
     './dist/',
     'prettier-plugin-organize-imports',
     'prettier-plugin-jsdoc',

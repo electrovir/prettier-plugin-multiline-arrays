@@ -1,9 +1,9 @@
 import {Comment, Node} from 'estree';
 import {
-    elementsPerLineTrigger,
-    elementWrapThreshold,
-    untilLineTriggerRegExp,
+    linePatternComment,
+    untilLinePatternTriggerRegExp,
     untilWrapThresholdRegExp,
+    wrapThresholdComment,
 } from '../options';
 import {extractComments} from './comments';
 
@@ -47,6 +47,7 @@ function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
             if (wrapThreshold != undefined) {
                 accum.wrapThresholds[currentComment.loc.end.line] = wrapThreshold;
             }
+
             return accum;
         },
         {
@@ -61,7 +62,7 @@ function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
 }
 
 function getWrapThreshold(commentText?: string): number | undefined {
-    if (commentText?.toLowerCase().includes(elementWrapThreshold)) {
+    if (commentText?.toLowerCase().includes(wrapThresholdComment)) {
         const thresholdValue = Number(
             commentText.toLowerCase().replace(untilWrapThresholdRegExp, '').trim(),
         );
@@ -81,7 +82,7 @@ export function parseLineCounts(input: string, debug: boolean): number[] {
     }
     const split = input
         .toLowerCase()
-        .replace(untilLineTriggerRegExp, '')
+        .replace(untilLinePatternTriggerRegExp, '')
         .replace(/,/g, '')
         .split(' ')
         .filter((entry) => !!entry);
@@ -138,7 +139,7 @@ export function parseLineCounts(input: string, debug: boolean): number[] {
 }
 
 function getLineCounts(commentText: string | undefined, debug: boolean): number[] {
-    if (commentText?.toLowerCase().includes(elementsPerLineTrigger)) {
+    if (commentText?.toLowerCase().includes(linePatternComment)) {
         return parseLineCounts(commentText, debug);
     } else {
         return [];

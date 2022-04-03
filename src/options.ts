@@ -2,27 +2,27 @@ import {getObjectTypedKeys} from 'augment-vir';
 
 export const envDebugKey = 'NEW_LINE_DEBUG';
 
-export const elementsPerLineTrigger = 'prettier-elements-per-line:';
-export const untilLineTriggerRegExp = new RegExp(`.*${elementsPerLineTrigger}`);
+export const linePatternComment = 'prettier-multiline-arrays-next-line-pattern:';
+export const untilLinePatternTriggerRegExp = new RegExp(`.*${linePatternComment}`);
 
-export const elementWrapThreshold = 'prettier-wrap-threshold:';
-export const untilWrapThresholdRegExp = new RegExp(`.*${elementWrapThreshold}`);
+export const wrapThresholdComment = 'prettier-multiline-arrays-next-threshold:';
+export const untilWrapThresholdRegExp = new RegExp(`.*${wrapThresholdComment}`);
 
 export type MultilineArrayOptions = {
     /**
      * If there are MORE elements in the array than this, the array will be forced to wrap.
      *
-     * The default is 0, which indicates that all arrays with any elements will wrap.
+     * The default is 1, which indicates that all arrays with more than 1 element will wrap.
      *
-     * Set to 1 to only wrap if there are more than 1 element. Etc.
+     * Set to 2 to only wrap if there are more than 2 element. Etc.
      */
-    multilineArrayWrapThreshold: number;
-    multilineArrayElementsPerLine: string;
+    multilineArraysWrapThreshold: number;
+    multilineArraysLinePattern: string;
 };
 
 export const optionHelp: Record<keyof MultilineArrayOptions, string> = {
-    multilineArrayWrapThreshold: `A number indicating that all arrays should wrap when they have MORE than the specified number. Defaults to 0, indicating that all arrays will wrap.\nExample: multilineArrayWrapThreshold: 3,\nCan be overridden with a comment starting with ${elementWrapThreshold}.\nComment example: // ${elementWrapThreshold} 5`,
-    multilineArrayElementsPerLine: `A string with a space separated list of numbers indicating how many elements should be on each line. The pattern repeats if an array is longer than the pattern. Defaults to an empty string. Any invalid numbers causes the whole pattern to revert to the default. This overrides the wrap threshold option.\nExample: elementsPerLinePattern: "3 2 1"\nCan be overridden with a comment starting with ${elementsPerLineTrigger}.\nComment example: // ${elementsPerLineTrigger} 3 2 1\nThis option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count.`,
+    multilineArraysWrapThreshold: `A number indicating that all arrays should wrap when they have MORE than the specified number. Defaults to 1, indicating that all arrays with more than one element will wrap.\nExample: multilineArraysWrapThreshold: 3\nCan be overridden with a comment starting with ${wrapThresholdComment}.\nComment example: // ${wrapThresholdComment} 5`,
+    multilineArraysLinePattern: `A string with a space separated list of numbers indicating how many elements should be on each line. The pattern repeats if an array is longer than the pattern. Defaults to an empty string. Any invalid numbers causes the whole pattern to revert to the default. This overrides the wrap threshold option.\nExample: elementsPerLinePattern: "3 2 1"\nCan be overridden with a comment starting with ${linePatternComment}.\nComment example: // ${linePatternComment} 3 2 1\nThis option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count.`,
 };
 
 const optionPropertyValidators: {
@@ -30,21 +30,21 @@ const optionPropertyValidators: {
         input: any,
     ) => input is MultilineArrayOptions[Property];
 } = {
-    multilineArrayWrapThreshold: (input): input is number =>
+    multilineArraysWrapThreshold: (input): input is number =>
         typeof input === 'number' && !isNaN(input),
-    multilineArrayElementsPerLine: (input): input is string => typeof input === 'string',
+    multilineArraysLinePattern: (input): input is string => typeof input === 'string',
 };
 
 export const defaultMultilineArrayOptions: MultilineArrayOptions = {
-    multilineArrayWrapThreshold: 0,
-    multilineArrayElementsPerLine: '',
+    multilineArraysWrapThreshold: 1,
+    multilineArraysLinePattern: '',
 };
 
-export function fillInOptions(input: unknown): MultilineArrayOptions {
+export function fillInOptions<T extends object>(input: T | undefined): MultilineArrayOptions & T {
     if (!input || typeof input !== 'object') {
-        return defaultMultilineArrayOptions;
+        return defaultMultilineArrayOptions as MultilineArrayOptions & T;
     }
-    const newOptions: MultilineArrayOptions = {} as any;
+    const newOptions: MultilineArrayOptions & T = {...input} as MultilineArrayOptions & T;
     getObjectTypedKeys(defaultMultilineArrayOptions).forEach((optionsKey) => {
         const inputValue: unknown = (input as any)[optionsKey];
         const defaultValue = defaultMultilineArrayOptions[optionsKey];

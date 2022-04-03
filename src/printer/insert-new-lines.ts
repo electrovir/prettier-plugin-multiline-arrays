@@ -1,9 +1,11 @@
 import {Node} from 'estree';
-import {AstPath, Doc, doc} from 'prettier';
+import {AstPath, Doc, doc, ParserOptions} from 'prettier';
 import {isDocCommand, stringifyDoc} from '../augments/doc';
 import {MultilineArrayOptions} from '../options';
 import {walkDoc} from './child-docs';
 import {getCommentTriggers, parseLineCounts} from './comment-triggers';
+import {isArrayLikeNode} from './supported-node-types';
+import {containsTrailingComma} from './trailing-comma';
 
 const nestingSyntaxOpen = '[{(`' as const;
 const nestingSyntaxClose = ']})`' as const;
@@ -12,6 +14,7 @@ const found = 'Found "[" but';
 
 function insertArrayLines(
     inputDoc: Doc,
+    forceWrap: boolean,
     lineCounts: number[],
     wrapThreshold: number,
     debug: boolean,
@@ -307,7 +310,7 @@ function insertArrayLines(
                 });
             }
 
-            if (arrayChildCount < wrapThreshold && !lineCounts.length) {
+            if (arrayChildCount < wrapThreshold && !lineCounts.length && !forceWrap) {
                 undoMutations.reverse().forEach((undoMutation) => {
                     undoMutation();
                 });
@@ -329,7 +332,7 @@ function insertArrayLines(
 export function printWithMultilineArrays(
     originalFormattedOutput: Doc,
     path: AstPath,
-    multilineOptions: MultilineArrayOptions,
+    inputOptions: MultilineArrayOptions & ParserOptions<any>,
     debug: boolean,
 ): Doc {
     const rootNode = path.stack[0];
@@ -340,25 +343,29 @@ export function printWithMultilineArrays(
     }
     const node = path.getValue() as Node | undefined;
     if (node) {
-        if (
-            node.type === 'ArrayExpression' ||
-            node.type === 'ArrayPattern' ||
-            (node.type as any) === 'TupleExpression'
-        ) {
+        if (isArrayLikeNode(node)) {
             if (!node.loc) {
-                throw new Error(
-                    `Could not find location of node ${'value' in node ? node.value : node.type}`,
-                );
+                throw new Error(`Could not find location of node ${node.type}`);
             }
-
             const lastLine = node.loc.start.line - 1;
             const commentTriggers = getCommentTriggers(rootNode, debug);
-            const lineCounts =
+
+            const originalText: string = inputOptions.originalText;
+
+            const includesTrailingComma = containsTrailingComma(
+                node,
+                originalText.split('\n'),
+                debug,
+            );
+
+            const forceWrap = includesTrailingComma;
+
+            const lineCounts: number[] =
                 commentTriggers.lineCounts[lastLine] ??
-                parseLineCounts(multilineOptions.multilineArrayElementsPerLine, debug);
+                parseLineCounts(inputOptions.multilineArraysLinePattern, debug);
             const wrapThreshold =
                 commentTriggers.wrapThresholds[lastLine] ??
-                multilineOptions.multilineArrayWrapThreshold;
+                inputOptions.multilineArraysWrapThreshold;
 
             if (debug) {
                 console.info(`======= Starting call to ${insertArrayLines.name}: =======`);
@@ -366,6 +373,7 @@ export function printWithMultilineArrays(
             }
             const newDoc = insertArrayLines(
                 originalFormattedOutput,
+                forceWrap,
                 lineCounts,
                 wrapThreshold,
                 debug,

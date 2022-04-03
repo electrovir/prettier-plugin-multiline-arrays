@@ -33,7 +33,8 @@ function wrapInOriginalPrinterCall<T extends string = string>(
                 return originalOutput;
             }
 
-            const multilineOptions: MultilineArrayOptions = fillInOptions(options);
+            const multilineOptions: MultilineArrayOptions & ParserOptions<any> =
+                fillInOptions(options);
             return printWithMultilineArrays(originalOutput, args[0], multilineOptions, debug);
         } else {
             let thisParent: any = originalPrinter;

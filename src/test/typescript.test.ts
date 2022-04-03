@@ -1,5 +1,5 @@
 import {capitalizeFirst} from '../augments/string';
-import {elementsPerLineTrigger, elementWrapThreshold} from '../options';
+import {linePatternComment, wrapThresholdComment} from '../options';
 import {MultilineArrayTest, runTests} from './run-tests';
 
 export const typescriptTests: MultilineArrayTest[] = [
@@ -25,6 +25,9 @@ export const typescriptTests: MultilineArrayTest[] = [
                 otherThingie < 5 ? 'owl' : 'goat',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         name: 'should work with multiple nested arrays',
@@ -72,6 +75,61 @@ export const typescriptTests: MultilineArrayTest[] = [
                 ],
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
+    },
+    {
+        name: 'forces array wrapping if a trailing comma is used',
+        code: `
+            const myArray = [1, 2, 3,];
+        `,
+        expected: `
+            const myArray = [
+                1,
+                2,
+                3,
+            ];
+        `,
+        options: {
+            multilineArraysWrapThreshold: 10,
+        },
+    },
+    {
+        name: 'an array without wrapping should only take up one line',
+        code: `
+            // ${wrapThresholdComment} 8
+            const flatArray = [0, 0, 0, 1, 1];
+        `,
+    },
+    {
+        name: 'a nested array without wrapping should only take up one line',
+        code: `
+        const flatNestedArray = [
+                // ${wrapThresholdComment} 8
+                [0, 0, 0, 1, 1],
+                // ${wrapThresholdComment} 8
+                [0, 0, 0, 1, 1],
+                // ${wrapThresholdComment} 8
+                [0, 0, 0, 1, 1],
+                // ${wrapThresholdComment} 8
+                [0, 0, 0, 1, 1],
+                // ${wrapThresholdComment} 8
+                [0, 0, 0, 1, 1],
+            ];
+        `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
+    },
+    {
+        name: 'does not force array wrapping if a trailing comma is not used',
+        code: `
+            const myArray = [1, 2, 3];
+        `,
+        options: {
+            multilineArraysWrapThreshold: 10,
+        },
     },
     {
         name: 'works with array expansion in function parameters',
@@ -85,6 +143,9 @@ export const typescriptTests: MultilineArrayTest[] = [
                 ],
             ) {}
         `,
+        options: {
+            multilineArraysWrapThreshold: 10,
+        },
     },
     {
         name: 'works with array expansion in function parameters with multiple entries',
@@ -104,18 +165,18 @@ export const typescriptTests: MultilineArrayTest[] = [
     {
         name: 'basic wrap threshold comment',
         code: `
-            // ${elementWrapThreshold} 3
+            // ${wrapThresholdComment} 3
             const thingieArray = ['hello'];
         `,
     },
     {
         name: 'still wraps really long text below the threshold',
         code: `
-            // ${elementWrapThreshold} 3
+            // ${wrapThresholdComment} 3
             const thingieArray = ['HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello'];
         `,
         expected: `
-            // ${elementWrapThreshold} 3
+            // ${wrapThresholdComment} 3
             const thingieArray = [
                 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello',
             ];
@@ -124,11 +185,11 @@ export const typescriptTests: MultilineArrayTest[] = [
     {
         name: 'does not wrap really long text when the line count prevents it',
         code: `
-            // ${elementsPerLineTrigger} 1 3
+            // ${linePatternComment} 1 3
             const thingieArray = ['hello', 'hello', 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello', 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHello'];
         `,
         expected: `
-            // ${elementsPerLineTrigger} 1 3
+            // ${linePatternComment} 1 3
             const thingieArray = [
                 'hello',
                 'hello', 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello', 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHello',
@@ -141,10 +202,10 @@ export const typescriptTests: MultilineArrayTest[] = [
             const thingieArray = ['hello'];
         `,
         options: {
-            multilineArrayWrapThreshold: 'fifty two' as any,
+            multilineArraysWrapThreshold: 'fifty two' as any,
         },
         failureMessage:
-            'Invalid multilineArrayWrapThreshold value. Expected an integer, but received "fifty two".',
+            'Invalid multilineArraysWrapThreshold value. Expected an integer, but received "fifty two".',
     },
     {
         name: 'wrap threshold through options',
@@ -152,7 +213,7 @@ export const typescriptTests: MultilineArrayTest[] = [
             const thingieArray = ['hello'];
         `,
         options: {
-            multilineArrayWrapThreshold: 3,
+            multilineArraysWrapThreshold: 3,
         },
     },
     {
@@ -170,7 +231,7 @@ export const typescriptTests: MultilineArrayTest[] = [
             ];
         `,
         options: {
-            multilineArrayElementsPerLine: '1 2 3',
+            multilineArraysLinePattern: '1 2 3',
         },
     },
     {
@@ -191,7 +252,7 @@ export const typescriptTests: MultilineArrayTest[] = [
             ];
         `,
         options: {
-            multilineArrayElementsPerLine: '1 2 3 fff',
+            multilineArraysLinePattern: '1 2 3 fff',
         },
     },
     {
@@ -209,14 +270,14 @@ export const typescriptTests: MultilineArrayTest[] = [
             ];
         `,
         options: {
-            multilineArrayElementsPerLine: '1 2 3',
-            multilineArrayWrapThreshold: 20,
+            multilineArraysLinePattern: '1 2 3',
+            multilineArraysWrapThreshold: 20,
         },
     },
     {
         name: 'pointless wrap threshold comment',
         code: `
-            // ${elementWrapThreshold} 0
+            // ${wrapThresholdComment} 0
             const thingieArray = [
                 'hello',
             ];
@@ -227,7 +288,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         name: 'interpolated string example',
         code: `
             if (children.length) {
-                // ${elementWrapThreshold} 1
+                // ${wrapThresholdComment} 1
                 return [\`\${input.type}:\`];
             }
         `,
@@ -246,7 +307,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         name: 'single line comment with just one line count',
         // prettier-ignore
         code: `
-            // prettier-elements-per-line: 2
+            // ${linePatternComment} 2
             const originalArray: Readonly<number[]> = [
                 0,
                 1,
@@ -256,7 +317,7 @@ export const typescriptTests: MultilineArrayTest[] = [
             ] as const;
         `,
         expected: `
-            // prettier-elements-per-line: 2
+            // ${linePatternComment} 2
             const originalArray: Readonly<number[]> = [
                 0, 1,
                 2, 3,
@@ -269,7 +330,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         // prettier-ignore
         code: `
             describe(filterMap.name, () => {
-                // prettier-elements-per-line: 2
+                // ${linePatternComment} 2
                 const originalArray: Readonly<number[]> = [
                     0,
                     1,
@@ -281,7 +342,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
         expected: `
             describe(filterMap.name, () => {
-                // prettier-elements-per-line: 2
+                // ${linePatternComment} 2
                 const originalArray: Readonly<number[]> = [
                     0, 1,
                     2, 3,
@@ -493,7 +554,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 ['s', 't'],
             ];
             /**
-             * ${capitalizeFirst(elementsPerLineTrigger)} 2 1 3
+             * ${capitalizeFirst(linePatternComment)} 2 1 3
              */
             const setNumberPerLine = [
                 'a', 'b',
@@ -521,7 +582,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                     't',
                 ],
             ];
-            /** ${capitalizeFirst(elementsPerLineTrigger)} 2 1 3 */
+            /** ${capitalizeFirst(linePatternComment)} 2 1 3 */
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -533,7 +594,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         name: 'array with single line trigger comment',
         // prettier-ignore
         code: `
-        // ${elementsPerLineTrigger} 2 1 3
+        // ${linePatternComment} 2 1 3
         const setNumberPerLine = [
             'a', 'b',
             'c',
@@ -548,7 +609,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         ];`,
         // prettier-ignore
         expected: `
-            // ${(elementsPerLineTrigger)} 2 1 3
+            // ${(linePatternComment)} 2 1 3
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -563,7 +624,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         name: 'array with line trigger comment using commas',
         // prettier-ignore
         code: `
-        // ${elementsPerLineTrigger} 2, 1, 3
+        // ${linePatternComment} 2, 1, 3
         const setNumberPerLine = [
             'a', 'b',
             'c',
@@ -578,7 +639,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         ];`,
         // prettier-ignore
         expected: `
-            // ${elementsPerLineTrigger} 2, 1, 3
+            // ${linePatternComment} 2, 1, 3
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -594,7 +655,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         // prettier-ignore
         code: `
             /**
-            * ${capitalizeFirst(elementsPerLineTrigger)} 2 1
+            * ${capitalizeFirst(linePatternComment)} 2 1
             * 3
             */
             const setNumberPerLine = [
@@ -605,7 +666,7 @@ export const typescriptTests: MultilineArrayTest[] = [
             ];`,
         // prettier-ignore
         expected: `
-            /** ${capitalizeFirst(elementsPerLineTrigger)} 2 1 3 */
+            /** ${capitalizeFirst(linePatternComment)} 2 1 3 */
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -650,6 +711,9 @@ export const typescriptTests: MultilineArrayTest[] = [
                 '1 1',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         name: 'single element array on multiple lines',
@@ -663,6 +727,9 @@ export const typescriptTests: MultilineArrayTest[] = [
                 '1 1',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         name: 'multiple different styled arrays all together',
@@ -690,6 +757,9 @@ export const typescriptTests: MultilineArrayTest[] = [
                 '2, 2',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         name: 'single element string array with type definition',
@@ -701,6 +771,9 @@ export const typescriptTests: MultilineArrayTest[] = [
                 'hello',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         name: 'double element string array with type definition',

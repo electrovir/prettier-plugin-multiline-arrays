@@ -8,20 +8,17 @@ TypeScript, JavaScript, and JSON files are supported.
 
 # Usage
 
-Add this config to your prettierrc file. The order of your plugins array is very important, so if it doesn't work initial try rearranging them. For example, here is the plugin ordering for this package's Prettier config:
+Add this config to your prettierrc file:
 
-<!-- example-link: src/readme-examples/prettier-options.ts -->
+<!-- example-link: src/readme-examples/prettier-options.example.ts -->
 
 ```TypeScript
 import {Config} from 'prettier';
 
 const prettierConfig: Config = {
     plugins: [
-        './node_modules/prettier-plugin-sort-json',
-        './node_modules/prettier-plugin-packagejson',
+        // relative paths are usually required so Prettier can find the plugin
         './node_modules/prettier-plugin-multiline-arrays', // plugin added here
-        './node_modules/prettier-plugin-organize-imports',
-        './node_modules/prettier-plugin-jsdoc',
     ],
     printWidth: 100,
     singleQuote: true,
@@ -31,51 +28,80 @@ const prettierConfig: Config = {
 module.exports = prettierConfig;
 ```
 
+The order of your plugins array is very important, so if it doesn't work initial try rearranging them. For an example, check out the plugin ordering for this package's Prettier config: [`./prettierrc.js`](https://github.com/electrovir/prettier-plugin-multiline-arrays/blob/main/.prettierrc.js)
+
 # Options
 
 This plugin makes two new options available to your Prettier config:
 
--   **`multilineArrayWrapThreshold`**: This is a single number which controls when arrays wrap. If an array has _more_ elements than the number specified here, it will be forced to wrap. This option defaults to `0`, which indicates that _all_ non-empty arrays will wrap. Example: `"multilineArrayWrapThreshold": 3,`.
--   **`multilineArrayElementsPerLine`**: This is a single string which contains a space separated list of numbers. These numbers allow fine grained control over how many elements appear in each line. The pattern will repeat if the array has more elements than the pattern. See the `Examples` section for how this works. Defaults to just `1`, which indicates all array lines have just a single element. Example: `"multilineArrayElementsPerLine": "2 1"`, which means the first line will have 2 elements, the second will have 1, the third will have 2, the fourth will have 1, and so on. _This option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._
+-   **`multilineArraysWrapThreshold`**: This is a single number which controls when arrays wrap. If an array has _more_ elements than the number specified here, it will be forced to wrap. This option defaults to `1`, which indicates that all arrays with more than 1 element will wrap. Example JSON: `"multilineArraysWrapThreshold": 3,`. The comment override for this option is `prettier-multiline-arrays-next-threshold`.
+-   **`multilineArraysLinePattern`**: This is a single string which contains a space separated list of numbers. These numbers allow fine grained control over how many elements appear in each line. The pattern will repeat if the array has more elements than the pattern. See the `Examples` section for how this works. Defaults to just `1`, which indicates all array lines have just a single element. Example: `"multilineArraysLinePattern": "2 1"`, which means the first line will have 2 elements, the second will have 1, the third will have 2, the fourth will have 1, and so on. _This option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._ The comment override for this option is `prettier-multiline-arrays-next-line-pattern`.
 
 # Comment overrides
 
--   Add a comment with `prettier-wrap-threshold:` followed by a single number to control the wrap threshold for the following line. When an array has _more_ elements than this number, it wraps. The default is `0`, which indicates that _all_ arrays will wrap unless they're empty.
--   Add a comment with `prettier-elements-per-line:` followed by a pattern of numbers to control how many elements will appear on each line for an array on the following line. Example: `// prettier-elements-per-line: 2 1 3`. The default is just `1`. Any given pattern will repeat endlessly. See the `Examples` section below. _This option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._
+-   Add a comment starting with `prettier-multiline-arrays-next-threshold:` followed by a single number to control the wrap threshold for the following line. When an array has _more_ elements than this number, it wraps. The default is `1`, which indicates that arrays with more than 1 element will wrap.
+-   Add a comment starting with `prettier-multiline-arrays-next-line-pattern:` followed by a pattern of numbers to control how many elements will appear on each line for an array on the following line. Example: `// prettier-elements-per-line: 2 1 3`. The default is just `1`. Any given pattern will repeat endlessly. See the `Examples` section below. _This option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._
 
 # Examples
 
-Not formatted:
+-   Not formatted:
 
-<!-- example-link: src/readme-examples/not-formatted.ts -->
+    <!-- example-link: src/readme-examples/not-formatted.example.ts -->
 
-```TypeScript
-// prettier-ignore
-export const myArray = ['a', 'b', 'c'];
+    ```TypeScript
+    // prettier-ignore
+    export const myArray = ['a', 'b', 'c'];
 
-// prettier-ignore
-// prettier-elements-per-line: 2 1
-export const myCustomArray = ['a', 'b', 'c', 'd', 'e']
-```
+    // prettier-ignore
+    export const myCustomArray = ['a', 'b', 'c', 'd', 'e']
+    ```
 
-Removing the `prettier-ignore` comments leads to formatting like this:
+-   Removing the `prettier-ignore` comments leads to formatting like this:
 
-<!-- example-link: src/readme-examples/formatted.ts -->
+    <!-- example-link: src/readme-examples/formatted.example.ts -->
 
-```TypeScript
-export const myArray = [
-    'a',
-    'b',
-    'c',
-];
+    ```TypeScript
+    export const myArray = [
+        'a',
+        'b',
+        'c',
+    ];
 
-// prettier-elements-per-line: 2 1
-export const myCustomArray = [
-    'a', 'b',
-    'c',
-    'd', 'e',
-];
-```
+    export const myCustomArray = [
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+    ];
+    ```
+
+-   Use comment overrides to affect wrapping:
+
+    <!-- example-link: src/readme-examples/formatted-with-comments.example.ts -->
+
+    ```TypeScript
+    // prettier-multiline-arrays-next-line-pattern: 2 1
+    export const linePatternArray = [
+        'a', 'b',
+        'c',
+        'd', 'e',
+    ];
+
+    // prettier-multiline-arrays-next-threshold: 10
+    export const highThresholdArray = ['a', 'b', 'c', 'd', 'e'];
+
+    // this example wraps because a trailing comma was included, which forces wrapping despite
+    // the high threshold comment.
+    // prettier-multiline-arrays-next-threshold: 10
+    export const highThresholdWithTrailingComma = [
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+    ];
+    ```
 
 # Compatibility
 

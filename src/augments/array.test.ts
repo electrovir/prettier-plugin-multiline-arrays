@@ -12,7 +12,7 @@ describe(extractTextBetweenRanges.name, () => {
                 ],
                 {start: {line: 0, column: 4}, end: {line: 2, column: 3}},
             ),
-        ).toBe('c d e f g h i j k l m n\no p q r s\nt ');
+        ).toBe(' d e f g h i j k l m n\no p q r s\nt u');
     });
 
     it('should extract text from the same line', () => {
@@ -23,6 +23,6 @@ describe(extractTextBetweenRanges.name, () => {
                 ],
                 {start: {line: 0, column: 4}, end: {line: 0, column: 7}},
             ),
-        ).toBe(' c ');
+        ).toBe(' d');
     });
 });

@@ -1,6 +1,6 @@
 import type {SourceLocation} from 'estree';
 
-/** Line is 0 indexed while column is 1 indexed. */
+/** Both line and column in "range" are 0 indexed. */
 export function extractTextBetweenRanges(
     input: string[],
     range: Omit<SourceLocation, 'source'>,
@@ -16,10 +16,10 @@ export function extractTextBetweenRanges(
                 `When start and end are on the same line, the start column "${range.start.column}" must be less than the end column "${range.end.column}".`,
             );
         }
-        return input[range.start.line]?.slice(range.start.column - 1, range.end.column - 1) ?? '';
+        return input[range.start.line]?.slice(range.start.column + 1, range.end.column) ?? '';
     }
 
-    let extractedText: string = input[range.start.line]?.slice(range.start.column) ?? '';
+    let extractedText: string = input[range.start.line]?.slice(range.start.column + 1) ?? '';
 
     extractedText += '\n';
 
@@ -28,7 +28,7 @@ export function extractTextBetweenRanges(
         extractedText += '\n';
     }
 
-    extractedText += input[range.end.line]?.slice(0, range.end.column - 1) ?? '';
+    extractedText += input[range.end.line]?.slice(0, range.end.column) ?? '';
 
     return extractedText;
 }
