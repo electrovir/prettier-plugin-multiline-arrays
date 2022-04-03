@@ -2,11 +2,21 @@ import {getObjectTypedKeys} from 'augment-vir';
 
 export const envDebugKey = 'NEW_LINE_DEBUG';
 
-export const linePatternComment = 'prettier-multiline-arrays-next-line-pattern:';
-export const untilLinePatternTriggerRegExp = new RegExp(`.*${linePatternComment}`);
+export const nextLinePatternComment = 'prettier-multiline-arrays-next-line-pattern:';
+// all the text up until the comment trigger
+export const untilNextLinePatternCommentRegExp = new RegExp(`.*${nextLinePatternComment}`);
+export const setLinePatternComment = 'prettier-multiline-arrays-set-line-pattern:';
+// all the text up until the comment trigger
+export const untilSetLinePatternCommentRegExp = new RegExp(`.*${setLinePatternComment}`);
 
-export const wrapThresholdComment = 'prettier-multiline-arrays-next-threshold:';
-export const untilWrapThresholdRegExp = new RegExp(`.*${wrapThresholdComment}`);
+export const nextWrapThresholdComment = 'prettier-multiline-arrays-next-threshold:';
+// all the text up until the comment trigger
+export const untilNextWrapThresholdCommentRegExp = new RegExp(`.*${nextWrapThresholdComment}`);
+export const setWrapThresholdComment = 'prettier-multiline-arrays-set-threshold:';
+// all the text up until the comment trigger
+export const untilSetWrapThresholdCommentRegExp = new RegExp(`.*${setWrapThresholdComment}`);
+
+export const resetComment = 'prettier-multiline-arrays-reset';
 
 export type MultilineArrayOptions = {
     /**
@@ -21,8 +31,8 @@ export type MultilineArrayOptions = {
 };
 
 export const optionHelp: Record<keyof MultilineArrayOptions, string> = {
-    multilineArraysWrapThreshold: `A number indicating that all arrays should wrap when they have MORE than the specified number. Defaults to 1, indicating that all arrays with more than one element will wrap.\nExample: multilineArraysWrapThreshold: 3\nCan be overridden with a comment starting with ${wrapThresholdComment}.\nComment example: // ${wrapThresholdComment} 5`,
-    multilineArraysLinePattern: `A string with a space separated list of numbers indicating how many elements should be on each line. The pattern repeats if an array is longer than the pattern. Defaults to an empty string. Any invalid numbers causes the whole pattern to revert to the default. This overrides the wrap threshold option.\nExample: elementsPerLinePattern: "3 2 1"\nCan be overridden with a comment starting with ${linePatternComment}.\nComment example: // ${linePatternComment} 3 2 1\nThis option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count.`,
+    multilineArraysWrapThreshold: `A number indicating that all arrays should wrap when they have MORE than the specified number. Defaults to 1, indicating that all arrays with more than one element will wrap.\nExample: multilineArraysWrapThreshold: 3\nCan be overridden with a comment starting with ${nextWrapThresholdComment}.\nComment example: // ${nextWrapThresholdComment} 5`,
+    multilineArraysLinePattern: `A string with a space separated list of numbers indicating how many elements should be on each line. The pattern repeats if an array is longer than the pattern. Defaults to an empty string. Any invalid numbers causes the whole pattern to revert to the default. This overrides the wrap threshold option.\nExample: elementsPerLinePattern: "3 2 1"\nCan be overridden with a comment starting with ${nextLinePatternComment}.\nComment example: // ${nextLinePatternComment} 3 2 1\nThis option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count.`,
 };
 
 const optionPropertyValidators: {

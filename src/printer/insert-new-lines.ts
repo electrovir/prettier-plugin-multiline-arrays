@@ -1,9 +1,14 @@
+import {getObjectTypedKeys, ObjectValueType} from 'augment-vir';
 import {Node} from 'estree';
 import {AstPath, Doc, doc, ParserOptions} from 'prettier';
 import {isDocCommand, stringifyDoc} from '../augments/doc';
 import {MultilineArrayOptions} from '../options';
 import {walkDoc} from './child-docs';
-import {getCommentTriggers, parseLineCounts} from './comment-triggers';
+import {
+    CommentTriggerWithEnding,
+    getCommentTriggers,
+    parseNextLineCounts,
+} from './comment-triggers';
 import {isArrayLikeNode} from './supported-node-types';
 import {containsTrailingComma} from './trailing-comma';
 
@@ -329,6 +334,29 @@ function insertArrayLines(
     return inputDoc;
 }
 
+function getLatestSetValue<T extends object>(
+    currentLine: number,
+    triggers: CommentTriggerWithEnding<T>,
+): ObjectValueType<T> | undefined {
+    const relevantSetLineCountsKey: keyof T = getObjectTypedKeys(triggers)
+        .sort()
+        .reduce((closestKey, currentKey): keyof T => {
+            if (Number(currentKey) < currentLine) {
+                const currentData = triggers[currentKey];
+
+                if (currentData && currentData.lineEnd > currentLine) {
+                    return currentKey;
+                }
+            }
+
+            return closestKey;
+        }, '' as keyof T);
+    const relevantSetLineCount: ObjectValueType<T> | undefined =
+        triggers[relevantSetLineCountsKey]?.data;
+
+    return relevantSetLineCount;
+}
+
 export function printWithMultilineArrays(
     originalFormattedOutput: Doc,
     path: AstPath,
@@ -347,7 +375,8 @@ export function printWithMultilineArrays(
             if (!node.loc) {
                 throw new Error(`Could not find location of node ${node.type}`);
             }
-            const lastLine = node.loc.start.line - 1;
+            const currentLine = node.loc.start.line;
+            const lastLine = currentLine - 1;
             const commentTriggers = getCommentTriggers(rootNode, debug);
 
             const originalText: string = inputOptions.originalText;
@@ -360,11 +389,24 @@ export function printWithMultilineArrays(
 
             const forceWrap = includesTrailingComma;
 
+            const relevantSetLineCount: number[] | undefined = getLatestSetValue(
+                currentLine,
+                commentTriggers.setLineCounts,
+            );
+
             const lineCounts: number[] =
-                commentTriggers.lineCounts[lastLine] ??
-                parseLineCounts(inputOptions.multilineArraysLinePattern, debug);
-            const wrapThreshold =
-                commentTriggers.wrapThresholds[lastLine] ??
+                commentTriggers.nextLineCounts[lastLine] ??
+                relevantSetLineCount ??
+                parseNextLineCounts(inputOptions.multilineArraysLinePattern, false, debug);
+
+            const relevantSetWrapThreshold = getLatestSetValue(
+                currentLine,
+                commentTriggers.setWrapThresholds,
+            );
+
+            const wrapThreshold: number =
+                commentTriggers.nextWrapThresholds[lastLine] ??
+                relevantSetWrapThreshold ??
                 inputOptions.multilineArraysWrapThreshold;
 
             if (debug) {

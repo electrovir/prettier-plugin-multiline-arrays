@@ -1,8 +1,15 @@
+# v1.0 breaking changes
+
+-   `prettier-elements-per-line` comment renamed to `prettier-multiline-arrays-next-line-pattern`.
+-   `prettier-wrap-threshold` comment renamed to `prettier-multiline-arrays-next-threshold`.
+-   Default `multilineArraysWrapThreshold` value is now `1`.
+-   Trailing commas now force wrapping, even if the threshold hasn't been met.
+
 # prettier-plugin-multiline-arrays
 
-Prettier plugin to force array elements to wrap onto new lines, even when there's only one element. Supports control of how many elements appear on each line.
+Prettier plugin to force array elements to wrap onto new lines, even when there's only one element. Supports control of how many elements appear on each line. Trailing commas will always force a wrap.
 
-TypeScript, JavaScript, and JSON files are supported.
+TypeScript, JavaScript, and JSON files are officially supported (others may still work).
 
 [Please file issues in the GitHub repo](https://github.com/electrovir/prettier-plugin-multiline-arrays/issues/new) and include code examples if you come across formatting errors. You can set the `NEW_LINE_DEBUG` environment variable to something truthy to get extra debug output when formatting.
 
@@ -39,8 +46,15 @@ This plugin makes two new options available to your Prettier config:
 
 # Comment overrides
 
--   Add a comment starting with `prettier-multiline-arrays-next-threshold:` followed by a single number to control the wrap threshold for the following line. When an array has _more_ elements than this number, it wraps. The default is `1`, which indicates that arrays with more than 1 element will wrap.
+-   Add a comment starting with `prettier-multiline-arrays-next-threshold:` followed by a single number to control the wrap threshold for the following line. When an array has _more_ elements than this number, it wraps. The default is `1`, which indicates that arrays with more than 1 element will wrap. Example: `// prettier-multiline-arrays-next-threshold: 5`
 -   Add a comment starting with `prettier-multiline-arrays-next-line-pattern:` followed by a pattern of numbers to control how many elements will appear on each line for an array on the following line. Example: `// prettier-elements-per-line: 2 1 3`. The default is just `1`. Any given pattern will repeat endlessly. See the `Examples` section below. _This option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._
+
+To set a comment override for multiple arrays following the comment, change `next` to `set`. Examples:
+
+-   `prettier-multiline-arrays-set-threshold: 5`
+-   `prettier-multiline-arrays-set-line-pattern: 2 1 3`
+
+To later undo a `set` comment, use `prettier-multiline-arrays-reset`.
 
 # Examples
 

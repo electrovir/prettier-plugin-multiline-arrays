@@ -1,4 +1,4 @@
-import {wrapThresholdComment} from '../options';
+import {nextWrapThresholdComment} from '../options';
 import {MultilineArrayTest, runTests} from './run-tests';
 
 const json5Tests: MultilineArrayTest[] = [
@@ -29,7 +29,7 @@ const json5Tests: MultilineArrayTest[] = [
     {
         name: 'basic wrap threshold comment',
         code: `
-            // ${wrapThresholdComment} 3
+            // ${nextWrapThresholdComment} 3
             ['hello']
         `,
     },
@@ -93,7 +93,7 @@ const json5Tests: MultilineArrayTest[] = [
     {
         name: 'pointless wrap threshold comment',
         code: `
-            // ${wrapThresholdComment} 0
+            // ${nextWrapThresholdComment} 0
             [
                 'hello',
             ]
