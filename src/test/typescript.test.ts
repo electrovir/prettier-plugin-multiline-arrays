@@ -442,6 +442,128 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        name: 'should set array threshold for all array elements',
+        code: `
+            // ${setWrapThresholdComment} 8
+            const thing = [
+                [
+                    0,
+                    0,
+                    0,
+                    1,
+                    1
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    1,
+                    1,
+                    0,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    1,
+                    1,
+                    0,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    1,
+                    0
+                ],
+                [
+                    0,
+                    0,
+                    0,
+                    1,
+                    1
+                ]
+            ];
+        `,
+        expected: `
+            // ${setWrapThresholdComment} 8
+            const thing = [
+                [0, 0, 0, 1, 1],
+                [0, 0, 1, 1, 0],
+                [0, 1, 1, 0, 0],
+                [1, 1, 0, 0, 0],
+                [1, 1, 0, 0, 0],
+                [0, 1, 1, 0, 0],
+                [0, 0, 1, 1, 0],
+                [0, 0, 0, 1, 1],
+            ];
+        `,
+    },
+    {
+        name: 'line pattern comments should override options property',
+        code: `
+            const pl = [
+                'prettier-plugin-sort-json', 'prettier-plugin-packagejson',
+                'prettier-plugin-multiline-arrays', 'prettier-plugin-organize-imports', 'prettier-plugin-jsdoc',
+            ];
+          
+            // ${nextLinePatternComment} 2 1
+            const availableTags = [
+                'a', 'aside', 'b', 'blockquote', 'br', 'code', 'em', 'figcaption', 'figure', 'h3', 'h4', 'hr', 'i', 'iframe', 'img', 'li', 'ol', 'p', 'pre', 's', 'strong', 'u', 'ul', 'video',
+                'table'
+            ]
+        `,
+        expected: `
+            const pl = [
+                'prettier-plugin-sort-json', 'prettier-plugin-packagejson', 'prettier-plugin-multiline-arrays',
+                'prettier-plugin-organize-imports', 'prettier-plugin-jsdoc',
+            ];
+            
+            // ${nextLinePatternComment} 2 1
+            const availableTags = [
+                'a', 'aside',
+                'b',
+                'blockquote', 'br',
+                'code',
+                'em', 'figcaption',
+                'figure',
+                'h3', 'h4',
+                'hr',
+                'i', 'iframe',
+                'img',
+                'li', 'ol',
+                'p',
+                'pre', 's',
+                'strong',
+                'u', 'ul',
+                'video',
+                'table',
+            ];
+        `,
+        options: {
+            multilineArraysLinePattern: '3',
+        },
+    },
+    {
         name: 'reset should clear set comment',
         // prettier-ignore
         code: `
