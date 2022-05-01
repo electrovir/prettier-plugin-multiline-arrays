@@ -34,18 +34,14 @@
         "test:full": "npm test && npm run spellcheck && virmator format check --no-write-config && virmator code-in-markdown --check README.md"
     },
     "dependencies": {
-        "augment-vir": "1.9.1"
+        "augment-vir": "2.0.2"
     },
     "devDependencies": {
         "@types/esprima": "4.0.3",
         "@types/jest": "27.4.1",
-        "@types/prettier": "2.4.4",
+        "@types/prettier": "2.6.0",
         "cross-env": "7.0.3",
-        "jest": "27.5.1",
-        "nodemon": "2.0.15",
-        "ts-jest": "27.1.4",
-        "ts-node": "10.7.0",
-        "typescript": "4.6.3",
-        "virmator": "2.0.3"
+        "typescript": "4.6.4",
+        "virmator": "2.0.6"
     }
 }
