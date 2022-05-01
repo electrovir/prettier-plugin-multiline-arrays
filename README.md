@@ -1,10 +1,3 @@
-# v1.0 breaking changes
-
--   `prettier-elements-per-line` comment renamed to `prettier-multiline-arrays-next-line-pattern`.
--   `prettier-wrap-threshold` comment renamed to `prettier-multiline-arrays-next-threshold`.
--   Default `multilineArraysWrapThreshold` value is now `1`.
--   Trailing commas now force wrapping, even if the threshold hasn't been met.
-
 # prettier-plugin-multiline-arrays
 
 Prettier plugin to force array elements to wrap onto new lines, even when there's only one element. Supports control of how many elements appear on each line. Trailing commas will always force a wrap.
@@ -35,26 +28,26 @@ const prettierConfig: Config = {
 module.exports = prettierConfig;
 ```
 
-The order of your plugins array is very important, so if it doesn't work initial try rearranging them. For an example, check out the plugin ordering for this package's Prettier config: [`./prettierrc.js`](https://github.com/electrovir/prettier-plugin-multiline-arrays/blob/main/.prettierrc.js)
+The order of your plugins array is very important, so if you have other plugins and they don't work initially, try rearranging them. For an example, check out the plugin ordering for this package's Prettier config: [`./prettierrc.js`](https://github.com/electrovir/prettier-plugin-multiline-arrays/blob/main/.prettierrc.js)
 
 # Options
 
 This plugin makes two new options available to your Prettier config:
 
--   **`multilineArraysWrapThreshold`**: This is a single number which controls when arrays wrap. If an array has _more_ elements than the number specified here, it will be forced to wrap. This option defaults to `1`, which indicates that all arrays with more than 1 element will wrap. Example JSON: `"multilineArraysWrapThreshold": 3,`. The comment override for this option is `prettier-multiline-arrays-next-threshold`.
--   **`multilineArraysLinePattern`**: This is a single string which contains a space separated list of numbers. These numbers allow fine grained control over how many elements appear in each line. The pattern will repeat if the array has more elements than the pattern. See the `Examples` section for how this works. Defaults to just `1`, which indicates all array lines have just a single element. Example: `"multilineArraysLinePattern": "2 1"`, which means the first line will have 2 elements, the second will have 1, the third will have 2, the fourth will have 1, and so on. _This option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._ The comment override for this option is `prettier-multiline-arrays-next-line-pattern`.
+-   **`multilineArraysWrapThreshold`**: This should be set to a single number which controls when arrays wrap. If an array has _more_ elements than the number specified here, it will be forced to wrap. This option defaults to `1`, which indicates that all arrays with more than 1 element will wrap. Example JSON: `"multilineArraysWrapThreshold": 3,`. To override this option for an array, precede the array with a comment like so: `// prettier-multiline-arrays-next-threshold: 4`.
+-   **`multilineArraysLinePattern`**: This should be set to a string which contains a space separated list of numbers. These numbers allow fine grained control over how many elements appear in each line. The pattern will repeat if an array has more elements than the pattern. See the `Examples` section for how this works. This defaults to just `1`, which indicates all array lines have just a single element. Example: `"multilineArraysLinePattern": "2 1"`, which means the first line will have 2 elements, the second will have 1, the third will have 2, the fourth will have 1, and so on. If set, _this option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._ To override this option for an array, precede the array with a comment like so: `// prettier-multiline-arrays-next-line-pattern: 2 1`.
 
 # Comment overrides
 
 -   Add a comment starting with `prettier-multiline-arrays-next-threshold:` followed by a single number to control the wrap threshold for the following line. When an array has _more_ elements than this number, it wraps. The default is `1`, which indicates that arrays with more than 1 element will wrap. Example: `// prettier-multiline-arrays-next-threshold: 5`
 -   Add a comment starting with `prettier-multiline-arrays-next-line-pattern:` followed by a pattern of numbers to control how many elements will appear on each line for an array on the following line. Example: `// prettier-elements-per-line: 2 1 3`. The default is just `1`. Any given pattern will repeat endlessly. See the `Examples` section below. _This option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._
 
-To set a comment override for multiple arrays following the comment, change `next` to `set`. Examples:
+To set a comment override for all arrays in a file following the comment, change `next` to `set`. Examples:
 
 -   `prettier-multiline-arrays-set-threshold: 5`
 -   `prettier-multiline-arrays-set-line-pattern: 2 1 3`
 
-To later undo a `set` comment, use `prettier-multiline-arrays-reset`.
+To later undo a `set` comment, use `prettier-multiline-arrays-reset`, which resets the options to whatever you have set in prettierrc, or the default values.
 
 # Examples
 
@@ -70,7 +63,7 @@ To later undo a `set` comment, use `prettier-multiline-arrays-reset`.
     export const myCustomArray = ['a', 'b', 'c', 'd', 'e']
     ```
 
--   Removing the `prettier-ignore` comments leads to formatting like this:
+-   Removing the `prettier-ignore` comments leads to formatting like this (with the default options):
 
     <!-- example-link: src/readme-examples/formatted.example.ts -->
 
@@ -119,9 +112,10 @@ To later undo a `set` comment, use `prettier-multiline-arrays-reset`.
 
 # Compatibility
 
-Tested to be compatible with the following plugins. It is likely compatible with most/all others as well. This plugin must be placed in the order specified above in the `Usage` section.
+Tested to be compatible with the following plugins. It is likely compatible with many others as well. This plugin must be placed in the order specified below.
 
--   `prettier-plugin-sort-json`
--   `prettier-plugin-packagejson`
--   `prettier-plugin-organize-imports`
--   `prettier-plugin-jsdoc`
+1.  `prettier-plugin-sort-json`
+2.  `prettier-plugin-packagejson`
+3.  insert this plugin here
+4.  `prettier-plugin-organize-imports`
+5.  `prettier-plugin-jsdoc`
