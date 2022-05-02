@@ -738,11 +738,49 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'function parameters',
+        name: 'arguments in function call',
         code: `
             doTheThing('a', 'b', 'c');
         `,
+        expected: `
+            doTheThing(
+                'a',
+                'b',
+                'c',
+            );
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
     },
+    // {
+    //     name: 'arguments in new constructor call',
+    //     // force: true,
+    //     code: `
+    //         new doTheThing('a', 'b', 'c');
+    //     `,
+    //     expected: `
+    //         new doTheThing(
+    //             'a',
+    //             'b',
+    //             'c',
+    //         );
+    //     `,
+    // },
+    // {
+    //     name: 'arguments in function definition',
+    //     // force: true,
+    //     code: `
+    //         function doTheThing(a: string, b: string, c: string) {};
+    //     `,
+    //     expected: `
+    //         function doTheThing(
+    //             a: string,
+    //             b: string,
+    //             c: string,
+    //         ) {};
+    //     `,
+    // },
     {
         name: 'config object',
         // prettier-ignore

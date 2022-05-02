@@ -1,11 +1,31 @@
-import {ArrayExpression, ArrayPattern, Node} from 'estree';
+import {ArrayExpression, ArrayPattern, CallExpression, Node} from 'estree';
 
 export type ArrayLikeNode = ArrayExpression | ArrayPattern;
 
+const arrayLikeNodeTypes = ((
+    // maintain types with input strictness
+    input: ArrayLikeNode['type'][],
+): // but return as string for easy comparison with other node type strings
+string[] => input)([
+    'ArrayExpression',
+    'ArrayPattern',
+    // this expression type isn't accounted for in the types, but I saw it used in another plugin
+    'TupleExpression' as any,
+]);
+
 export function isArrayLikeNode(node: Node): node is ArrayLikeNode {
-    return (
-        node.type === 'ArrayExpression' ||
-        node.type === 'ArrayPattern' ||
-        (node.type as any) === 'TupleExpression'
-    );
+    return arrayLikeNodeTypes.includes(node.type);
+}
+
+export type ArgumentsLikeNode = CallExpression;
+
+const argumentsLikeNodeTypes = ((
+    // maintain types with input strictness
+    input: ArgumentsLikeNode['type'][],
+): // but return as string for easy comparison with other node type strings
+string[] => input)([
+    'CallExpression',
+]);
+export function isArgumentsLikeNode(node: Node): node is ArgumentsLikeNode {
+    return argumentsLikeNodeTypes.includes(node.type);
 }

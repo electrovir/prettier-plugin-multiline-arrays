@@ -1,18 +1,19 @@
+import {BaseNode} from 'estree';
 import {extractTextBetweenRanges} from '../augments/array';
-import {ArrayLikeNode} from './supported-node-types';
 
 export function containsTrailingComma(
-    arrayExpression: Pick<ArrayLikeNode, 'elements' | 'loc'>,
+    nodeLocation: BaseNode['loc'],
+    children: (BaseNode | null)[],
     originalLines: string[],
     debug: boolean,
 ): boolean {
-    const lastElement = arrayExpression.elements[arrayExpression.elements.length - 1];
+    const lastElement = children[children.length - 1];
     if (lastElement) {
         const startLocation = lastElement.loc?.end;
         if (!startLocation) {
             return false;
         }
-        const endLocation = arrayExpression.loc?.end;
+        const endLocation = nodeLocation?.end;
         if (!endLocation) {
             return false;
         }

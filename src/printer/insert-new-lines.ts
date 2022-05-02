@@ -1,5 +1,5 @@
 import {getObjectTypedKeys, ObjectValueType} from 'augment-vir';
-import {Node} from 'estree';
+import {CallExpression, Node} from 'estree';
 import {AstPath, Doc, doc, ParserOptions} from 'prettier';
 import {isDocCommand, stringifyDoc} from '../augments/doc';
 import {MultilineArrayOptions} from '../options';
@@ -9,7 +9,8 @@ import {
     getCommentTriggers,
     parseNextLineCounts,
 } from './comment-triggers';
-import {isArrayLikeNode} from './supported-node-types';
+import {insertLinesIntoArguments} from './insert-new-lines-into-arguments';
+import {isArgumentsLikeNode, isArrayLikeNode} from './supported-node-types';
 import {containsTrailingComma} from './trailing-comma';
 
 const nestingSyntaxOpen = '[{(`' as const;
@@ -17,7 +18,7 @@ const nestingSyntaxClose = ']})`' as const;
 
 const found = 'Found "[" but';
 
-function insertArrayLines(
+function insertLinesIntoArray(
     inputDoc: Doc,
     forceWrap: boolean,
     lineCounts: number[],
@@ -371,18 +372,22 @@ export function printWithMultilineArrays(
     }
     const node = path.getValue() as Node | undefined;
     if (node) {
-        if (isArrayLikeNode(node)) {
+        if (
+            isArrayLikeNode(node) ||
+            (inputOptions.multilineFunctionArguments && isArgumentsLikeNode(node))
+        ) {
             if (!node.loc) {
                 throw new Error(`Could not find location of node ${node.type}`);
             }
-            const currentLine = node.loc.start.line;
-            const lastLine = currentLine - 1;
+            const currentLineNumber = node.loc.start.line;
+            const lastLine = currentLineNumber - 1;
             const commentTriggers = getCommentTriggers(rootNode, debug);
 
             const originalText: string = inputOptions.originalText;
 
             const includesTrailingComma = containsTrailingComma(
-                node,
+                node.loc,
+                'arguments' in node ? (node as CallExpression).arguments : node.elements,
                 originalText.split('\n'),
                 debug,
             );
@@ -390,7 +395,7 @@ export function printWithMultilineArrays(
             const forceWrap = includesTrailingComma;
 
             const relevantSetLineCount: number[] | undefined = getLatestSetValue(
-                currentLine,
+                currentLineNumber,
                 commentTriggers.setLineCounts,
             );
 
@@ -400,7 +405,7 @@ export function printWithMultilineArrays(
                 parseNextLineCounts(inputOptions.multilineArraysLinePattern, false, debug);
 
             const relevantSetWrapThreshold = getLatestSetValue(
-                currentLine,
+                currentLineNumber,
                 commentTriggers.setWrapThresholds,
             );
 
@@ -410,16 +415,24 @@ export function printWithMultilineArrays(
                 inputOptions.multilineArraysWrapThreshold;
 
             if (debug) {
-                console.info(`======= Starting call to ${insertArrayLines.name}: =======`);
+                console.info(`======= Starting call to ${insertLinesIntoArray.name}: =======`);
                 console.info({options: {lineCounts, wrapThreshold}});
             }
-            const newDoc = insertArrayLines(
-                originalFormattedOutput,
-                forceWrap,
-                lineCounts,
-                wrapThreshold,
-                debug,
-            );
+            const newDoc = isArgumentsLikeNode(node)
+                ? insertLinesIntoArguments(
+                      originalFormattedOutput,
+                      forceWrap,
+                      lineCounts,
+                      wrapThreshold,
+                      debug,
+                  )
+                : insertLinesIntoArray(
+                      originalFormattedOutput,
+                      forceWrap,
+                      lineCounts,
+                      wrapThreshold,
+                      debug,
+                  );
             return newDoc;
         }
     }

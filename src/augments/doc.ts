@@ -27,10 +27,11 @@ export function stringifyDoc(input: Doc, recursive = false): NestedStringArray {
         if (children.length) {
             return [
                 `${input.type}:`,
-                children,
+                stringifyDoc(children, recursive),
             ];
         }
     }
+
     return [
         input.type,
     ];
