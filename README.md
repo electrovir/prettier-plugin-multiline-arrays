@@ -13,9 +13,7 @@ Add this config to your prettierrc file:
 <!-- example-link: src/readme-examples/prettier-options.example.ts -->
 
 ```TypeScript
-import {Config} from 'prettier';
-
-const prettierConfig: Config = {
+module.exports = {
     plugins: [
         // relative paths are usually required so Prettier can find the plugin
         './node_modules/prettier-plugin-multiline-arrays', // plugin added here
@@ -24,8 +22,6 @@ const prettierConfig: Config = {
     singleQuote: true,
     tabWidth: 4,
 };
-
-module.exports = prettierConfig;
 ```
 
 The order of your plugins array is very important, so if you have other plugins and they don't work initially, try rearranging them. For an example, check out the plugin ordering for this package's Prettier config: [`./prettierrc.js`](https://github.com/electrovir/prettier-plugin-multiline-arrays/blob/main/.prettierrc.js)
