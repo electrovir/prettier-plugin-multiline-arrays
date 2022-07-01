@@ -1,4 +1,4 @@
-import {ArrayExpression, ArrayPattern, CallExpression, Node} from 'estree';
+import {ArrayExpression, ArrayPattern, CallExpression, Function, NewExpression, Node} from 'estree';
 
 export type ArrayLikeNode = ArrayExpression | ArrayPattern;
 
@@ -17,7 +17,7 @@ export function isArrayLikeNode(node: Node): node is ArrayLikeNode {
     return arrayLikeNodeTypes.includes(node.type);
 }
 
-export type ArgumentsLikeNode = CallExpression;
+export type ArgumentsLikeNode = CallExpression | NewExpression | Function;
 
 const argumentsLikeNodeTypes = ((
     // maintain types with input strictness
@@ -25,6 +25,10 @@ const argumentsLikeNodeTypes = ((
 ): // but return as string for easy comparison with other node type strings
 string[] => input)([
     'CallExpression',
+    'NewExpression',
+    'ArrowFunctionExpression',
+    'FunctionDeclaration',
+    'FunctionExpression',
 ]);
 export function isArgumentsLikeNode(node: Node): node is ArgumentsLikeNode {
     return argumentsLikeNodeTypes.includes(node.type);

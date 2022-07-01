@@ -371,6 +371,7 @@ export function printWithMultilineArrays(
         );
     }
     const node = path.getValue() as Node | undefined;
+
     if (node) {
         if (
             isArrayLikeNode(node) ||
@@ -387,7 +388,11 @@ export function printWithMultilineArrays(
 
             const includesTrailingComma = containsTrailingComma(
                 node.loc,
-                'arguments' in node ? (node as CallExpression).arguments : node.elements,
+                'arguments' in node
+                    ? (node as CallExpression).arguments
+                    : 'params' in node
+                    ? node.params
+                    : node.elements,
                 originalText.split('\n'),
                 debug,
             );
@@ -418,6 +423,7 @@ export function printWithMultilineArrays(
                 console.info(`======= Starting call to ${insertLinesIntoArray.name}: =======`);
                 console.info({options: {lineCounts, wrapThreshold}});
             }
+
             const newDoc = isArgumentsLikeNode(node)
                 ? insertLinesIntoArguments(
                       originalFormattedOutput,
