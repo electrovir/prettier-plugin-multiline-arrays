@@ -17,6 +17,67 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        name: 'arguments in function call',
+        code: `
+            doTheThing('a', 'b', 'c');
+        `,
+        expected: `
+            doTheThing(
+                'a',
+                'b',
+                'c',
+            );
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'arguments in new constructor call',
+        code: `
+            new doTheThing('a', 'b', 'c');
+        `,
+        expected: `
+            new doTheThing(
+                'a',
+                'b',
+                'c',
+            );
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'arguments in function definition',
+        code: `
+            function doTheThing(a, b, c) {};
+        `,
+        expected: `
+            function doTheThing(
+                a,
+                b,
+                c,
+            ) {}
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'arguments in function definition no wrap when below threshold',
+        code: `
+            function doTheThing(a, b, c) {};
+        `,
+        expected: `
+            function doTheThing(a, b, c) {}
+        `,
+        options: {
+            multilineFunctionArguments: true,
+            multilineArraysWrapThreshold: 10,
+        },
+    },
+    {
         name: 'basic wrap threshold comment',
         code: `
             // ${nextWrapThresholdComment} 3

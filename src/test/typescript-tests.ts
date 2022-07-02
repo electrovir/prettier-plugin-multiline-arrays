@@ -771,7 +771,6 @@ export const typescriptTests: MultilineArrayTest[] = [
     },
     {
         name: 'arguments in function definition',
-        // force: true,
         code: `
             function doTheThing(a: string, b: string, c: string) {};
         `,
@@ -780,10 +779,23 @@ export const typescriptTests: MultilineArrayTest[] = [
                 a: string,
                 b: string,
                 c: string,
-            ) {};
+            ) {}
         `,
         options: {
             multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'arguments in function definition no wrap when below threshold',
+        code: `
+            function doTheThing(a: string, b: string, c: string) {};
+        `,
+        expected: `
+            function doTheThing(a: string, b: string, c: string) {}
+        `,
+        options: {
+            multilineFunctionArguments: true,
+            multilineArraysWrapThreshold: 10,
         },
     },
     {

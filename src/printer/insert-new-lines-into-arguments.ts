@@ -18,6 +18,7 @@ export function insertLinesIntoArguments(
             throw new Error(`expected currentDoc to be an array`);
         }
         const inputArgsGroup = currentDoc
+            .slice()
             .reverse()
             .find((innerDoc) => isDocCommand(innerDoc) && innerDoc.type === 'group');
         if (!inputArgsGroup) {
@@ -91,13 +92,7 @@ export function insertLinesIntoArguments(
 
                 arrayChildCount++;
 
-                if (typeof lastChild === 'string') {
-                    indentContent.push(',', doc.builders.hardlineWithoutBreakParent);
-                    const originalLength = indentContent.length;
-                    undoMutations.push(() => {
-                        indentContent.splice(originalLength);
-                    });
-                } else if (isDocCommand(lastChild) && lastChild.type === 'line') {
+                if (isDocCommand(lastChild) && lastChild.type === 'line') {
                     indentContent[lastChildIndex] = doc.builders.hardlineWithoutBreakParent;
                     undoMutations.push(() => {
                         indentContent[lastChildIndex] = lastChild;
