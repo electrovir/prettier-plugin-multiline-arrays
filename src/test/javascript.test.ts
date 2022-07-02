@@ -17,32 +17,36 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        // caught
         name: 'arguments in function call',
         code: `
-            doTheThing('a', 'b', 'c');
+            doTheThing('a123', 'b123', 'c123');
         `,
         expected: `
             doTheThing(
-                'a',
-                'b',
-                'c',
+                'a123',
+                'b123',
+                'c123',
             );
         `,
+        force: true,
         options: {
             multilineFunctionArguments: true,
         },
     },
     {
+        // caught
         name: 'assigned function call',
         code: `
-            const output = doThing('a', 'b');
+            const output = doThing('a9', 'b999');
         `,
         expected: `
         const output = doThing(
-                'a',
-                'b',
+                'a9',
+                'b999',
             );
         `,
+        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -55,6 +59,79 @@ const javascriptTests: MultilineArrayTest[] = [
         expected: `
             const output = require('path/to/thing');
         `,
+        force: true,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        // caught tsx 8 times
+        // caught argP 2 times
+        name: 'single arg arrow function',
+        code: `
+            const stuff = process.argv.some((argP) => argO.match(/\.tsq?$/));
+        `,
+        expected: `
+            const stuff = process.argv.some((argP) => argO.match(/\.tsq?$/));
+        `,
+        force: true,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        // caught argB
+        // caught tsg tons of times
+        name: 'multi arg arrow function with call in callback',
+        code: `
+            const stuff = process.argv.some((argB, indexB) => argC.match(/\.tsg?$/));
+        `,
+        expected: `
+            const stuff = process.argv.some(
+                (
+                    argB,
+                    indexB,
+                ) => argC.match(/\.tsg?$/)
+            );
+        `,
+        force: true,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'multi arg arrow function',
+        code: `
+            const stuff = process.argv.some((arg2, index3) => arg1);
+        `,
+        expected: `
+            const stuff = process.argv.some(
+                (
+                    arg2,
+                    index3,
+                ) => arg1,
+            );
+        `,
+        force: true,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'tons of args in arrow function',
+        code: `
+            const stuff = process.argv.some((reallyReallyReallyReallyReallyReallyReallyLong, reallyReallyReallyReallyReallyReallyReallyLong, reallyReallyReallyReallyReallyReallyReallyLong) => arg.match(/\.tsx?$/));
+        `,
+        expected: `
+            const stuff = process.argv.some(
+                (
+                    reallyReallyReallyReallyReallyReallyReallyLong,
+                    reallyReallyReallyReallyReallyReallyReallyLong,
+                    reallyReallyReallyReallyReallyReallyReallyLong,
+                ) => arg.match(/\.tsx?$/),
+            );
+        `,
+        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -62,15 +139,16 @@ const javascriptTests: MultilineArrayTest[] = [
     {
         name: 'arguments in new constructor call',
         code: `
-            new doTheThing('a', 'b', 'c');
+            new doTheThing('aq', 'bq', 'cq');
         `,
         expected: `
             new doTheThing(
-                'a',
-                'b',
-                'c',
+                'aq',
+                'bq',
+                'cq',
             );
         `,
+        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -78,15 +156,16 @@ const javascriptTests: MultilineArrayTest[] = [
     {
         name: 'arguments in function definition',
         code: `
-            function doTheThing(a, b, c) {};
+            function doTheThing(a1, b2, c3) {};
         `,
         expected: `
             function doTheThing(
-                a,
-                b,
-                c,
+                a1,
+                b2,
+                c3,
             ) {}
         `,
+        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -94,11 +173,12 @@ const javascriptTests: MultilineArrayTest[] = [
     {
         name: 'arguments in function definition no wrap when below threshold',
         code: `
-            function doTheThing(a, b, c) {};
+            function doTheThing(aa, bb, cc) {};
         `,
         expected: `
-            function doTheThing(a, b, c) {}
+            function doTheThing(aa, bb, cc) {}
         `,
+        force: true,
         options: {
             multilineFunctionArguments: true,
             multilineArraysWrapThreshold: 10,

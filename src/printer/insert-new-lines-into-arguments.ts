@@ -1,6 +1,32 @@
+import {isTruthy} from 'augment-vir/dist';
 import {Doc, doc} from 'prettier';
-import {isDocCommand} from '../augments/doc';
+import {isDocCommand, stringifyDoc} from '../augments/doc';
 import {walkDoc} from './child-docs';
+
+function isArgGroup(doc: doc.builders.Doc): boolean {
+    if (!isDocCommand(doc)) {
+        return false;
+    }
+    if (doc.type !== 'group') {
+        return false;
+    }
+    const contents = doc.contents;
+    if (!Array.isArray(contents)) {
+        return false;
+    }
+    const firstElement = contents[0];
+    const wrapperArray = Array.isArray(firstElement) ? firstElement : contents;
+    if (!Array.isArray(wrapperArray)) {
+        return false;
+    }
+    if (wrapperArray.filter(isTruthy)[0] !== '(') {
+        return false;
+    }
+
+    return true;
+}
+
+const found = 'Found "(" but';
 
 export function insertLinesIntoArguments(
     inputDoc: Doc,
@@ -9,112 +35,56 @@ export function insertLinesIntoArguments(
     wrapThreshold: number,
     debug: boolean,
 ): Doc {
-    walkDoc(inputDoc, debug, (currentDoc): boolean => {
-        debugger;
+    walkDoc(inputDoc, debug, (currentDoc, parentDocs, childIndex): boolean => {
+        const currentParent = parentDocs[0];
+        const parentDoc = currentParent?.parent;
+        if (typeof currentDoc === 'string' && currentDoc.trim() === '(') {
+            const undoMutations: (() => void)[] = [];
 
-        let arrayChildCount = 0;
-        const undoMutations: (() => void)[] = [];
-        if (!Array.isArray(currentDoc)) {
-            throw new Error(`expected currentDoc to be an array`);
-        }
-        const inputArgsGroup = currentDoc
-            .slice()
-            .reverse()
-            .find((innerDoc) => isDocCommand(innerDoc) && innerDoc.type === 'group');
-        if (!inputArgsGroup) {
-            // "require()" imports trigger this code path and should not be formatted
+            if (!Array.isArray(parentDoc)) {
+                if (debug) {
+                    console.error({brokenParent: parentDoc, currentDoc});
+                }
+                throw new Error(`${found} parentDoc is not an array.`);
+            }
+
+            if (debug) {
+                console.info({currentDoc, parentDoc});
+                console.info(JSON.stringify(stringifyDoc(parentDoc, true), null, 4));
+            }
+
+            if (childIndex == undefined) {
+                throw new Error(`${found} childIndex is undefined`);
+            }
+
+            const openingSiblingIndex = childIndex + 1;
+            const openingSibling = parentDoc[openingSiblingIndex];
+            if (isDocCommand(openingSibling)) {
+                // case 1. sibling is indent
+                if (isDocCommand(openingSibling) && openingSibling.type === 'indent') {
+                }
+                // case 2. sibling is concat
+                else if (isDocCommand(openingSibling) && openingSibling.type === 'concat') {
+                }
+                // case 3. sibling is group
+                else if (openingSibling.type === 'group') {
+                } else {
+                    throw new Error(``);
+                }
+            }
+            // case 4. sibling is an array
+            else if (Array.isArray(openingSibling)) {
+            } else {
+                throw new Error(`${found} its sibling was not of an expected type`);
+            }
+
+            // don't walk any deeper
             return false;
-        }
-        if (!isDocCommand(inputArgsGroup) || inputArgsGroup.type !== 'group') {
-            throw new Error(`Expected inputArgsGroup to be a group doc command.`);
-        }
-
-        const inputArgsGroupContents = inputArgsGroup.contents;
-
-        if (!Array.isArray(inputArgsGroupContents)) {
-            throw new Error(`inputArgsGroupContents is not an array`);
+        } else if (debug) {
+            console.info({ignoring: currentDoc});
         }
 
-        let indentParent = inputArgsGroupContents;
-        let inputArgsIndentIndex = indentParent.findIndex(
-            (groupContent) => isDocCommand(groupContent) && groupContent.type === 'indent',
-        );
-        if (inputArgsIndentIndex === -1) {
-            const innerContents = inputArgsGroupContents[0];
-            if (!Array.isArray(innerContents)) {
-                throw new Error(`Expected innerContents to be an array`);
-            }
-            indentParent = innerContents;
-            inputArgsIndentIndex = indentParent.findIndex(
-                (groupContent) => isDocCommand(groupContent) && groupContent.type === 'indent',
-            );
-        }
-        const inputArgsIndent = indentParent[inputArgsIndentIndex];
-        if (!isDocCommand(inputArgsIndent) || inputArgsIndent.type !== 'indent') {
-            throw new Error(`inputArgsIndent should be an indent doc`);
-        }
-
-        const ifBreakIndex = inputArgsIndentIndex + 1;
-        const inputArgsFinalIfBreak = indentParent[ifBreakIndex];
-        if (!isDocCommand(inputArgsFinalIfBreak) || inputArgsFinalIfBreak.type !== 'if-break') {
-            throw new Error(`inputArgsFinalIfBreak should be an if-break doc`);
-        }
-        indentParent[ifBreakIndex] = inputArgsFinalIfBreak.breakContents;
-        undoMutations.push(() => {
-            indentParent[ifBreakIndex] = inputArgsFinalIfBreak;
-        });
-
-        const lineBreakIndex = inputArgsIndentIndex + 2;
-        const finalLineBreak = indentParent[lineBreakIndex];
-        if (!isDocCommand(finalLineBreak) || finalLineBreak.type !== 'line') {
-            throw new Error(`Expected finalLineBreak to be a line doc.`);
-        }
-        indentParent[lineBreakIndex] = doc.builders.hardlineWithoutBreakParent;
-        undoMutations.push(() => {
-            indentParent[lineBreakIndex] = finalLineBreak;
-        });
-
-        const indentContents = inputArgsIndent.contents;
-
-        if (!Array.isArray(indentContents)) {
-            throw new Error(`indentContents should be an array`);
-        }
-
-        indentContents.forEach((indentContent, index) => {
-            debugger;
-            if (Array.isArray(indentContent)) {
-                const lastChildIndex = indentContent.length - 1;
-                const lastChild = indentContent[lastChildIndex];
-
-                if (index === indentContents.length - 1) {
-                    // don't operate on the last item
-                    return;
-                }
-
-                arrayChildCount++;
-
-                if (isDocCommand(lastChild) && lastChild.type === 'line') {
-                    indentContent[lastChildIndex] = doc.builders.hardlineWithoutBreakParent;
-                    undoMutations.push(() => {
-                        indentContent[lastChildIndex] = lastChild;
-                    });
-                }
-            } else if (isDocCommand(indentContent) && indentContent.type === 'line') {
-                const oldParts = indentContent;
-                indentContents[index] = doc.builders.hardlineWithoutBreakParent;
-                undoMutations.push(() => {
-                    indentContents[index] = oldParts;
-                });
-            }
-        });
-
-        if (arrayChildCount < wrapThreshold && !lineCounts.length && !forceWrap) {
-            undoMutations.reverse().forEach((undoMutation) => {
-                undoMutation();
-            });
-        }
-
-        return false;
+        return true;
     });
     return inputDoc;
 }

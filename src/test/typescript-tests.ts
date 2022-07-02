@@ -754,6 +754,35 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
+        name: 'single arg arrow function',
+        code: `
+            const stuff = process.argv.some((arg) => arg.match(/\.tsx?$/));
+        `,
+        expected: `
+            const stuff = process.argv.some((arg) => arg.match(/\.tsx?$/));
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'multi arg arrow function',
+        code: `
+            const stuff = process.argv.some((arg: something, index: anotherThing) => arg.match(/\.tsx?$/));
+        `,
+        expected: `
+            const stuff = process.argv.some(
+                (
+                    arg: something,
+                    index: anotherThing,
+                ) => arg.match(/\.tsx?$/)
+            );
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
         name: 'arguments in new constructor call',
         code: `
             new doTheThing('a', 'b', 'c');
