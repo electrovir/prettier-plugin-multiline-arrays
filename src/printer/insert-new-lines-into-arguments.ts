@@ -22,7 +22,8 @@ export function insertLinesIntoArguments(
             .reverse()
             .find((innerDoc) => isDocCommand(innerDoc) && innerDoc.type === 'group');
         if (!inputArgsGroup) {
-            throw new Error(`Failed to retrieve inputArgsGroup.`);
+            // "require()" imports trigger this code path and should not be formatted
+            return false;
         }
         if (!isDocCommand(inputArgsGroup) || inputArgsGroup.type !== 'group') {
             throw new Error(`Expected inputArgsGroup to be a group doc command.`);

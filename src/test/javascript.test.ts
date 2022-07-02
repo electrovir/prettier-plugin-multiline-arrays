@@ -33,6 +33,33 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
+        name: 'assigned function call',
+        code: `
+            const output = doThing('a', 'b');
+        `,
+        expected: `
+        const output = doThing(
+                'a',
+                'b',
+            );
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'require call',
+        code: `
+            const output = require('path/to/thing');
+        `,
+        expected: `
+            const output = require('path/to/thing');
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
         name: 'arguments in new constructor call',
         code: `
             new doTheThing('a', 'b', 'c');
