@@ -126,7 +126,7 @@ export function insertLinesIntoArguments(
                     undoMutation();
                 });
             } else {
-                // foundSiblingChildren.push(',', doc.builders.hardlineWithoutBreakParent);
+                // foundSiblingChildren.push(',', doc.builders.hardline);
                 // parentDoc.forEach((docEntry, index) => {
                 //     if (isDocCommand(docEntry)) {
                 //         if (docEntry.type === 'line') {
@@ -158,7 +158,7 @@ export function insertLinesIntoArguments(
                 // });
             }
 
-            debugger;
+            // debugger;
             // console.log({codePath, siblingChildren: findingSiblingChildren});
 
             // don't walk any deeper

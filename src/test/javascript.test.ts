@@ -28,7 +28,6 @@ const javascriptTests: MultilineArrayTest[] = [
                 'super long argument to force some wrapping',
             );
         `,
-        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -46,7 +45,6 @@ const javascriptTests: MultilineArrayTest[] = [
                 'c123',
             );
         `,
-        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -63,7 +61,6 @@ const javascriptTests: MultilineArrayTest[] = [
                 'b999',
             );
         `,
-        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -76,7 +73,6 @@ const javascriptTests: MultilineArrayTest[] = [
         expected: `
             const output = require('path/to/thing');
         `,
-        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -89,49 +85,46 @@ const javascriptTests: MultilineArrayTest[] = [
         expected: `
             const stuff = process.argv.some((argP) => argO.match(/\.tsq?$/));
         `,
-        force: true,
         options: {
             multilineFunctionArguments: true,
         },
     },
-    {
-        // caught argB
-        // caught tsg tons of times
-        name: 'multi arg arrow function with call in callback',
-        code: `
-            const stuff = process.argv.some((argB, indexB) => argC.match(/\.tsg?$/));
-        `,
-        expected: `
-            const stuff = process.argv.some(
-                (
-                    argB,
-                    indexB,
-                ) => argC.match(/\.tsg?$/)
-            );
-        `,
-        force: true,
-        options: {
-            multilineFunctionArguments: true,
-        },
-    },
-    {
-        name: 'multi arg arrow function',
-        code: `
-            const stuff = process.argv.some((arg2, index3) => arg1);
-        `,
-        expected: `
-            const stuff = process.argv.some(
-                (
-                    arg2,
-                    index3,
-                ) => arg1,
-            );
-        `,
-        force: true,
-        options: {
-            multilineFunctionArguments: true,
-        },
-    },
+    // {
+    //     // caught argB
+    //     // caught tsg tons of times
+    //     name: 'multi arg arrow function with call in callback',
+    //     code: `
+    //         const stuff = process.argv.some((argB, indexB) => argC.match(/\.tsg?$/));
+    //     `,
+    //     expected: `
+    //         const stuff = process.argv.some(
+    //             (
+    //                 argB,
+    //                 indexB,
+    //             ) => argC.match(/\.tsg?$/)
+    //         );
+    //     `,
+    //     options: {
+    //         multilineFunctionArguments: true,
+    //     },
+    // },
+    // {
+    //     name: 'multi arg arrow function',
+    //     code: `
+    //         const stuff = process.argv.some((arg2, index3) => arg1);
+    //     `,
+    //     expected: `
+    //         const stuff = process.argv.some(
+    //             (
+    //                 arg2,
+    //                 index3,
+    //             ) => arg1,
+    //         );
+    //     `,
+    //     options: {
+    //         multilineFunctionArguments: true,
+    //     },
+    // },
     {
         name: 'tons of args in arrow function',
         code: `
@@ -146,7 +139,6 @@ const javascriptTests: MultilineArrayTest[] = [
                 ) => arg.match(/\.tsx?$/),
             );
         `,
-        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -163,7 +155,6 @@ const javascriptTests: MultilineArrayTest[] = [
                 'cq',
             );
         `,
-        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -180,7 +171,6 @@ const javascriptTests: MultilineArrayTest[] = [
                 c3,
             ) {}
         `,
-        force: true,
         options: {
             multilineFunctionArguments: true,
         },
@@ -193,7 +183,6 @@ const javascriptTests: MultilineArrayTest[] = [
         expected: `
             function doTheThing(aa, bb, cc) {}
         `,
-        force: true,
         options: {
             multilineFunctionArguments: true,
             multilineArraysWrapThreshold: 10,
