@@ -89,42 +89,44 @@ const javascriptTests: MultilineArrayTest[] = [
             multilineFunctionArguments: true,
         },
     },
-    // {
-    //     // caught argB
-    //     // caught tsg tons of times
-    //     name: 'multi arg arrow function with call in callback',
-    //     code: `
-    //         const stuff = process.argv.some((argB, indexB) => argC.match(/\.tsg?$/));
-    //     `,
-    //     expected: `
-    //         const stuff = process.argv.some(
-    //             (
-    //                 argB,
-    //                 indexB,
-    //             ) => argC.match(/\.tsg?$/)
-    //         );
-    //     `,
-    //     options: {
-    //         multilineFunctionArguments: true,
-    //     },
-    // },
-    // {
-    //     name: 'multi arg arrow function',
-    //     code: `
-    //         const stuff = process.argv.some((arg2, index3) => arg1);
-    //     `,
-    //     expected: `
-    //         const stuff = process.argv.some(
-    //             (
-    //                 arg2,
-    //                 index3,
-    //             ) => arg1,
-    //         );
-    //     `,
-    //     options: {
-    //         multilineFunctionArguments: true,
-    //     },
-    // },
+    {
+        // caught argB
+        // caught tsg tons of times
+        name: 'multi arg arrow function with call in callback',
+        code: `
+            const stuff = process.argv.some((argB, indexB) => argC.match(/\.tsg?$/));
+        `,
+        expected: `
+            const stuff = process.argv.some(
+                (
+                    argB,
+                    indexB,
+                ) => argC.match(/\.tsg?$/)
+            );
+        `,
+        exclude: true,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'multi arg arrow function',
+        exclude: true,
+        code: `
+            const stuff = process.argv.some((arg2, index3) => arg1);
+        `,
+        expected: `
+            const stuff = process.argv.some(
+                (
+                    arg2,
+                    index3,
+                ) => arg1,
+            );
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
     {
         name: 'tons of args in arrow function',
         code: `

@@ -45,6 +45,15 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
+        name: 'should not wrap inner objects',
+        code: `
+            console.info({stdout: output.results.stdout});
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
         name: 'should wrap a function call with just two arguments',
         code: `
             doThing('what', 'who');

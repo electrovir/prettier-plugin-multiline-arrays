@@ -42,6 +42,7 @@ export type MultilineArrayTest = {
     expected?: string | undefined;
     options?: Partial<MultilineArrayOptions> | undefined;
     force?: true;
+    exclude?: true;
     failureMessage?: string;
 };
 
@@ -84,6 +85,8 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser?
         if (test.force) {
             forced = true;
             fit(test.name, testCallback);
+        } else if (test.exclude) {
+            xit(test.name, testCallback);
         } else {
             it(test.name, testCallback);
         }

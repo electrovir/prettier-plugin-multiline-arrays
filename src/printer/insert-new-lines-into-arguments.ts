@@ -1,30 +1,9 @@
-import {isTruthy} from 'augment-vir/dist';
 import {Doc, doc} from 'prettier';
 import {isDocCommand, stringifyDoc} from '../augments/doc';
 import {walkDoc} from './child-docs';
 
-function isArgGroup(doc: doc.builders.Doc): boolean {
-    if (!isDocCommand(doc)) {
-        return false;
-    }
-    if (doc.type !== 'group') {
-        return false;
-    }
-    const contents = doc.contents;
-    if (!Array.isArray(contents)) {
-        return false;
-    }
-    const firstElement = contents[0];
-    const wrapperArray = Array.isArray(firstElement) ? firstElement : contents;
-    if (!Array.isArray(wrapperArray)) {
-        return false;
-    }
-    if (wrapperArray.filter(isTruthy)[0] !== '(') {
-        return false;
-    }
-
-    return true;
-}
+const nestingSyntaxOpen = '[{(`' as const;
+const nestingSyntaxClose = ']})`' as const;
 
 const found = 'Found "(" but';
 
@@ -112,7 +91,12 @@ export function insertLinesIntoArguments(
                     undoMutations.push(() => {
                         foundSiblingChildren[index] = child;
                     });
-                } else if (child && typeof child === 'string' && child !== ',') {
+                } else if (
+                    child &&
+                    typeof child === 'string' &&
+                    child !== ',' &&
+                    !nestingSyntaxClose.includes(child)
+                ) {
                     arrayChildCount++;
                 } else if (Array.isArray(child)) {
                     arrayChildCount++;
@@ -161,7 +145,7 @@ export function insertLinesIntoArguments(
                 // });
             }
 
-            // debugger;
+            debugger;
             // console.log({codePath, siblingChildren: findingSiblingChildren});
 
             // don't walk any deeper
