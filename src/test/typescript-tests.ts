@@ -36,6 +36,57 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
+        name: 'should not wrap a function call with just one argument',
+        code: `
+            doThing('what');
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'should wrap a function call with just two arguments',
+        code: `
+            doThing('what', 'who');
+        `,
+        expected: `
+            doThing(
+                'what',
+                'who',
+            );
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'should not wrap a function definition with just one argument',
+        code: `
+            function mapToActualPaths(
+                paths: Readonly<string[]>,
+            ): Readonly<string[]> {}
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
+        name: 'works with a whole file of code that was failing',
+        code: `
+            import {assert} from 'chai';
+            import {basename} from 'path';
+            
+            describe(basename(__filename), () => {
+                it('should have a valid test', () => {
+                    assert.isTrue(true);
+                });
+            });
+        `,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
         name: 'should work with multiple nested arrays',
         code: `
             const thingie = [

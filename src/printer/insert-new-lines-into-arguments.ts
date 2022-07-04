@@ -94,6 +94,9 @@ export function insertLinesIntoArguments(
             else if (Array.isArray(openingSibling)) {
                 findingSiblingChildren = openingSibling;
                 codePath = 'array';
+            } else if (openingSibling === '' && parentDoc[openingSiblingIndex + 1] === ')') {
+                // this is for just an empty call, like the parentheses here: () => {}
+                return false;
             } else {
                 throw new Error(`${found} its sibling was not of an expected type`);
             }
