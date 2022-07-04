@@ -17,6 +17,23 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        name: 'long args that wrap already',
+        code: `
+            doTheThing('super long argument to force some wrapping', 'super long argument to force some wrapping', 'super long argument to force some wrapping');
+        `,
+        expected: `
+            doTheThing(
+                'super long argument to force some wrapping',
+                'super long argument to force some wrapping',
+                'super long argument to force some wrapping',
+            );
+        `,
+        force: true,
+        options: {
+            multilineFunctionArguments: true,
+        },
+    },
+    {
         // caught
         name: 'arguments in function call',
         code: `
@@ -65,8 +82,6 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        // caught tsx 8 times
-        // caught argP 2 times
         name: 'single arg arrow function',
         code: `
             const stuff = process.argv.some((argP) => argO.match(/\.tsq?$/));

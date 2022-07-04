@@ -434,6 +434,7 @@ export function printWithMultilineArrays(
                   forceWrap,
                   lineCounts,
                   wrapThreshold,
+                  includesTrailingComma,
                   debug,
               )
             : insertLinesIntoArray(
