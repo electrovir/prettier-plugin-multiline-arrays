@@ -230,6 +230,18 @@ const jsonTests: MultilineArrayTest[] = [
             }
         `,
     },
+    {
+        name: 'basic JSON array with a comment',
+        code: `
+            {
+                "data": [
+                    "one",
+                    // comment
+                    "two"
+                ]
+            }
+        `,
+    },
 ];
 
 describe('json multiline array formatting', () => {
