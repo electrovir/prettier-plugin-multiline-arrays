@@ -57,7 +57,7 @@ function removeIndent(input: string): string {
 
 export function runTests(extension: string, tests: MultilineArrayTest[], parser?: string) {
     tests.forEach((test) => {
-        const testCallback = () => {
+        function testCallback() {
             try {
                 const inputCode = removeIndent(test.code);
                 const expected = removeIndent(test.expected ?? test.code);
@@ -78,20 +78,22 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser?
                     throw error;
                 }
             }
-        };
+        }
 
         if (test.force) {
             forced = true;
-            fit(test.name, testCallback);
+            it.only(test.name, () => {
+                testCallback();
+            });
         } else if (test.exclude) {
-            xit(test.name, testCallback);
+            it.skip(test.name, testCallback);
         } else {
             it(test.name, testCallback);
         }
     });
 
     if (forced) {
-        fit('forced tests should not remain in the code', () => {
+        it.only('forced tests should not remain in the code', () => {
             if (allPassed) {
                 assert.strictEqual(forced, false);
             }

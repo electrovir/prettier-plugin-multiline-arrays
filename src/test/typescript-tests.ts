@@ -688,6 +688,16 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        name: 'TS array with just a comment',
+        code: `
+            const myObject = {
+                data: [
+                    // comment
+                ],
+            };
+        `,
+    },
+    {
         // caused a max call stack exceeded error once
         name: 'single object element with multiline template',
         // prettier-ignore

@@ -243,6 +243,28 @@ const jsonTests: MultilineArrayTest[] = [
             }
         `,
     },
+    {
+        name: 'basic JSON array',
+        code: `
+            {
+                "data": [
+                    "one",
+                    "two"
+                ]
+            }
+        `,
+    },
+    {
+        name: 'basic lone element JSON array',
+        code: `
+            {
+                "data": [
+                    "one one one one one one one one one one one one one one one one one one one one",
+                    "two two two two two two two two two two two two two two two two two two two two"
+                ]
+            }
+        `,
+    },
 ];
 
 describe('json multiline array formatting', () => {

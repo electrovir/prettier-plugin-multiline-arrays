@@ -91,8 +91,6 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        // caught argB
-        // caught tsg tons of times
         name: 'multi arg arrow function with call in callback',
         code: `
             const stuff = process.argv.some((argB, indexB) => argC.match(/\.tsg?$/));
@@ -634,6 +632,36 @@ const javascriptTests: MultilineArrayTest[] = [
                 'g', 'h',
                 'i',
                 'j', 'k',
+            ];
+        `,
+    },
+    {
+        name: 'JS array with just a comment',
+        code: `
+            const myObject = {
+                data: [
+                    // comment
+                ],
+            };
+      `,
+    },
+    {
+        name: 'basic array with a comment',
+        code: `
+            const data = [
+                'one',
+                // comment
+                'two',
+            ];
+        `,
+    },
+    {
+        name: 'basic array with a leading comment',
+        code: `
+            const data = [
+                // comment
+                'one',
+                'two',
             ];
         `,
     },
