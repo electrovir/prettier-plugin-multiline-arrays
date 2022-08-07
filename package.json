@@ -10,13 +10,13 @@
         "prettier",
         "printer"
     ],
-    "homepage": "https://github.com/electrovir/prettier-plugin-multiline-arrays#readme",
+    "homepage": "https://github.com/electrovir/prettier-plugin-multiline-arrays",
     "bugs": {
         "url": "https://github.com/electrovir/prettier-plugin-multiline-arrays/issues"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/electrovir/prettier-plugin-multiline-arrays.git"
+        "url": "https://github.com/electrovir/prettier-plugin-multiline-arrays"
     },
     "license": "MIT",
     "author": {
@@ -24,24 +24,25 @@
         "url": "https://github.com/electrovir"
     },
     "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "compile": "rm -rf dist && virmator compile",
         "debug": "cross-env NEW_LINE_DEBUG=true npm run test",
-        "format": "npm run compile && virmator format write --no-write-config",
+        "format": "virmator format",
         "prepublishOnly": "npm run test:full",
         "spellcheck": "virmator spellcheck",
-        "test": "rm -rf node_modules/prettier-plugin-multiline-arrays rm -rf dist && npm run compile && virmator test --no-write-config",
-        "test:full": "npm test && npm run spellcheck && virmator format check --no-write-config && virmator code-in-markdown --check README.md"
+        "test": "rm -rf node_modules/prettier-plugin-multiline-arrays rm -rf dist && npm run compile && virmator test",
+        "test:full": "npm test && npm run spellcheck && virmator format check && virmator code-in-markdown --check README.md"
     },
     "dependencies": {
-        "augment-vir": "2.0.2"
+        "augment-vir": "2.3.0"
     },
     "devDependencies": {
         "@types/esprima": "4.0.3",
-        "@types/jest": "27.4.1",
-        "@types/prettier": "2.6.0",
+        "@types/jest": "28.1.6",
+        "@types/prettier": "2.7.0",
         "cross-env": "7.0.3",
-        "typescript": "4.6.4",
-        "virmator": "2.0.6"
+        "typescript": "4.7.4",
+        "virmator": "3.0.5"
     }
 }

@@ -1,3 +1,6 @@
+/Icon?
+coverage/
 dist/
+graphics/
 node_modules/
 package-lock.json

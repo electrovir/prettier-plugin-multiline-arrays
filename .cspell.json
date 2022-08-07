@@ -1,11 +1,8 @@
 {
-    "import": ".cspell-base.json",
+    "import": ".virmator/.cspell-base.json",
     "words": [
-        "estree",
         "hardline",
         "jsplugin",
-        "mmultiline",
-        "robinfr",
-        "vite"
+        "Robinfr"
     ]
 }
