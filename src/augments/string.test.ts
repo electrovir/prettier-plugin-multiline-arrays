@@ -1,3 +1,5 @@
+import {assert} from 'chai';
+import {describe, it} from 'mocha';
 import {stripColor} from './string';
 
 describe(stripColor.name, () => {
@@ -10,6 +12,6 @@ describe(stripColor.name, () => {
         if (output !== expected) {
             console.error({output});
         }
-        expect(output).toBe(expected);
+        assert.strictEqual(output, expected);
     });
 });

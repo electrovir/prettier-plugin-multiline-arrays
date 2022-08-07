@@ -1,3 +1,4 @@
+import {describe} from 'mocha';
 import {runTests} from './run-tests';
 import {typescriptTests} from './typescript-tests';
 

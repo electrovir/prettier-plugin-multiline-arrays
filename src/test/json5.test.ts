@@ -1,3 +1,4 @@
+import {describe} from 'mocha';
 import {nextWrapThresholdComment} from '../options';
 import {MultilineArrayTest, runTests} from './run-tests';
 

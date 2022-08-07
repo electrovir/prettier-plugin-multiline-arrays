@@ -1,3 +1,4 @@
+import {describe} from 'mocha';
 import {capitalizeFirst} from '../augments/string';
 import {nextLinePatternComment, nextWrapThresholdComment} from '../options';
 import {MultilineArrayTest, runTests} from './run-tests';

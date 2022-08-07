@@ -1,11 +1,9 @@
-import {format as prettierFormat, Options} from 'prettier';
-// ignore this import cause it's not typed. We're typing it here!
-// @ts-expect-error
-import * as importedRepoConfig from '../../.prettierrc.js';
+import {assert} from 'chai';
+import {it} from 'mocha';
+import {format as prettierFormat} from 'prettier';
 import {stripColor} from '../augments/string';
 import {MultilineArrayOptions} from '../options';
-
-const repoConfig: Options = importedRepoConfig as Options;
+import {repoConfig} from './prettier-config';
 
 function runPrettierFormat(
     code: string,
@@ -64,7 +62,7 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser?
                 const inputCode = removeIndent(test.code);
                 const expected = removeIndent(test.expected ?? test.code);
                 const formatted = runPrettierFormat(inputCode, extension, test.options, parser);
-                expect(formatted).toBe(expected);
+                assert.strictEqual(formatted, expected);
                 if (formatted !== expected) {
                     allPassed = false;
                 }
@@ -75,7 +73,7 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser?
                     if (test.failureMessage !== strippedMessage) {
                         console.info({strippedMessage});
                     }
-                    expect(stripColor(strippedMessage)).toBe(test.failureMessage);
+                    assert.strictEqual(stripColor(strippedMessage), test.failureMessage);
                 } else {
                     throw error;
                 }
@@ -95,7 +93,7 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser?
     if (forced) {
         fit('forced tests should not remain in the code', () => {
             if (allPassed) {
-                expect(forced).toBe(false);
+                assert.strictEqual(forced, false);
             }
         });
     }
