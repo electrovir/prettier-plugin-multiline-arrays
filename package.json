@@ -1,6 +1,6 @@
 {
     "name": "prettier-plugin-multiline-arrays",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Prettier plugin to force all arrays to be multiline.",
     "keywords": [
         "array",
@@ -35,7 +35,7 @@
         "test:full": "npm test && npm run spellcheck && virmator format check && virmator code-in-markdown --check README.md"
     },
     "dependencies": {
-        "augment-vir": "2.3.0"
+        "augment-vir": "2.5.0"
     },
     "devDependencies": {
         "@types/esprima": "4.0.3",
