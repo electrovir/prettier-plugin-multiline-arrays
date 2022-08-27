@@ -579,6 +579,130 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        name: 'should still properly wrap when lots of comments exist',
+        code: `
+            const thing = [
+                // comment here
+                [
+                    0,
+                    0,
+                    0,
+                    // comment here
+                    1,
+                    1,
+                ],
+                // comment here
+                [
+                    0,
+                    0,
+                    // comment here
+                    1,
+                    1,
+                    0,
+                ],
+                [
+                    0,
+                    1,
+                    1,
+                    // comment here
+                    0,
+                    0,
+                ],
+                [
+                    1,
+                    1,
+                    // comment here
+                    0,
+                    0,
+                    0,
+                ],
+                [
+                    1,
+                    1,
+                    0,
+                    0,
+                    0,
+                ],
+                [
+                    0,
+                    1,
+                    1,
+                    0,
+                    0,
+                ],
+                [
+                    0,
+                    0,
+                    1,
+                    1,
+                    0,
+                    // comment here
+                ],
+                // comment here
+                [
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    // comment here
+                ],
+                // comment here
+            ];
+        `,
+    },
+    {
+        name: 'should wrap array with multiline comments',
+        code: `
+            /*
+                ANOTHER multiline comment
+            */
+            const bigBoi = [
+                1,
+                2,
+                3,
+                4,
+                5,
+                /*
+                    MULTILINE COMMENT HERE
+                */
+                6,
+                7,
+                8,
+                9,
+                10,
+                [
+                    /*
+                        ANOTHER multiline comment
+                    */
+                    101,
+                    102,
+                    103,
+                    104,
+                    /*
+                        ANOTHER multiline comment
+                    */
+                ],
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+            ];
+            /*
+                ANOTHER multiline comment
+            */
+      `,
+    },
+    {
         name: 'line pattern comments should override options property',
         code: `
             const pl = [
@@ -692,6 +816,27 @@ export const typescriptTests: MultilineArrayTest[] = [
         code: `
             const myObject = {
                 data: [
+                    // comment
+                ],
+            };
+        `,
+    },
+    {
+        name: 'TS array with a bunch of comments',
+        code: `
+            const myObject = {
+                data: [
+                    // comment
+                    // comment
+                    // comment
+                    // comment
+                    // comment
+                    // comment
+                    // comment
+                    // comment
+                    // comment
+                    // comment
+                    // comment
                     // comment
                 ],
             };

@@ -244,6 +244,64 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
+        name: 'basic JSON array with multiple comments',
+        code: `
+            {
+                // comment
+                "data": [
+                    // comment
+                    "one",
+                    // comment
+                    "two"
+                    // comment
+                ]
+                // comment
+            }
+            // comment
+        `,
+    },
+    {
+        name: 'basic JSON array with multiline comments',
+        code: `
+            {
+                /*
+                    comment
+                    comment
+                    comment
+                */
+                "data": [
+                    /*
+                        comment
+                        comment
+                        comment
+                    */
+                    "one",
+                    /*
+                        comment
+                        comment
+                        comment
+                    */
+                    "two"
+                    /*
+                        comment
+                        comment
+                        comment
+                    */
+                ]
+                /*
+                    comment
+                    comment
+                    comment
+                */
+            }
+            /*
+                comment
+                comment
+                comment
+            */
+        `,
+    },
+    {
         name: 'basic JSON array',
         code: `
             {

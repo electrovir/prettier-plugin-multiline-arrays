@@ -149,6 +149,8 @@ function insertLinesIntoArray(
 
             let arrayChildCount = 0;
 
+            let forceFinalLineBreakExists = false;
+
             if (!finalLineBreakExists) {
                 walkDoc(
                     indentedContent,
@@ -156,39 +158,43 @@ function insertLinesIntoArray(
                     (currentDoc, commaParents, commaChildIndex): boolean => {
                         finalLineBreakExists = false;
                         const innerCurrentParent = commaParents[0];
-                        const commaParentDoc = innerCurrentParent?.parent;
+                        const innerCurrentParentDoc = innerCurrentParent?.parent;
                         if (isDocCommand(currentDoc) && currentDoc.type === 'if-break') {
                             if (debug) {
                                 console.info(`found final line break inside of if-break`);
                             }
                             finalLineBreakExists = true;
-                            if (!commaParentDoc) {
+                            if (!innerCurrentParentDoc) {
                                 throw new Error(`Found if-break without a parent`);
                             }
-                            if (!Array.isArray(commaParentDoc)) {
+                            if (!Array.isArray(innerCurrentParentDoc)) {
                                 throw new Error(`if-break parent is not an array`);
                             }
                             if (commaChildIndex == undefined) {
                                 throw new Error(`if-break child index is undefined`);
                             }
-                            commaParentDoc[commaChildIndex] = currentDoc.breakContents;
-                            commaParentDoc.splice(commaChildIndex + 1, 0, doc.builders.breakParent);
+                            innerCurrentParentDoc[commaChildIndex] = currentDoc.breakContents;
+                            innerCurrentParentDoc.splice(
+                                commaChildIndex + 1,
+                                0,
+                                doc.builders.breakParent,
+                            );
                             undoMutations.push(() => {
-                                commaParentDoc.splice(commaChildIndex + 1, 1);
-                                commaParentDoc[commaChildIndex] = currentDoc;
+                                innerCurrentParentDoc.splice(commaChildIndex + 1, 1);
+                                innerCurrentParentDoc[commaChildIndex] = currentDoc;
                             });
                         } else if (typeof currentDoc === 'string') {
-                            if (!commaParentDoc) {
-                                console.error({innerParentDoc: commaParentDoc});
+                            if (!innerCurrentParentDoc) {
+                                console.error({innerParentDoc: innerCurrentParentDoc});
                                 throw new Error(`Found string but innerParentDoc is not defined.`);
                             }
                             if (currentDoc && nestingSyntaxOpen.includes(currentDoc)) {
-                                if (!Array.isArray(commaParentDoc)) {
+                                if (!Array.isArray(innerCurrentParentDoc)) {
                                     throw new Error(
                                         `Found opening syntax but parent is not an array.`,
                                     );
                                 }
-                                const closingIndex = commaParentDoc.findIndex(
+                                const closingIndex = innerCurrentParentDoc.findIndex(
                                     (sibling) =>
                                         typeof sibling === 'string' &&
                                         sibling &&
@@ -200,8 +206,8 @@ function insertLinesIntoArray(
                                     );
                                 }
                                 // check that there's a line break before the ending of the array
-                                if (commaParentDoc[closingIndex] !== ']') {
-                                    const closingSibling = commaParentDoc[closingIndex - 1];
+                                if (innerCurrentParentDoc[closingIndex] !== ']') {
+                                    const closingSibling = innerCurrentParentDoc[closingIndex - 1];
                                     if (debug) {
                                         console.info({closingIndex, closingSibling});
                                     }
@@ -225,10 +231,10 @@ function insertLinesIntoArray(
                                 throw new Error(`Found closing syntax which shouldn't be walked`);
                             } else if (currentDoc === ',') {
                                 if (debug) {
-                                    console.info({foundCommaIn: commaParentDoc});
+                                    console.info({foundCommaIn: innerCurrentParentDoc});
                                 }
-                                if (!Array.isArray(commaParentDoc)) {
-                                    console.error({innerParentDoc: commaParentDoc});
+                                if (!Array.isArray(innerCurrentParentDoc)) {
+                                    console.error({innerParentDoc: innerCurrentParentDoc});
                                     throw new Error(
                                         `Found comma but innerParentDoc is not an array.`,
                                     );
@@ -238,8 +244,8 @@ function insertLinesIntoArray(
                                 }
 
                                 let siblingIndex: number = commaChildIndex + 1;
-                                let parentToMutate: Doc[] = commaParentDoc;
-                                if (commaChildIndex === commaParentDoc.length - 1) {
+                                let parentToMutate: Doc[] = innerCurrentParentDoc;
+                                if (commaChildIndex === innerCurrentParentDoc.length - 1) {
                                     const commaGrandParent = commaParents[1];
                                     if (commaGrandParent == undefined) {
                                         throw new Error(
@@ -259,15 +265,37 @@ function insertLinesIntoArray(
                                 }
 
                                 if (debug) {
-                                    console.info({commaParentDoc, parentToMutate, siblingIndex});
+                                    console.info({
+                                        commaParentDoc: innerCurrentParentDoc,
+                                        parentToMutate,
+                                        siblingIndex,
+                                    });
                                 }
 
-                                const commaSibling = parentToMutate[siblingIndex];
-                                if (!isDocCommand(commaSibling) || commaSibling.type !== 'line') {
+                                let maybeCommaSibling = parentToMutate[siblingIndex];
+
+                                while (
+                                    (!isDocCommand(maybeCommaSibling) ||
+                                        maybeCommaSibling.type !== 'line') &&
+                                    siblingIndex < parentToMutate.length
+                                ) {
+                                    if (debug) {
+                                        console.info(
+                                            `Trying to find comma sibling at index ${siblingIndex}`,
+                                        );
+                                    }
+                                    siblingIndex++;
+                                    maybeCommaSibling = parentToMutate[siblingIndex];
+                                }
+                                if (
+                                    !isDocCommand(maybeCommaSibling) ||
+                                    maybeCommaSibling.type !== 'line'
+                                ) {
                                     throw new Error(
-                                        `Found comma but its following sibling is not a line: ${commaSibling}`,
+                                        `Found comma but its following sibling is not a line: ${maybeCommaSibling}`,
                                     );
                                 }
+                                const commaSibling = maybeCommaSibling;
 
                                 const currentLineCountIndex = lineIndex % lineCounts.length;
                                 const currentLineCount: number | undefined = lineCounts.length
@@ -301,10 +329,43 @@ function insertLinesIntoArray(
                                     parentToMutate[siblingIndex] = commaSibling;
                                 });
                             }
+                        } else if (isDocCommand(currentDoc) && currentDoc.type === 'concat') {
+                            const firstPart = currentDoc.parts[0];
+                            const secondPart = currentDoc.parts[1];
+                            if (debug) {
+                                console.info('got concat child doc');
+                                console.info(currentDoc.parts, {firstPart, secondPart});
+                                console.log(
+                                    isDocCommand(firstPart),
+                                    isDocCommand(secondPart),
+                                    (firstPart as any).type === 'line',
+                                    (firstPart as any).hard,
+                                    (secondPart as any).type === 'break-parent',
+                                );
+                            }
+                            if (
+                                isDocCommand(firstPart) &&
+                                isDocCommand(secondPart) &&
+                                firstPart.type === 'line' &&
+                                firstPart.hard &&
+                                secondPart.type === 'break-parent'
+                            ) {
+                                if (debug) {
+                                    console.info('concat child was indeed a line break');
+                                }
+                                forceFinalLineBreakExists = true;
+                                return false;
+                            } else if (debug) {
+                                console.info('concat child doc was not a line break');
+                            }
                         }
                         return true;
                     },
                 );
+            }
+
+            if (forceFinalLineBreakExists) {
+                finalLineBreakExists = true;
             }
 
             if (!finalLineBreakExists) {
