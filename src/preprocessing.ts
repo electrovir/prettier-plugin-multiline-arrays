@@ -13,7 +13,10 @@ function addMultilinePrinter(options: ParserOptions): void {
         if (!astFormat) {
             throw new Error(`Could not find astFormat while adding printer.`);
         }
-        /** If the printer hasn't already been assigned in options, rearrange plugins so that ours gets chosen. */
+        /**
+         * If the printer hasn't already been assigned in options, rearrange plugins so that ours
+         * gets chosen.
+         */
         const plugins = options.plugins;
         const firstMatchedPlugin = plugins.find(
             (plugin): plugin is Plugin =>

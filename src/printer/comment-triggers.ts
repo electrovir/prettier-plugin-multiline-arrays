@@ -1,4 +1,4 @@
-import {getObjectTypedKeys} from 'augment-vir';
+import {getObjectTypedKeys} from '@augment-vir/common';
 import {Comment, Node} from 'estree';
 import {
     nextLinePatternComment,

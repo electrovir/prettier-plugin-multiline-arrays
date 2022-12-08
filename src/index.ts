@@ -1,4 +1,4 @@
-import {getObjectTypedKeys} from 'augment-vir';
+import {getObjectTypedKeys} from '@augment-vir/common';
 import {
     getSupportInfo,
     Parser,

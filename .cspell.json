@@ -1,8 +1,0 @@
-{
-    "import": ".virmator/.cspell-base.json",
-    "words": [
-        "hardline",
-        "jsplugin",
-        "Robinfr"
-    ]
-}

@@ -1,6 +1,6 @@
 {
     "name": "prettier-plugin-multiline-arrays",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "Prettier plugin to force all arrays to be multiline.",
     "keywords": [
         "array",
@@ -28,20 +28,42 @@
     "scripts": {
         "compile": "rm -rf dist && virmator compile",
         "debug": "cross-env NEW_LINE_DEBUG=true npm run test",
-        "format": "virmator format",
+        "docs:update": "virmator code-in-markdown",
+        "format": "prettier --color --list-different \"./**/*.+(cjs|css|graphql|html|js|json|jsx|less|md|mjs|scss|toml|ts|tsx|yaml|yml)\" --write",
         "prepublishOnly": "npm run test:full",
         "spellcheck": "virmator spellcheck",
         "test": "rm -rf node_modules/prettier-plugin-multiline-arrays rm -rf dist && npm run compile && virmator test",
-        "test:full": "npm test && npm run spellcheck && virmator format check && virmator code-in-markdown --check README.md"
+        "test:all": "npm run test:types && npm test && npm run spellcheck && npm run test:format && npm run test:docs",
+        "test:docs": "virmator code-in-markdown check",
+        "test:format": "prettier --color \"./**/*.+(cjs|css|graphql|html|js|json|jsx|less|md|mjs|scss|toml|ts|tsx|yaml|yml)\" --check",
+        "test:full": "npm test && npm run spellcheck && npm run test:format && npm run test:docs",
+        "test:types": "tsc --noEmit"
     },
     "dependencies": {
-        "augment-vir": "2.5.0"
+        "@augment-vir/common": "^6.1.5"
     },
     "devDependencies": {
+        "@electrovir/nyc": "^15.1.0",
+        "@istanbuljs/nyc-config-typescript": "^1.0.2",
+        "@types/chai": "^4.3.4",
         "@types/esprima": "4.0.3",
-        "@types/prettier": "2.7.0",
+        "@types/mocha": "^10.0.1",
+        "@types/prettier": "2.7.1",
+        "chai": "^4.3.7",
         "cross-env": "7.0.3",
-        "typescript": "4.7.4",
-        "virmator": "3.0.5"
+        "cspell": "^6.15.1",
+        "istanbul-smart-text-reporter": "^1.0.1",
+        "markdown-code-example-inserter": "^0.1.11",
+        "mocha": "^10.1.0",
+        "mocha-spec-reporter-with-file-names": "^0.0.2",
+        "prettier": "^2.8.1",
+        "prettier-plugin-jsdoc": "^0.4.2",
+        "prettier-plugin-organize-imports": "^3.2.1",
+        "prettier-plugin-packagejson": "^2.3.0",
+        "prettier-plugin-sort-json": "^0.0.3",
+        "prettier-plugin-toml": "^0.3.1",
+        "tsx": "^3.12.1",
+        "typescript": "4.9.4",
+        "virmator": "5.0.2"
     }
 }

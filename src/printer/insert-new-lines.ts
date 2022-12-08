@@ -1,4 +1,4 @@
-import {getObjectTypedKeys, ObjectValueType} from 'augment-vir';
+import {getObjectTypedKeys, ObjectValueType} from '@augment-vir/common';
 import {CallExpression, Node} from 'estree';
 import {AstPath, Doc, doc, ParserOptions} from 'prettier';
 import {isDocCommand, stringifyDoc} from '../augments/doc';

@@ -88,7 +88,10 @@ export const multilineArrayPrinter = new Proxy<Printer<Node>>({} as Printer<Node
         if (property === 'handleComments') {
             return handleComments;
         }
-        /** We have to return a callback so that we can extract the jsPlugin from the options argument */
+        /**
+         * We have to return a callback so that we can extract the jsPlugin from the options
+         * argument
+         */
         return wrapInOriginalPrinterCall(property);
     },
 });

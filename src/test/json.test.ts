@@ -16,16 +16,14 @@ const jsonTests: MultilineArrayTest[] = [
         expected: `
             {
                 "hello": "there",
-                "object": {
-                    "example": "instance"
-                },
                 "stuff": [
                     "a",
                     "b",
                     "c",
                     "d",
                     "e"
-                ]
+                ],
+                "object": {"example": "instance"}
             }
         `,
     },
@@ -130,21 +128,20 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
+        // TODO: this test is weird, it won't work if the newline before "example" isn't there
         name: 'with object array element',
         // prettier-ignore
         code: `
             {
                 "hello": "there",
-                "stuff": ["a", "b", "c", "d", "e", {"example": "instance"}],
+                "stuff": ["a", "b", "c", "d", "e", {
+                    "example": "instance"}],
                 "object": {"example": "instance"}
             }
         `,
         expected: `
             {
                 "hello": "there",
-                "object": {
-                    "example": "instance"
-                },
                 "stuff": [
                     "a",
                     "b",
@@ -154,7 +151,8 @@ const jsonTests: MultilineArrayTest[] = [
                     {
                         "example": "instance"
                     }
-                ]
+                ],
+                "object": {"example": "instance"}
             }
         `,
     },
@@ -171,9 +169,6 @@ const jsonTests: MultilineArrayTest[] = [
         expected: `
             {
                 "hello": "there",
-                "object": {
-                    "example": "instance"
-                },
                 "stuff": [
                     "a",
                     "b",
@@ -187,7 +182,8 @@ const jsonTests: MultilineArrayTest[] = [
                         "i",
                         "j"
                     ]
-                ]
+                ],
+                "object": {"example": "instance"}
             }
         `,
     },
@@ -204,9 +200,6 @@ const jsonTests: MultilineArrayTest[] = [
         expected: `
             {
                 "hello": "there",
-                "object": {
-                    "example": "instance"
-                },
                 "stuff": [
                     "a",
                     "b",
@@ -227,7 +220,8 @@ const jsonTests: MultilineArrayTest[] = [
                         "i",
                         "j"
                     ]
-                ]
+                ],
+                "object": {"example": "instance"}
             }
         `,
     },
