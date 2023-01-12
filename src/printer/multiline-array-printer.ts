@@ -23,6 +23,7 @@ function wrapInOriginalPrinterCall<T extends string = string>(
                 ...(args.slice(2) as [any]),
             );
             if (
+                options.filepath &&
                 options.filepath.endsWith('package.json') &&
                 options.plugins.find(
                     (plugin) =>
