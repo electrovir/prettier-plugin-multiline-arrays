@@ -1,5 +1,6 @@
 **/*/readme-examples/
 **/*/test/
+*.d.ts.map
 *.test-helper.*
 *.test.*
 *.tgz
@@ -13,5 +14,6 @@
 /public/
 /src/
 bash-scripts/
+index.html
 test-files/
 tsconfig*.json

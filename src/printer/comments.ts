@@ -1,8 +1,6 @@
 import {Comment} from 'estree';
 
-const ignoreTheseKeys = [
-    'tokens',
-];
+const ignoreTheseKeys = ['tokens'];
 const ignoreTheseChildTypes = [
     'string',
     'number',

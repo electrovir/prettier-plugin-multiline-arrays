@@ -20,12 +20,10 @@ describe(extractTextBetweenRanges.name, () => {
 
     it('should extract text from the same line', () => {
         assert.strictEqual(
-            extractTextBetweenRanges(
-                [
-                    'a b c d e f g h i j k l m n',
-                ],
-                {start: {line: 0, column: 4}, end: {line: 0, column: 7}},
-            ),
+            extractTextBetweenRanges(['a b c d e f g h i j k l m n'], {
+                start: {line: 0, column: 4},
+                end: {line: 0, column: 7},
+            }),
             ' d',
         );
     });

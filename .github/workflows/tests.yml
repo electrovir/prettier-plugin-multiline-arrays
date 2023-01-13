@@ -22,4 +22,4 @@ jobs:
             - name: run test
               run: |
                   npm ci
-                  npm run test:full
+                  npm run test:all

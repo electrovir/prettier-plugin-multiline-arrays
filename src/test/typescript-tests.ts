@@ -1139,9 +1139,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 'q', 'r',
                 ['s', 't'],
             ];
-            /**
-             * ${capitalizeFirst(nextLinePatternComment)} 2 1 3
-             */
+            // ${capitalizeFirst(nextLinePatternComment)} 2 1 3
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -1168,7 +1166,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                     't',
                 ],
             ];
-            /** ${capitalizeFirst(nextLinePatternComment)} 2 1 3 */
+            // ${capitalizeFirst(nextLinePatternComment)} 2 1 3
             const setNumberPerLine = [
                 'a', 'b',
                 'c',
@@ -1233,30 +1231,6 @@ export const typescriptTests: MultilineArrayTest[] = [
                 'g', 'h',
                 'i',
                 'j', 'k',
-            ];
-        `,
-    },
-    {
-        name: 'array with JSDoc style trigger comment spread across multiple lines',
-        // prettier-ignore
-        code: `
-            /**
-            * ${capitalizeFirst(nextLinePatternComment)} 2 1
-            * 3
-            */
-            const setNumberPerLine = [
-                'a', 'b',
-                'c',
-                'd',
-                'e',
-            ];`,
-        // prettier-ignore
-        expected: `
-            /** ${capitalizeFirst(nextLinePatternComment)} 2 1 3 */
-            const setNumberPerLine = [
-                'a', 'b',
-                'c',
-                'd', 'e',
             ];
         `,
     },

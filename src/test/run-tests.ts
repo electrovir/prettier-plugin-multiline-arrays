@@ -22,9 +22,7 @@ function runPrettierFormat(
         } else {
             return entry;
         }
-    }) ?? [
-        '.',
-    ];
+    }) ?? ['.'];
 
     return prettierFormat(code, {
         filepath: `blah.${extension}`,

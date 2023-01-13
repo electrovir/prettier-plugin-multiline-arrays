@@ -11,10 +11,4 @@ export const highThresholdArray = ['a', 'b', 'c', 'd', 'e'];
 // this example wraps because a trailing comma was included, which forces wrapping despite
 // the high threshold comment.
 // prettier-multiline-arrays-next-threshold: 10
-export const highThresholdWithTrailingComma = [
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-];
+export const highThresholdWithTrailingComma = ['a', 'b', 'c', 'd', 'e'];

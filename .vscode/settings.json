@@ -1,8 +1,14 @@
 {
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "[html]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[json]": {
@@ -11,10 +17,19 @@
     "[jsonc]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
+    "[less]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "[markdown]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
+    "[ruby]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "[scss]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[toml]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "[typescript]": {
@@ -25,21 +40,6 @@
     },
     "editor.formatOnSave": true,
     "editor.rulers": [100],
-    "typescript.tsdk": "node_modules/typescript/lib",
-    "[css]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[javascriptreact]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[less]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[ruby]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[toml]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "editor.wordWrapColumn": 100
+    "editor.wordWrapColumn": 100,
+    "typescript.tsdk": "node_modules/typescript/lib"
 }

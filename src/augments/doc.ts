@@ -11,9 +11,7 @@ const childProperties = [
 
 export function stringifyDoc(input: Doc, recursive = false): NestedStringArray {
     if (typeof input === 'string' || !input) {
-        return [
-            input,
-        ];
+        return [input];
     } else if (Array.isArray(input)) {
         return input.map((entry) => stringifyDoc(entry, recursive));
     } else if (recursive) {
@@ -32,9 +30,7 @@ export function stringifyDoc(input: Doc, recursive = false): NestedStringArray {
         }
     }
 
-    return [
-        input.type,
-    ];
+    return [input.type];
 }
 
 export function isDocCommand(

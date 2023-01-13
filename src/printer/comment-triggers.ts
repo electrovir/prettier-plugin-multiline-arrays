@@ -16,7 +16,9 @@ import {extractComments} from './comments';
 type LineNumberDetails<T> = {[lineNumber: number]: T};
 export type LineCounts = LineNumberDetails<number[]>;
 export type WrapThresholds = LineNumberDetails<number>;
-export type CommentTriggerWithEnding<T> = {[P in keyof T]: {data: T[P]; lineEnd: number}};
+export type CommentTriggerWithEnding<T> = {
+    [P in keyof T]: {data: T[P]; lineEnd: number};
+};
 
 export type CommentTriggers = {
     nextLineCounts: LineCounts;

@@ -59,7 +59,9 @@ export function fillInOptions<T extends object>(input: T | undefined): Multiline
     if (!input || typeof input !== 'object') {
         return defaultMultilineArrayOptions as MultilineArrayOptions & T;
     }
-    const newOptions: MultilineArrayOptions & T = {...input} as MultilineArrayOptions & T;
+    const newOptions: MultilineArrayOptions & T = {
+        ...input,
+    } as MultilineArrayOptions & T;
     getObjectTypedKeys(defaultMultilineArrayOptions).forEach((optionsKey) => {
         const inputValue: unknown = (input as any)[optionsKey];
         const defaultValue = defaultMultilineArrayOptions[optionsKey];
