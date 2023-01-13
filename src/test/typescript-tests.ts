@@ -36,6 +36,18 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
+        name: 'works even if filepath is undefined GitHub Issue #18 (thank you farmerpaul)',
+        code: `
+            const thingie = [
+                otherThingie < 5 ? 'owl' : 'goat',
+            ];
+        `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+            filepath: undefined,
+        },
+    },
+    {
         name: 'should not wrap a function call with just one argument',
         code: `
             doThing('what');

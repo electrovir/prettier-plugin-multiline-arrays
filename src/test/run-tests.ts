@@ -1,6 +1,7 @@
+import {PartialWithNullable} from '@augment-vir/common';
 import {assert} from 'chai';
 import {it} from 'mocha';
-import {format as prettierFormat} from 'prettier';
+import {format as prettierFormat, Options as PrettierOptions} from 'prettier';
 import {stripColor} from '../augments/string';
 import {MultilineArrayOptions} from '../options';
 import {repoConfig} from './prettier-config';
@@ -26,10 +27,10 @@ function runPrettierFormat(
     ];
 
     return prettierFormat(code, {
+        filepath: `blah.${extension}`,
         ...repoConfig,
         ...options,
         ...(parser ? {parser} : {}),
-        filepath: `blah.${extension}`,
         plugins,
     });
 }
@@ -38,7 +39,7 @@ export type MultilineArrayTest = {
     name: string;
     code: string;
     expected?: string | undefined;
-    options?: Partial<MultilineArrayOptions> | undefined;
+    options?: (Partial<MultilineArrayOptions> & PartialWithNullable<PrettierOptions>) | undefined;
     force?: true;
     exclude?: true;
     failureMessage?: string;
