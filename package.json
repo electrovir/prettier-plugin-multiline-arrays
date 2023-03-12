@@ -34,6 +34,7 @@
         "test": "npm run compile && test-as-package \"virmator test\"",
         "test:all": "npm run test:types && npm run test:coverage && npm run test:spelling && npm run test:format && npm run test:docs",
         "test:coverage": "npm run test coverage",
+        "test:debug": "npm run compile && test-as-package \"virmator test --inspect-brk\"",
         "test:docs": "virmator code-in-markdown check",
         "test:format": "prettier --color \"./**/*.+(cjs|css|graphql|html|js|json|jsx|less|md|mjs|scss|toml|ts|tsx|yaml|yml)\" --check",
         "test:spelling": "virmator spellcheck",

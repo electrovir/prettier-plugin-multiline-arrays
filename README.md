@@ -4,9 +4,9 @@ Prettier plugin to force array elements to wrap onto new lines, even when there'
 
 TypeScript, JavaScript, and JSON files are officially supported (others may still work).
 
-[Please file issues in the GitHub repo](https://github.com/electrovir/prettier-plugin-multiline-arrays/issues/new) and include code examples if you come across formatting errors. You can set the `NEW_LINE_DEBUG` environment variable to something truthy to get extra debug output when formatting.
+[Please file issues in the GitHub repo](https://github.com/electrovir/prettier-plugin-multiline-arrays/issues/new) and include code examples if you come across formatting errors.
 
-# Usage
+## Usage
 
 Add this config to your prettierrc file:
 
@@ -26,7 +26,7 @@ module.exports = {
 
 The order of your plugins array is very important, so if you have other plugins and they don't work initially, try rearranging them. For an example, check out the plugin ordering for this package's Prettier config: [`./prettierrc.js`](https://github.com/electrovir/prettier-plugin-multiline-arrays/blob/main/.prettierrc.js)
 
-# Options
+## Options
 
 This plugin makes two new options available to your Prettier config:
 
@@ -34,7 +34,7 @@ This plugin makes two new options available to your Prettier config:
 -   **`multilineArraysLinePattern`**: This should be set to a string which contains a space separated list of numbers. These numbers allow fine grained control over how many elements appear in each line. The pattern will repeat if an array has more elements than the pattern. See the `Examples` section for how this works. This defaults to just `1`, which indicates all array lines have just a single element. Example: `"multilineArraysLinePattern": "2 1"`, which means the first line will have 2 elements, the second will have 1, the third will have 2, the fourth will have 1, and so on. If set, _this option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._ To override this option for an array, precede the array with a comment like so: `// prettier-multiline-arrays-next-line-pattern: 2 1`.
 -   **`multilineFunctionArguments`**: **Experimental**: Applies all array wrapping logic to function argument lists as well.
 
-# Comment overrides
+## Comment overrides
 
 -   Add a comment starting with `prettier-multiline-arrays-next-threshold:` followed by a single number to control the wrap threshold for the following line. When an array has _more_ elements than this number, it wraps. The default is `1`, which indicates that arrays with more than 1 element will wrap. Example: `// prettier-multiline-arrays-next-threshold: 5`
 -   Add a comment starting with `prettier-multiline-arrays-next-line-pattern:` followed by a pattern of numbers to control how many elements will appear on each line for an array on the following line. Example: `// prettier-elements-per-line: 2 1 3`. The default is just `1`. Any given pattern will repeat endlessly. See the `Examples` section below. _This option overrides Prettier's default wrapping; multiple elements on one line will not be wrapped even if they don't fit within the column count._
@@ -46,7 +46,7 @@ To set a comment override for all arrays in a file following the comment, change
 
 To later undo a `set` comment, use `prettier-multiline-arrays-reset`, which resets the options to whatever you have set in prettierrc, or the default values.
 
-# Examples
+## Examples
 
 -   Not formatted:
 
@@ -107,7 +107,7 @@ To later undo a `set` comment, use `prettier-multiline-arrays-reset`, which rese
     ];
     ```
 
-# Compatibility
+## Compatibility
 
 Tested to be compatible with the following plugins. It is likely compatible with many others as well. This plugin must be placed in the order specified below.
 
@@ -116,3 +116,10 @@ Tested to be compatible with the following plugins. It is likely compatible with
 3.  insert this plugin here
 4.  `prettier-plugin-organize-imports`
 5.  `prettier-plugin-jsdoc`
+
+## Dev
+
+### Debugging
+
+-   Set the `NEW_LINE_DEBUG` environment variable to something truthy before formatting to get extra debug output when formatting.
+-   To debug in browser dev tools, run `npm run test:debug` and open Chrome's dev tools.
