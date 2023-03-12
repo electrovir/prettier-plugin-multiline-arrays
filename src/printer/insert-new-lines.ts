@@ -310,9 +310,8 @@ function insertLinesIntoArray(
                                     lineIndex++;
                                     columnCount = 1;
                                     /**
-                                     * Don't use doc.builders.hardline here. It causes "invalid size
-                                     * error" which I don't understand and which has no other useful
-                                     * information or stack trace.
+                                     * Don't use doc.builders.hardline here. It causes "invalid size error" which I
+                                     * don't understand and which has no other useful information or stack trace.
                                      */
                                     if (debug) {
                                         console.info({
