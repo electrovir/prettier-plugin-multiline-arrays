@@ -31,7 +31,7 @@
         "docs:update": "virmator code-in-markdown",
         "format": "virmator format",
         "publish": "virmator publish \"npm run compile && npm run test:all\"",
-        "test": "npm run compile && rm -rf node_modules/prettier-plugin-multiline-arrays && cp -r dist node_modules/prettier-plugin-multiline-arrays && virmator test",
+        "test": "npm run compile && test-as-package \"virmator test\"",
         "test:all": "npm run test:types && npm run test:coverage && npm run test:spelling && npm run test:format && npm run test:docs",
         "test:coverage": "npm run test coverage",
         "test:docs": "virmator code-in-markdown check",
@@ -66,6 +66,7 @@
         "prettier-plugin-packagejson": "^2.4.3",
         "prettier-plugin-sort-json": "^1.0.0",
         "prettier-plugin-toml": "^0.3.1",
+        "test-as-package": "^0.0.3",
         "ts-node": "^10.9.1",
         "typescript": "5.1.3",
         "virmator": "^6.6.2"
