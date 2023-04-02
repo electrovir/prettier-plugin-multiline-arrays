@@ -10,6 +10,7 @@ import {
     parseNextLineCounts,
 } from './comment-triggers';
 import {insertLinesIntoArguments} from './insert-new-lines-into-arguments';
+import {containsLeadingNewline} from './leading-new-line';
 import {isArgumentsLikeNode, isArrayLikeNode} from './supported-node-types';
 import {containsTrailingComma} from './trailing-comma';
 
@@ -477,7 +478,18 @@ export function printWithMultilineArrays(
         const commentTriggers = getCommentTriggers(rootNode, debug);
 
         const originalText: string = inputOptions.originalText;
+        const splitOriginalText: string[] = originalText.split('\n');
 
+        const includesLeadingNewline = containsLeadingNewline(
+            node.loc,
+            'arguments' in node
+                ? (node as CallExpression).arguments
+                : 'params' in node
+                ? node.params
+                : node.elements,
+            splitOriginalText,
+            debug,
+        );
         const includesTrailingComma = containsTrailingComma(
             node.loc,
             'arguments' in node
@@ -485,7 +497,7 @@ export function printWithMultilineArrays(
                 : 'params' in node
                 ? node.params
                 : node.elements,
-            originalText.split('\n'),
+            splitOriginalText,
             debug,
         );
 
@@ -493,12 +505,6 @@ export function printWithMultilineArrays(
             currentLineNumber,
             commentTriggers.setLineCounts,
         );
-
-        const hasCommentOverrides = !!(
-            commentTriggers.nextWrapThresholds[lastLine] || commentTriggers.nextLineCounts[lastLine]
-        );
-
-        const manualWrap = hasCommentOverrides ? false : includesTrailingComma;
 
         const lineCounts: number[] =
             commentTriggers.nextLineCounts[lastLine] ??
@@ -523,6 +529,8 @@ export function printWithMultilineArrays(
             }
             console.info({options: {lineCounts, wrapThreshold}});
         }
+
+        const manualWrap = includesTrailingComma || includesLeadingNewline;
 
         const newDoc = isArgumentsLikeNode(node)
             ? insertLinesIntoArguments(

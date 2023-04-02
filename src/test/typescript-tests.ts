@@ -174,6 +174,23 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
+        it: 'forces array wrapping if a preceding new line is manually entered',
+        code: `
+            const myArray = [
+                1, 2, 3];
+        `,
+        expect: `
+            const myArray = [
+                1,
+                2,
+                3,
+            ];
+        `,
+        options: {
+            multilineArraysWrapThreshold: 10,
+        },
+    },
+    {
         it: 'an array without wrapping should only take up one line',
         code: `
             // ${nextWrapThresholdComment} 8
@@ -181,14 +198,20 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        it: 'overrides trailing-comma-triggered wrap when comment exists',
+        it: 'trailing comma overrides wrap comment',
         code: `
             // ${nextWrapThresholdComment} 8
             const flatArray = [0, 0, 0, 1, 1,];
         `,
         expect: `
             // ${nextWrapThresholdComment} 8
-            const flatArray = [0, 0, 0, 1, 1];
+            const flatArray = [
+                0,
+                0,
+                0,
+                1,
+                1,
+            ];
         `,
     },
     {
@@ -529,57 +552,49 @@ export const typescriptTests: MultilineArrayTest[] = [
         code: `
             // ${setWrapThresholdComment} 8
             const thing = [
-                [
-                    0,
+                [0,
                     0,
                     0,
                     1,
                     1
                 ],
-                [
-                    0,
-                    0,
-                    1,
-                    1,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    1,
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
+                [0,
                     0,
                     1,
                     1,
                     0
                 ],
-                [
+                [0,
+                    1,
+                    1,
                     0,
+                    0
+                ],
+                [1,
+                    1,
+                    0,
+                    0,
+                    0
+                ],
+                [1,
+                    1,
+                    0,
+                    0,
+                    0
+                ],
+                [0,
+                    1,
+                    1,
+                    0,
+                    0
+                ],
+                [0,
+                    0,
+                    1,
+                    1,
+                    0
+                ],
+                [0,
                     0,
                     0,
                     1,
