@@ -4,7 +4,6 @@
 *.test-helper.*
 *.test.*
 *.tgz
-*.tsbuildinfo
 .*
 /Icon?
 /configs/
