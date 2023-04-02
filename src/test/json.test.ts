@@ -28,6 +28,39 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
+        it: 'should format tsconfig.json keys still',
+        code: `
+            {
+                "exclude": [
+                    "./configs",
+                    "./coverage",
+                    "./dist",
+                    "./node_modules",
+                    "./test-files"
+                ],
+                "compilerOptions": {
+                    "outDir": "./dist",
+                    "rootDir": "./src"
+                }
+            }
+        `,
+        expect: `
+            {
+                "compilerOptions": {
+                    "outDir": "./dist",
+                    "rootDir": "./src"
+                },
+                "exclude": [
+                    "./configs",
+                    "./coverage",
+                    "./dist",
+                    "./node_modules",
+                    "./test-files"
+                ]
+            }
+        `,
+    },
+    {
         it: 'basic wrap threshold comment',
         code: `
             // ${nextWrapThresholdComment} 3
