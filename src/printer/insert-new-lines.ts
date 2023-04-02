@@ -20,7 +20,7 @@ const found = 'Found "[" but:';
 
 function insertLinesIntoArray(
     inputDoc: Doc,
-    forceWrap: boolean,
+    manualWrap: boolean,
     lineCounts: number[],
     wrapThreshold: number,
     debug: boolean,
@@ -310,8 +310,9 @@ function insertLinesIntoArray(
                                     lineIndex++;
                                     columnCount = 1;
                                     /**
-                                     * Don't use doc.builders.hardline here. It causes "invalid size error" which I
-                                     * don't understand and which has no other useful information or stack trace.
+                                     * Don't use doc.builders.hardline here. It causes "invalid size
+                                     * error" which I don't understand and which has no other useful
+                                     * information or stack trace.
                                      */
                                     if (debug) {
                                         console.info({
@@ -409,7 +410,7 @@ function insertLinesIntoArray(
                 });
             }
 
-            if (arrayChildCount < wrapThreshold && !lineCounts.length && !forceWrap) {
+            if (arrayChildCount < wrapThreshold && !lineCounts.length && !manualWrap) {
                 undoAllMutations();
             }
 
@@ -488,12 +489,16 @@ export function printWithMultilineArrays(
             debug,
         );
 
-        const forceWrap = includesTrailingComma;
-
         const relevantSetLineCount: number[] | undefined = getLatestSetValue(
             currentLineNumber,
             commentTriggers.setLineCounts,
         );
+
+        const hasCommentOverrides = !!(
+            commentTriggers.nextWrapThresholds[lastLine] || commentTriggers.nextLineCounts[lastLine]
+        );
+
+        const manualWrap = hasCommentOverrides ? false : includesTrailingComma;
 
         const lineCounts: number[] =
             commentTriggers.nextLineCounts[lastLine] ??
@@ -522,7 +527,7 @@ export function printWithMultilineArrays(
         const newDoc = isArgumentsLikeNode(node)
             ? insertLinesIntoArguments(
                   originalFormattedOutput,
-                  forceWrap,
+                  manualWrap,
                   lineCounts,
                   wrapThreshold,
                   includesTrailingComma,
@@ -530,7 +535,7 @@ export function printWithMultilineArrays(
               )
             : insertLinesIntoArray(
                   originalFormattedOutput,
-                  forceWrap,
+                  manualWrap,
                   lineCounts,
                   wrapThreshold,
                   debug,

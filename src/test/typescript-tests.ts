@@ -181,6 +181,17 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        it: 'overrides trailing-comma-triggered wrap when comment exists',
+        code: `
+            // ${nextWrapThresholdComment} 8
+            const flatArray = [0, 0, 0, 1, 1,];
+        `,
+        expect: `
+            // ${nextWrapThresholdComment} 8
+            const flatArray = [0, 0, 0, 1, 1];
+        `,
+    },
+    {
         it: 'a nested array without wrapping should only take up one line',
         code: `
             const flatNestedArray = [
