@@ -860,5 +860,5 @@ const javascriptTests: MultilineArrayTest[] = [
 ];
 
 describe('javascript multiline array formatting', () => {
-    runTests('.js', javascriptTests);
+    runTests('.js', javascriptTests, 'babel');
 });

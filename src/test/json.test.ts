@@ -320,5 +320,5 @@ const jsonTests: MultilineArrayTest[] = [
 ];
 
 describe('json multiline array formatting', () => {
-    runTests('.json', jsonTests);
+    runTests('.json', jsonTests, 'json');
 });

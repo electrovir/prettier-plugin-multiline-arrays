@@ -24,13 +24,15 @@ function runPrettierFormat(
         }
     }) ?? ['.'];
 
-    return prettierFormat(code, {
+    const prettierOptions: PrettierOptions = {
         filepath: `blah.${extension}`,
         ...repoConfig,
         ...options,
         ...(parser ? {parser} : {}),
         plugins,
-    });
+    };
+
+    return prettierFormat(code, prettierOptions);
 }
 
 export type MultilineArrayTest = {
@@ -54,7 +56,7 @@ function removeIndent(input: string): string {
         .replace(/\n\s+$/, '\n');
 }
 
-export function runTests(extension: string, tests: MultilineArrayTest[], parser?: string) {
+export function runTests(extension: string, tests: MultilineArrayTest[], parser: string) {
     tests.forEach((test) => {
         function testCallback() {
             try {
