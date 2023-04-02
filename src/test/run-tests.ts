@@ -36,9 +36,9 @@ function runPrettierFormat(
 }
 
 export type MultilineArrayTest = {
-    name: string;
+    it: string;
     code: string;
-    expected?: string | undefined;
+    expect?: string | undefined;
     options?: (Partial<MultilineArrayOptions> & PartialAndNullable<PrettierOptions>) | undefined;
     force?: true;
     exclude?: true;
@@ -61,7 +61,7 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser:
         function testCallback() {
             try {
                 const inputCode = removeIndent(test.code);
-                const expected = removeIndent(test.expected ?? test.code);
+                const expected = removeIndent(test.expect ?? test.code);
                 const formatted = runPrettierFormat(inputCode, extension, test.options, parser);
                 assert.strictEqual(formatted, expected);
                 if (formatted !== expected) {
@@ -83,13 +83,13 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser:
 
         if (test.force) {
             forced = true;
-            it.only(test.name, () => {
+            it.only(test.it, () => {
                 testCallback();
             });
         } else if (test.exclude) {
-            it.skip(test.name, testCallback);
+            it.skip(test.it, testCallback);
         } else {
-            it(test.name, testCallback);
+            it(test.it, testCallback);
         }
     });
 

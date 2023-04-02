@@ -10,7 +10,7 @@ import {MultilineArrayTest} from './run-tests';
 
 export const typescriptTests: MultilineArrayTest[] = [
     {
-        name: 'comment at end of argument list with multiline array parser',
+        it: 'comment at end of argument list with multiline array parser',
         // prettier-ignore
         code: `
             export function hasProperty<ObjectGeneric extends object, KeyGeneric extends PropertyKey>(
@@ -25,7 +25,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'works with greater than or less than inside of an array in typescript',
+        it: 'works with greater than or less than inside of an array in typescript',
         code: `
             const thingie = [
                 otherThingie < 5 ? 'owl' : 'goat',
@@ -36,7 +36,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'works even if filepath is undefined GitHub Issue #18 (thank you farmerpaul)',
+        it: 'works even if filepath is undefined GitHub Issue #18 (thank you farmerpaul)',
         code: `
             const thingie = [
                 otherThingie < 5 ? 'owl' : 'goat',
@@ -48,7 +48,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'should not wrap a function call with just one argument',
+        it: 'should not wrap a function call with just one argument',
         code: `
             doThing('what');
         `,
@@ -57,7 +57,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'should not wrap inner objects',
+        it: 'should not wrap inner objects',
         code: `
             console.info({stdout: output.results.stdout});
         `,
@@ -66,11 +66,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'should wrap a function call with just two arguments',
+        it: 'should wrap a function call with just two arguments',
         code: `
             doThing('what', 'who');
         `,
-        expected: `
+        expect: `
             doThing(
                 'what',
                 'who',
@@ -81,7 +81,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'should not wrap a function definition with just one argument',
+        it: 'should not wrap a function definition with just one argument',
         code: `
             function mapToActualPaths(
                 paths: Readonly<string[]>,
@@ -92,7 +92,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'works with a whole file of code that was failing',
+        it: 'works with a whole file of code that was failing',
         code: `
             import {assert} from 'chai';
             import {basename} from 'path';
@@ -108,7 +108,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'should work with multiple nested arrays',
+        it: 'should work with multiple nested arrays',
         code: `
             const thingie = [
                 [
@@ -130,7 +130,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 [10],
             ];
         `,
-        expected: `
+        expect: `
             const thingie = [
                 [
                     1,
@@ -158,11 +158,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'forces array wrapping if a trailing comma is used',
+        it: 'forces array wrapping if a trailing comma is used',
         code: `
             const myArray = [1, 2, 3,];
         `,
-        expected: `
+        expect: `
             const myArray = [
                 1,
                 2,
@@ -174,14 +174,14 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'an array without wrapping should only take up one line',
+        it: 'an array without wrapping should only take up one line',
         code: `
             // ${nextWrapThresholdComment} 8
             const flatArray = [0, 0, 0, 1, 1];
         `,
     },
     {
-        name: 'a nested array without wrapping should only take up one line',
+        it: 'a nested array without wrapping should only take up one line',
         code: `
             const flatNestedArray = [
                 // ${nextWrapThresholdComment} 8
@@ -201,7 +201,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'set wrap threshold should carry through',
+        it: 'set wrap threshold should carry through',
         code: `
             const flatNestedArray = [
                 // ${setWrapThresholdComment} 8
@@ -217,7 +217,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'next line comments should override set comments and trailing commas should still work',
+        it: 'next line comments should override set comments and trailing commas should still work',
         code: `
             const flatNestedArray = [
                 // ${setWrapThresholdComment} 8
@@ -237,7 +237,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 [0, 0, 0, 1, 1, 0, 1, 1, 1],
             ];
         `,
-        expected: `
+        expect: `
             const flatNestedArray = [
                 // ${setWrapThresholdComment} 8
                 [0, 0, 0, 1, 1],
@@ -277,7 +277,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'does not force array wrapping if a trailing comma is not used',
+        it: 'does not force array wrapping if a trailing comma is not used',
         code: `
             const myArray = [1, 2, 3];
         `,
@@ -286,7 +286,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'works with array expansion in function parameters',
+        it: 'works with array expansion in function parameters',
         code: `
             export function update(
                 partInfo: PartInfo,
@@ -302,7 +302,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'works with array expansion in function parameters with multiple entries',
+        it: 'works with array expansion in function parameters with multiple entries',
         code: `
             export function update(
                 partInfo: PartInfo,
@@ -317,19 +317,19 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'basic wrap threshold comment',
+        it: 'basic wrap threshold comment',
         code: `
             // ${nextWrapThresholdComment} 3
             const thingieArray = ['hello'];
         `,
     },
     {
-        name: 'still wraps really long text below the threshold',
+        it: 'still wraps really long text below the threshold',
         code: `
             // ${nextWrapThresholdComment} 3
             const thingieArray = ['HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello'];
         `,
-        expected: `
+        expect: `
             // ${nextWrapThresholdComment} 3
             const thingieArray = [
                 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello',
@@ -337,12 +337,12 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'does not wrap really long text when the line count prevents it',
+        it: 'does not wrap really long text when the line count prevents it',
         code: `
             // ${nextLinePatternComment} 1 3
             const thingieArray = ['hello', 'hello', 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHelloHello', 'HelloHelloHelloHelloHelloHelloHelloHelloHelloHello'];
         `,
-        expected: `
+        expect: `
             // ${nextLinePatternComment} 1 3
             const thingieArray = [
                 'hello',
@@ -351,7 +351,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'invalid wrap threshold triggers error',
+        it: 'invalid wrap threshold triggers error',
         code: `
             const thingieArray = ['hello'];
         `,
@@ -362,7 +362,7 @@ export const typescriptTests: MultilineArrayTest[] = [
             'Invalid multilineArraysWrapThreshold value. Expected an integer, but received "fifty two".',
     },
     {
-        name: 'wrap threshold through options',
+        it: 'wrap threshold through options',
         code: `
             const thingieArray = ['hello'];
         `,
@@ -371,11 +371,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'line count through options',
+        it: 'line count through options',
         code: `
             const thingieArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         `,
-        expected: `
+        expect: `
             const thingieArray = [
                 'a',
                 'b', 'c',
@@ -389,11 +389,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'invalid elements per line reverts to default',
+        it: 'invalid elements per line reverts to default',
         code: `
             const thingieArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         `,
-        expected: `
+        expect: `
             const thingieArray = [
                 'a',
                 'b',
@@ -410,11 +410,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'line count overrides threshold',
+        it: 'line count overrides threshold',
         code: `
             const thingieArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         `,
-        expected: `
+        expect: `
             const thingieArray = [
                 'a',
                 'b', 'c',
@@ -429,7 +429,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'pointless wrap threshold comment',
+        it: 'pointless wrap threshold comment',
         code: `
             // ${nextWrapThresholdComment} 0
             const thingieArray = [
@@ -439,7 +439,7 @@ export const typescriptTests: MultilineArrayTest[] = [
     },
     {
         // this was causing an error on the closing "}" at one point
-        name: 'interpolated string example',
+        it: 'interpolated string example',
         code: `
             if (children.length) {
                 // ${nextWrapThresholdComment} 1
@@ -448,7 +448,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'array elements with dots',
+        it: 'array elements with dots',
         // prettier-ignore
         code: `
             parentDoc[childIndex] = [
@@ -458,7 +458,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'single line comment with just one line count',
+        it: 'single line comment with just one line count',
         // prettier-ignore
         code: `
             // ${nextLinePatternComment} 2
@@ -470,7 +470,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 4,
             ] as const;
         `,
-        expected: `
+        expect: `
             // ${nextLinePatternComment} 2
             const originalArray: Readonly<number[]> = [
                 0, 1,
@@ -480,7 +480,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'set line pattern comment should carry through',
+        it: 'set line pattern comment should carry through',
         // prettier-ignore
         code: `
             // ${setLinePatternComment} 2
@@ -499,7 +499,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 4,
             ] as const;
         `,
-        expected: `
+        expect: `
             // ${setLinePatternComment} 2
             const originalArray: Readonly<number[]> = [
                 0, 1,
@@ -514,7 +514,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'should set array threshold for all array elements',
+        it: 'should set array threshold for all array elements',
         code: `
             // ${setWrapThresholdComment} 8
             const thing = [
@@ -576,7 +576,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 ]
             ];
         `,
-        expected: `
+        expect: `
             // ${setWrapThresholdComment} 8
             const thing = [
                 [0, 0, 0, 1, 1],
@@ -591,7 +591,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'should still properly wrap when lots of comments exist',
+        it: 'should still properly wrap when lots of comments exist',
         code: `
             const thing = [
                 // comment here
@@ -664,7 +664,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'should wrap array with multiline comments',
+        it: 'should wrap array with multiline comments',
         code: `
             /*
                 ANOTHER multiline comment
@@ -715,7 +715,7 @@ export const typescriptTests: MultilineArrayTest[] = [
       `,
     },
     {
-        name: 'line pattern comments should override options property',
+        it: 'line pattern comments should override options property',
         code: `
             const pl = [
                 'prettier-plugin-sort-json', 'prettier-plugin-packagejson',
@@ -728,7 +728,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 'table'
             ]
         `,
-        expected: `
+        expect: `
             const pl = [
                 'prettier-plugin-sort-json', 'prettier-plugin-packagejson', 'prettier-plugin-multiline-arrays',
                 'prettier-plugin-organize-imports', 'prettier-plugin-jsdoc',
@@ -760,7 +760,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'reset should clear set comment',
+        it: 'reset should clear set comment',
         // prettier-ignore
         code: `
             // ${setLinePatternComment} 2
@@ -780,7 +780,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 4,
             ] as const;
         `,
-        expected: `
+        expect: `
             // ${setLinePatternComment} 2
             const originalArray: Readonly<number[]> = [
                 0, 1,
@@ -798,7 +798,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'single line comment with just one line wrapped',
+        it: 'single line comment with just one line wrapped',
         // prettier-ignore
         code: `
             describe(filterMap.name, () => {
@@ -812,7 +812,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 ] as const;
             });
         `,
-        expected: `
+        expect: `
             describe(filterMap.name, () => {
                 // ${nextLinePatternComment} 2
                 const originalArray: Readonly<number[]> = [
@@ -824,7 +824,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'TS array with just a comment',
+        it: 'TS array with just a comment',
         code: `
             const myObject = {
                 data: [
@@ -834,7 +834,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'TS array with a bunch of comments',
+        it: 'TS array with a bunch of comments',
         code: `
             const myObject = {
                 data: [
@@ -856,7 +856,7 @@ export const typescriptTests: MultilineArrayTest[] = [
     },
     {
         // caused a max call stack exceeded error once
-        name: 'single object element with multiline template',
+        it: 'single object element with multiline template',
         // prettier-ignore
         code: `
         
@@ -874,7 +874,7 @@ export const typescriptTests: MultilineArrayTest[] = [
             ];
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             const stuff = [
                 {
                     innerStuff: \`
@@ -885,7 +885,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'long function definition with multiline array parser',
+        it: 'long function definition with multiline array parser',
         // prettier-ignore
         code: `
             export async function selectFiles(
@@ -898,7 +898,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'comment after end of block with multiline array parser',
+        it: 'comment after end of block with multiline array parser',
         // prettier-ignore
         code: `
             if (thing) {
@@ -909,7 +909,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'should still sort imports with multiline parser',
+        it: 'should still sort imports with multiline parser',
         // prettier-ignore
         code: `
             import {notUsed} from 'blah';
@@ -918,7 +918,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 'b',
             ];
         `,
-        expected: `
+        expect: `
             const thingie = [
                 'a',
                 'b',
@@ -926,13 +926,13 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'deep array call should include trailing comma still',
+        it: 'deep array call should include trailing comma still',
         // prettier-ignore
         code: `
             expect(createArrayValidator(typeofValidators.boolean)([3, 4])).toBe(false);
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             expect(
                 createArrayValidator(typeofValidators.boolean)([
                     3,
@@ -942,7 +942,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'not arrays but callbacks with multiline array parser',
+        it: 'not arrays but callbacks with multiline array parser',
         // prettier-ignore
         code: `
             expose({
@@ -965,11 +965,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'arguments in function call',
+        it: 'arguments in function call',
         code: `
             doTheThing('a', 'b', 'c');
         `,
-        expected: `
+        expect: `
             doTheThing(
                 'a',
                 'b',
@@ -981,11 +981,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'single arg arrow function',
+        it: 'single arg arrow function',
         code: `
             const stuff = process.argv.some((arg) => arg.match(/\.tsx?$/));
         `,
-        expected: `
+        expect: `
             const stuff = process.argv.some((arg) => arg.match(/\.tsx?$/));
         `,
         options: {
@@ -1010,11 +1010,11 @@ export const typescriptTests: MultilineArrayTest[] = [
     //     },
     // },
     {
-        name: 'arguments in new constructor call',
+        it: 'arguments in new constructor call',
         code: `
             new doTheThing('a', 'b', 'c');
         `,
-        expected: `
+        expect: `
             new doTheThing(
                 'a',
                 'b',
@@ -1026,11 +1026,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'arguments in function definition',
+        it: 'arguments in function definition',
         code: `
             function doTheThing(a: string, b: string, c: string) {};
         `,
-        expected: `
+        expect: `
             function doTheThing(
                 a: string,
                 b: string,
@@ -1042,11 +1042,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'arguments in function definition no wrap when below threshold',
+        it: 'arguments in function definition no wrap when below threshold',
         code: `
             function doTheThing(a: string, b: string, c: string) {};
         `,
-        expected: `
+        expect: `
             function doTheThing(a: string, b: string, c: string) {}
         `,
         options: {
@@ -1055,7 +1055,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'config object',
+        it: 'config object',
         // prettier-ignore
         code: `
             const config = {
@@ -1073,7 +1073,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'nested single-line objects on multiple lines',
+        it: 'nested single-line objects on multiple lines',
         // prettier-ignore
         code: `
             const nested = [
@@ -1084,13 +1084,13 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'nested single-line objects all on one line',
+        it: 'nested single-line objects all on one line',
         // prettier-ignore
         code: `
             const nested = [{success: true, filePath: ''}, {success: false, error: 'hello there', filePath: ''}, {success: false, error: '', filePath: ''}];
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             const nested = [
                 {success: true, filePath: ''},
                 {success: false, error: 'hello there', filePath: ''},
@@ -1099,7 +1099,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'nested multi-line objects',
+        it: 'nested multi-line objects',
         // prettier-ignore
         code: `
             const nested = [{
@@ -1108,7 +1108,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                         success: false, error: '', filePath: ''}];
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             const nested = [
                 {
                     success: true,
@@ -1128,7 +1128,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'multiple arrays and even one with a trigger comment',
+        it: 'multiple arrays and even one with a trigger comment',
         // prettier-ignore
         code: `
             const varNoLine = ['a', 'b'];
@@ -1149,7 +1149,7 @@ export const typescriptTests: MultilineArrayTest[] = [
 
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             const varNoLine = [
                 'a',
                 'b',
@@ -1175,7 +1175,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'array with single line trigger comment',
+        it: 'array with single line trigger comment',
         // prettier-ignore
         code: `
         // ${nextLinePatternComment} 2 1 3
@@ -1192,7 +1192,7 @@ export const typescriptTests: MultilineArrayTest[] = [
             'k',
         ];`,
         // prettier-ignore
-        expected: `
+        expect: `
             // ${(nextLinePatternComment)} 2 1 3
             const setNumberPerLine = [
                 'a', 'b',
@@ -1205,7 +1205,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'array with line trigger comment using commas',
+        it: 'array with line trigger comment using commas',
         // prettier-ignore
         code: `
         // ${nextLinePatternComment} 2, 1, 3
@@ -1222,7 +1222,7 @@ export const typescriptTests: MultilineArrayTest[] = [
             'k',
         ];`,
         // prettier-ignore
-        expected: `
+        expect: `
             // ${nextLinePatternComment} 2, 1, 3
             const setNumberPerLine = [
                 'a', 'b',
@@ -1235,7 +1235,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'nested array',
+        it: 'nested array',
         // prettier-ignore
         code: `
             const nestedArray = [
@@ -1243,7 +1243,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 ['s', 't'],
             ];`,
         // prettier-ignore
-        expected: `
+        expect: `
             const nestedArray = [
                 'q',
                 'r',
@@ -1255,18 +1255,18 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'empty array',
+        it: 'empty array',
         // prettier-ignore
         code: `
             const myVar1: string[] = [];
         `,
     },
     {
-        name: 'single element array on one line',
+        it: 'single element array on one line',
         // prettier-ignore
         code: `let anotherThing: string[] = ['1 1'];`,
         // prettier-ignore
-        expected: `
+        expect: `
             let anotherThing: string[] = [
                 '1 1',
             ];
@@ -1276,13 +1276,13 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'single element array on multiple lines',
+        it: 'single element array on multiple lines',
         // prettier-ignore
         code: `
             let anotherThing: string[] = ['1 1'
             ];`,
         // prettier-ignore
-        expected: `
+        expect: `
             let anotherThing: string[] = [
                 '1 1',
             ];
@@ -1292,7 +1292,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'multiple different styled arrays all together',
+        it: 'multiple different styled arrays all together',
         // prettier-ignore
         code: `
             const myVar2: string[] = [];
@@ -1304,7 +1304,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 '2, 2',
             ];`,
         // prettier-ignore
-        expected: `
+        expect: `
             const myVar2: string[] = [];
             let anotherThing: string[] = [
                 '1 1',
@@ -1322,11 +1322,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'single element string array with type definition',
+        it: 'single element string array with type definition',
         // prettier-ignore
         code: `const myVar: string[] = ['hello'];`,
         // prettier-ignore
-        expected: `
+        expect: `
             const myVar: string[] = [
                 'hello',
             ];
@@ -1336,11 +1336,11 @@ export const typescriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'double element string array with type definition',
+        it: 'double element string array with type definition',
         // prettier-ignore
         code: `const myVar: string[] = ['hello', 'there'];`,
         // prettier-ignore
-        expected: `
+        expect: `
             const myVar: string[] = [
                 'hello',
                 'there',
@@ -1348,25 +1348,25 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'non-array string assignment',
+        it: 'non-array string assignment',
         // prettier-ignore
         code: `
             const myVar:string=
             'hello';`,
         // prettier-ignore
-        expected: `
+        expect: `
             const myVar: string = 'hello';
         `,
     },
     {
-        name: 'non-array single line object assignment',
+        it: 'non-array single line object assignment',
         // prettier-ignore
         code: `
             const myVar: object = {a: 'here', b: 'there'};
         `,
     },
     {
-        name: 'non-array multi-line object assignment',
+        it: 'non-array multi-line object assignment',
         // prettier-ignore
         code: `
             const myVar: object = {
@@ -1377,7 +1377,7 @@ export const typescriptTests: MultilineArrayTest[] = [
     },
     // the following test caught that path.getValue() can return undefined.
     {
-        name: 'array with an earlier function definition',
+        it: 'array with an earlier function definition',
         // prettier-ignore
         code: `
             function doStuff() {}
@@ -1388,7 +1388,7 @@ export const typescriptTests: MultilineArrayTest[] = [
 
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             function doStuff() {}
 
             const what = [
@@ -1398,13 +1398,13 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'array with function definition inside of it',
+        it: 'array with function definition inside of it',
         // prettier-ignore
         code: `
             const what = ['a', function doStuff() {}];
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             const what = [
                 'a',
                 function doStuff() {},
@@ -1412,14 +1412,14 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'original parser with single line object assignment',
+        it: 'original parser with single line object assignment',
         // prettier-ignore
         code: `
             const myVar: object = {a: 'where', b: 'everywhere'};
         `,
     },
     {
-        name: 'original parser with multi-line object assignment',
+        it: 'original parser with multi-line object assignment',
         // prettier-ignore
         code: `
             const myVar: object = {

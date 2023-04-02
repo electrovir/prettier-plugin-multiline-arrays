@@ -5,7 +5,7 @@ import {MultilineArrayTest, runTests} from './run-tests';
 
 const javascriptTests: MultilineArrayTest[] = [
     {
-        name: 'comment at end of argument list with multiline array parser',
+        it: 'comment at end of argument list with multiline array parser',
         // prettier-ignore
         code: `
             export function hasProperty(
@@ -18,11 +18,11 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'long args that wrap already',
+        it: 'long args that wrap already',
         code: `
             doTheThing('super long argument to force some wrapping', 'super long argument to force some wrapping', 'super long argument to force some wrapping');
         `,
-        expected: `
+        expect: `
             doTheThing(
                 'super long argument to force some wrapping',
                 'super long argument to force some wrapping',
@@ -35,11 +35,11 @@ const javascriptTests: MultilineArrayTest[] = [
     },
     {
         // caught
-        name: 'arguments in function call',
+        it: 'arguments in function call',
         code: `
             doTheThing('a123', 'b123', 'c123');
         `,
-        expected: `
+        expect: `
             doTheThing(
                 'a123',
                 'b123',
@@ -52,11 +52,11 @@ const javascriptTests: MultilineArrayTest[] = [
     },
     {
         // caught
-        name: 'assigned function call',
+        it: 'assigned function call',
         code: `
             const output = doThing('a9', 'b999');
         `,
-        expected: `
+        expect: `
         const output = doThing(
                 'a9',
                 'b999',
@@ -67,11 +67,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'require call',
+        it: 'require call',
         code: `
             const output = require('path/to/thing');
         `,
-        expected: `
+        expect: `
             const output = require('path/to/thing');
         `,
         options: {
@@ -79,11 +79,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'single arg arrow function',
+        it: 'single arg arrow function',
         code: `
             const stuff = process.argv.some((argP) => argO.match(/\.tsq?$/));
         `,
-        expected: `
+        expect: `
             const stuff = process.argv.some((argP) => argO.match(/\.tsq?$/));
         `,
         options: {
@@ -91,11 +91,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'multi arg arrow function with call in callback',
+        it: 'multi arg arrow function with call in callback',
         code: `
             const stuff = process.argv.some((argB, indexB) => argC.match(/\.tsg?$/));
         `,
-        expected: `
+        expect: `
             const stuff = process.argv.some(
                 (
                     argB,
@@ -109,12 +109,12 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'multi arg arrow function',
+        it: 'multi arg arrow function',
         exclude: true,
         code: `
             const stuff = process.argv.some((arg2, index3) => arg1);
         `,
-        expected: `
+        expect: `
             const stuff = process.argv.some(
                 (
                     arg2,
@@ -127,11 +127,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'tons of args in arrow function',
+        it: 'tons of args in arrow function',
         code: `
             const stuff = process.argv.some((reallyReallyReallyReallyReallyReallyReallyLong, reallyReallyReallyReallyReallyReallyReallyLong, reallyReallyReallyReallyReallyReallyReallyLong) => arg.match(/\.tsx?$/));
         `,
-        expected: `
+        expect: `
             const stuff = process.argv.some(
                 (
                     reallyReallyReallyReallyReallyReallyReallyLong,
@@ -145,11 +145,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'arguments in new constructor call',
+        it: 'arguments in new constructor call',
         code: `
             new doTheThing('aq', 'bq', 'cq');
         `,
-        expected: `
+        expect: `
             new doTheThing(
                 'aq',
                 'bq',
@@ -161,11 +161,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'arguments in function definition',
+        it: 'arguments in function definition',
         code: `
             function doTheThing(a1, b2, c3) {};
         `,
-        expected: `
+        expect: `
             function doTheThing(
                 a1,
                 b2,
@@ -177,11 +177,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'arguments in function definition no wrap when below threshold',
+        it: 'arguments in function definition no wrap when below threshold',
         code: `
             function doTheThing(aa, bb, cc) {};
         `,
-        expected: `
+        expect: `
             function doTheThing(aa, bb, cc) {}
         `,
         options: {
@@ -190,14 +190,14 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'basic wrap threshold comment',
+        it: 'basic wrap threshold comment',
         code: `
             // ${nextWrapThresholdComment} 3
             const thingieArray = ['hello'];
         `,
     },
     {
-        name: 'works with greater than or less than inside of an array in javascript',
+        it: 'works with greater than or less than inside of an array in javascript',
         code: `
             const thingie = [
                 otherThingie < 5 ? 'owl' : 'goat',
@@ -205,7 +205,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'invalid wrap threshold triggers error',
+        it: 'invalid wrap threshold triggers error',
         code: `
             const thingieArray = ['hello'];
         `,
@@ -216,7 +216,7 @@ const javascriptTests: MultilineArrayTest[] = [
             'Invalid multilineArraysWrapThreshold value. Expected an integer, but received "fifty two".',
     },
     {
-        name: 'wrap threshold through options',
+        it: 'wrap threshold through options',
         code: `
             const thingieArray = ['hello'];
         `,
@@ -225,11 +225,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'line count through options',
+        it: 'line count through options',
         code: `
             const thingieArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         `,
-        expected: `
+        expect: `
             const thingieArray = [
                 'a',
                 'b', 'c',
@@ -243,11 +243,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'line count overrides threshold',
+        it: 'line count overrides threshold',
         code: `
             const thingieArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         `,
-        expected: `
+        expect: `
             const thingieArray = [
                 'a',
                 'b', 'c',
@@ -262,7 +262,7 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'pointless wrap threshold comment',
+        it: 'pointless wrap threshold comment',
         code: `
             // ${nextWrapThresholdComment} 0
             const thingieArray = [
@@ -272,7 +272,7 @@ const javascriptTests: MultilineArrayTest[] = [
     },
     {
         // this was causing an error on the closing "}" at one point
-        name: 'interpolated string example',
+        it: 'interpolated string example',
         code: `
             if (children.length) {
                 // ${nextWrapThresholdComment} 1
@@ -281,7 +281,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'array elements with dots',
+        it: 'array elements with dots',
         // prettier-ignore
         code: `
             parentDoc[childIndex] = [
@@ -291,7 +291,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'single line comment with just one line count',
+        it: 'single line comment with just one line count',
         // prettier-ignore
         code: `
             // ${nextLinePatternComment} 2
@@ -303,7 +303,7 @@ const javascriptTests: MultilineArrayTest[] = [
                 4,
             ];
         `,
-        expected: `
+        expect: `
             // ${nextLinePatternComment} 2
             const originalArray = [
                 0, 1,
@@ -313,7 +313,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'single line comment with just one line wrapped',
+        it: 'single line comment with just one line wrapped',
         // prettier-ignore
         code: `
             describe(filterMap.name, () => {
@@ -327,7 +327,7 @@ const javascriptTests: MultilineArrayTest[] = [
                 ];
             });
         `,
-        expected: `
+        expect: `
             describe(filterMap.name, () => {
                 // ${nextLinePatternComment} 2
                 const originalArray = [
@@ -340,7 +340,7 @@ const javascriptTests: MultilineArrayTest[] = [
     },
     {
         // caused a max call stack exceeded error once
-        name: 'single object element with multiline template',
+        it: 'single object element with multiline template',
         // prettier-ignore
         code: `
         
@@ -358,7 +358,7 @@ const javascriptTests: MultilineArrayTest[] = [
             ];
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             const stuff = [
                 {
                     innerStuff: \`
@@ -369,7 +369,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'long function definition with multiline array parser',
+        it: 'long function definition with multiline array parser',
         // prettier-ignore
         code: `
             export async function selectFiles(
@@ -382,7 +382,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'comment after end of block with multiline array parser',
+        it: 'comment after end of block with multiline array parser',
         // prettier-ignore
         code: `
             if (thing) {
@@ -393,7 +393,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'should still sort imports with multiline parser',
+        it: 'should still sort imports with multiline parser',
         // prettier-ignore
         code: `
             import {notUsed} from 'blah';
@@ -402,7 +402,7 @@ const javascriptTests: MultilineArrayTest[] = [
                 'b',
             ];
         `,
-        expected: `
+        expect: `
             const thingie = [
                 'a',
                 'b',
@@ -410,13 +410,13 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'deep array call should include trailing comma still',
+        it: 'deep array call should include trailing comma still',
         // prettier-ignore
         code: `
             expect(createArrayValidator(typeofValidators.boolean)([3, 4])).toBe(false);
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             expect(
                 createArrayValidator(typeofValidators.boolean)([
                     3,
@@ -426,7 +426,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'not arrays but callbacks with multiline array parser',
+        it: 'not arrays but callbacks with multiline array parser',
         // prettier-ignore
         code: `
             expose({
@@ -447,14 +447,14 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'function parameters',
+        it: 'function parameters',
         // prettier-ignore
         code: `
             doTheThing('a', 'b', 'c');
         `,
     },
     {
-        name: 'config object',
+        it: 'config object',
         // prettier-ignore
         code: `
             const config = {
@@ -472,7 +472,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'nested single-line objects on multiple lines',
+        it: 'nested single-line objects on multiple lines',
         // prettier-ignore
         code: `
             const nested = [
@@ -483,13 +483,13 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'nested single-line objects all on one line',
+        it: 'nested single-line objects all on one line',
         // prettier-ignore
         code: `
             const nested = [{success: true, filePath: ''}, {success: false, error: 'hello there', filePath: ''}, {success: false, error: '', filePath: ''}];
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             const nested = [
                 {success: true, filePath: ''},
                 {success: false, error: 'hello there', filePath: ''},
@@ -498,7 +498,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'nested multi-line objects',
+        it: 'nested multi-line objects',
         // prettier-ignore
         code: `
             const nested = [{
@@ -507,7 +507,7 @@ const javascriptTests: MultilineArrayTest[] = [
                         success: false, error: '', filePath: ''}];
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             const nested = [
                 {
                     success: true,
@@ -527,7 +527,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'multiple arrays and even one with a trigger comment',
+        it: 'multiple arrays and even one with a trigger comment',
         // prettier-ignore
         code: `
             const varNoLine = ['a', 'b'];
@@ -548,7 +548,7 @@ const javascriptTests: MultilineArrayTest[] = [
 
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             const varNoLine = [
                 'a',
                 'b',
@@ -574,7 +574,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'array with single line trigger comment',
+        it: 'array with single line trigger comment',
         // prettier-ignore
         code: `
         // ${nextLinePatternComment} 2 1 3
@@ -591,7 +591,7 @@ const javascriptTests: MultilineArrayTest[] = [
             'k',
         ];`,
         // prettier-ignore
-        expected: `
+        expect: `
             // ${(nextLinePatternComment)} 2 1 3
             const setNumberPerLine = [
                 'a', 'b',
@@ -604,7 +604,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'array with line trigger comment using commas',
+        it: 'array with line trigger comment using commas',
         // prettier-ignore
         code: `
         // ${nextLinePatternComment} 2, 1, 3
@@ -621,7 +621,7 @@ const javascriptTests: MultilineArrayTest[] = [
             'k',
         ];`,
         // prettier-ignore
-        expected: `
+        expect: `
             // ${nextLinePatternComment} 2, 1, 3
             const setNumberPerLine = [
                 'a', 'b',
@@ -634,7 +634,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'JS array with just a comment',
+        it: 'JS array with just a comment',
         code: `
             const myObject = {
                 data: [
@@ -644,7 +644,7 @@ const javascriptTests: MultilineArrayTest[] = [
       `,
     },
     {
-        name: 'basic array with a comment',
+        it: 'basic array with a comment',
         code: `
             const data = [
                 'one',
@@ -654,7 +654,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'basic array with a leading comment',
+        it: 'basic array with a leading comment',
         code: `
             const data = [
                 // comment
@@ -664,7 +664,7 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'nested array',
+        it: 'nested array',
         // prettier-ignore
         code: `
             const nestedArray = [
@@ -672,7 +672,7 @@ const javascriptTests: MultilineArrayTest[] = [
                 ['s', 't'],
             ];`,
         // prettier-ignore
-        expected: `
+        expect: `
             const nestedArray = [
                 'q',
                 'r',
@@ -684,18 +684,18 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'empty array',
+        it: 'empty array',
         // prettier-ignore
         code: `
             const myVar1: string[] = [];
         `,
     },
     {
-        name: 'single element array on one line',
+        it: 'single element array on one line',
         // prettier-ignore
         code: `let anotherThing: string[] = ['1 1'];`,
         // prettier-ignore
-        expected: `
+        expect: `
             let anotherThing: string[] = [
                 '1 1',
             ];
@@ -705,13 +705,13 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'single element array on multiple lines',
+        it: 'single element array on multiple lines',
         // prettier-ignore
         code: `
             let anotherThing: string[] = ['1 1'
             ];`,
         // prettier-ignore
-        expected: `
+        expect: `
             let anotherThing: string[] = [
                 '1 1',
             ];
@@ -721,7 +721,7 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'multiple different styled arrays all together',
+        it: 'multiple different styled arrays all together',
         // prettier-ignore
         code: `
             const myVar2: string[] = [];
@@ -733,7 +733,7 @@ const javascriptTests: MultilineArrayTest[] = [
                 '2, 2',
             ];`,
         // prettier-ignore
-        expected: `
+        expect: `
             const myVar2: string[] = [];
             let anotherThing: string[] = [
                 '1 1',
@@ -751,11 +751,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'single element string array with type definition',
+        it: 'single element string array with type definition',
         // prettier-ignore
         code: `const myVar: string[] = ['hello'];`,
         // prettier-ignore
-        expected: `
+        expect: `
             const myVar: string[] = [
                 'hello',
             ];
@@ -765,11 +765,11 @@ const javascriptTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'double element string array with type definition',
+        it: 'double element string array with type definition',
         // prettier-ignore
         code: `const myVar: string[] = ['hello', 'there'];`,
         // prettier-ignore
-        expected: `
+        expect: `
             const myVar: string[] = [
                 'hello',
                 'there',
@@ -777,25 +777,25 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'non-array string assignment',
+        it: 'non-array string assignment',
         // prettier-ignore
         code: `
             const myVar:string=
             'hello';`,
         // prettier-ignore
-        expected: `
+        expect: `
             const myVar: string = 'hello';
         `,
     },
     {
-        name: 'non-array single line object assignment',
+        it: 'non-array single line object assignment',
         // prettier-ignore
         code: `
             const myVar: object = {a: 'here', b: 'there'};
         `,
     },
     {
-        name: 'non-array multi-line object assignment',
+        it: 'non-array multi-line object assignment',
         // prettier-ignore
         code: `
             const myVar: object = {
@@ -806,7 +806,7 @@ const javascriptTests: MultilineArrayTest[] = [
     },
     // the following test caught that path.getValue() can return undefined.
     {
-        name: 'array with an earlier function definition',
+        it: 'array with an earlier function definition',
         // prettier-ignore
         code: `
             function doStuff() {}
@@ -817,7 +817,7 @@ const javascriptTests: MultilineArrayTest[] = [
 
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             function doStuff() {}
 
             const what = [
@@ -827,13 +827,13 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'array with function definition inside of it',
+        it: 'array with function definition inside of it',
         // prettier-ignore
         code: `
             const what = ['a', function doStuff() {}];
         `,
         // prettier-ignore
-        expected: `
+        expect: `
             const what = [
                 'a',
                 function doStuff() {},
@@ -841,14 +841,14 @@ const javascriptTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'original parser with single line object assignment',
+        it: 'original parser with single line object assignment',
         // prettier-ignore
         code: `
             const myVar: object = {a: 'where', b: 'everywhere'};
         `,
     },
     {
-        name: 'original parser with multi-line object assignment',
+        it: 'original parser with multi-line object assignment',
         // prettier-ignore
         code: `
             const myVar: object = {

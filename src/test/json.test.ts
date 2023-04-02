@@ -4,7 +4,7 @@ import {MultilineArrayTest, runTests} from './run-tests';
 
 const jsonTests: MultilineArrayTest[] = [
     {
-        name: 'basic JSON format',
+        it: 'basic JSON format',
         // prettier-ignore
         code: `
             {
@@ -13,7 +13,7 @@ const jsonTests: MultilineArrayTest[] = [
                 "object": {"example": "instance"}
             }
         `,
-        expected: `
+        expect: `
             {
                 "hello": "there",
                 "stuff": [
@@ -28,14 +28,14 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'basic wrap threshold comment',
+        it: 'basic wrap threshold comment',
         code: `
             // ${nextWrapThresholdComment} 3
             ["hello"]
         `,
     },
     {
-        name: 'invalid wrap threshold triggers error',
+        it: 'invalid wrap threshold triggers error',
         code: `
             ["hello"]
         `,
@@ -46,7 +46,7 @@ const jsonTests: MultilineArrayTest[] = [
             'Invalid multilineArraysWrapThreshold value. Expected an integer, but received "fifty two".',
     },
     {
-        name: 'exact code desired by Robinfr',
+        it: 'exact code desired by Robinfr',
         code: `
             [
                 ["thing1"],
@@ -58,7 +58,7 @@ const jsonTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'wrap threshold through options',
+        it: 'wrap threshold through options',
         code: `
             ["hello"]
         `,
@@ -67,11 +67,11 @@ const jsonTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'line count through options',
+        it: 'line count through options',
         code: `
             ["a", "b", "c", "d", "e", "f", "g", "h"]
         `,
-        expected: `
+        expect: `
             [
                 "a",
                 "b", "c",
@@ -85,11 +85,11 @@ const jsonTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'line count overrides threshold',
+        it: 'line count overrides threshold',
         code: `
             ["a", "b", "c", "d", "e", "f", "g", "h"]
         `,
-        expected: `
+        expect: `
             [
                 "a",
                 "b", "c",
@@ -104,7 +104,7 @@ const jsonTests: MultilineArrayTest[] = [
         },
     },
     {
-        name: 'pointless wrap threshold comment',
+        it: 'pointless wrap threshold comment',
         code: `
             // ${nextWrapThresholdComment} 0
             [
@@ -113,7 +113,7 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'should leave trailing newline',
+        it: 'should leave trailing newline',
         code: `
             {
                 "import": ".cspell-base.json",
@@ -129,7 +129,7 @@ const jsonTests: MultilineArrayTest[] = [
     },
     {
         // TODO: this test is weird, it won't work if the newline before "example" isn't there
-        name: 'with object array element',
+        it: 'with object array element',
         // prettier-ignore
         code: `
             {
@@ -139,7 +139,7 @@ const jsonTests: MultilineArrayTest[] = [
                 "object": {"example": "instance"}
             }
         `,
-        expected: `
+        expect: `
             {
                 "hello": "there",
                 "stuff": [
@@ -157,7 +157,7 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'with nested array',
+        it: 'with nested array',
         // prettier-ignore
         code: `
             {
@@ -166,7 +166,7 @@ const jsonTests: MultilineArrayTest[] = [
                 "object": {"example": "instance"}
             }
         `,
-        expected: `
+        expect: `
             {
                 "hello": "there",
                 "stuff": [
@@ -188,7 +188,7 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'with multiple nested arrays',
+        it: 'with multiple nested arrays',
         // prettier-ignore
         code: `
             {
@@ -197,7 +197,7 @@ const jsonTests: MultilineArrayTest[] = [
                 "object": {"example": "instance"}
             }
         `,
-        expected: `
+        expect: `
             {
                 "hello": "there",
                 "stuff": [
@@ -226,7 +226,7 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'basic JSON array with a comment',
+        it: 'basic JSON array with a comment',
         code: `
             {
                 "data": [
@@ -238,7 +238,7 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'basic JSON array with multiple comments',
+        it: 'basic JSON array with multiple comments',
         code: `
             {
                 // comment
@@ -255,7 +255,7 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'basic JSON array with multiline comments',
+        it: 'basic JSON array with multiline comments',
         code: `
             {
                 /*
@@ -296,7 +296,7 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'basic JSON array',
+        it: 'basic JSON array',
         code: `
             {
                 "data": [
@@ -307,7 +307,7 @@ const jsonTests: MultilineArrayTest[] = [
         `,
     },
     {
-        name: 'basic lone element JSON array',
+        it: 'basic lone element JSON array',
         code: `
             {
                 "data": [
