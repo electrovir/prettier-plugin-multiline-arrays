@@ -6,8 +6,6 @@ module.exports = {
     words: [
         ...baseConfig.words,
         'farmerpaul',
-        'hardline',
-        'jsplugin',
         'Robinfr',
     ],
 };
