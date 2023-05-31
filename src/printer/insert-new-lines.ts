@@ -1,4 +1,4 @@
-import {getObjectTypedKeys, ObjectValueType} from '@augment-vir/common';
+import {getObjectTypedKeys, PropertyValueType} from '@augment-vir/common';
 import {CallExpression, Node} from 'estree';
 import {AstPath, Doc, doc, ParserOptions} from 'prettier';
 import {isDocCommand, stringifyDoc} from '../augments/doc';
@@ -430,7 +430,7 @@ function insertLinesIntoArray(
 function getLatestSetValue<T extends object>(
     currentLine: number,
     triggers: CommentTriggerWithEnding<T>,
-): ObjectValueType<T> | undefined {
+): PropertyValueType<T> | undefined {
     const relevantSetLineCountsKey: keyof T = getObjectTypedKeys(triggers)
         .sort()
         .reduce((closestKey, currentKey): keyof T => {
@@ -444,7 +444,7 @@ function getLatestSetValue<T extends object>(
 
             return closestKey;
         }, '' as keyof T);
-    const relevantSetLineCount: ObjectValueType<T> | undefined =
+    const relevantSetLineCount: PropertyValueType<T> | undefined =
         triggers[relevantSetLineCountsKey]?.data;
 
     return relevantSetLineCount;

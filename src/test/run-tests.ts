@@ -1,4 +1,4 @@
-import {PartialWithNullable} from '@augment-vir/common';
+import {PartialAndNullable} from '@augment-vir/common';
 import {assert} from 'chai';
 import {it} from 'mocha';
 import {format as prettierFormat, Options as PrettierOptions} from 'prettier';
@@ -37,7 +37,7 @@ export type MultilineArrayTest = {
     name: string;
     code: string;
     expected?: string | undefined;
-    options?: (Partial<MultilineArrayOptions> & PartialWithNullable<PrettierOptions>) | undefined;
+    options?: (Partial<MultilineArrayOptions> & PartialAndNullable<PrettierOptions>) | undefined;
     force?: true;
     exclude?: true;
     failureMessage?: string;

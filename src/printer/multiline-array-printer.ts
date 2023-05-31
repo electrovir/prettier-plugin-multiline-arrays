@@ -1,6 +1,6 @@
 import {Node} from 'estree';
 import {AstPath, ParserOptions, Printer} from 'prettier';
-import {envDebugKey, fillInOptions, MultilineArrayOptions} from '../options';
+import {MultilineArrayOptions, envDebugKey, fillInOptions} from '../options';
 import {printWithMultilineArrays} from './insert-new-lines';
 import {getOriginalPrinter} from './original-printer';
 

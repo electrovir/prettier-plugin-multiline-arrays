@@ -22,6 +22,7 @@
         "useUnknownInCatchVariables": true
     },
     "exclude": [
+        "configs",
         "dist",
         "node_modules",
         "separate-configs",
