@@ -32,16 +32,17 @@
         "format": "virmator format",
         "publish": "virmator publish \"npm run compile && npm run test:all\"",
         "test": "npm run compile && test-as-package \"virmator test\"",
-        "test:all": "npm run test:types && npm run test:coverage && npm run test:spelling && npm run test:format && npm run test:docs",
+        "test:all": "concurrently --kill-others-on-fail --kill-signal SIGKILL -c auto --colors --names types,tests,spelling,format,docs \"npm run test:types\" \"npm run test:coverage\" \"npm run test:spelling\" \"npm run test:format\" \"npm run test:docs\"",
         "test:coverage": "npm run test coverage",
-        "test:debug": "npm run compile && test-as-package \"virmator test --inspect-brk\"",
+        "test:debug": "npm run compile && test-as-package \"virmator test --inspect-brk --parallel=false\"",
         "test:docs": "virmator code-in-markdown check",
         "test:format": "prettier --color \"./**/*.+(cjs|css|graphql|html|js|json|jsx|less|md|mjs|scss|toml|ts|tsx|yaml|yml)\" --check",
         "test:spelling": "virmator spellcheck",
         "test:types": "tsc --noEmit"
     },
     "dependencies": {
-        "@augment-vir/common": "^14.3.0"
+        "@augment-vir/common": "^14.3.0",
+        "proxy-vir": "^0.0.1"
     },
     "devDependencies": {
         "@electrovir/nyc": "^15.1.0-fix0",

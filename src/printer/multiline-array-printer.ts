@@ -35,7 +35,14 @@ function wrapInOriginalPrinterCall<T extends string = string>(
 
             const multilineOptions: MultilineArrayOptions & ParserOptions<any> =
                 fillInOptions(options);
-            return printWithMultilineArrays(originalOutput, args[0], multilineOptions, debug);
+
+            const multilinePrintedOutput = printWithMultilineArrays(
+                originalOutput,
+                args[0],
+                multilineOptions,
+                debug,
+            );
+            return multilinePrintedOutput;
         } else {
             let thisParent: any = originalPrinter;
             let printerProp = originalPrinter[property];

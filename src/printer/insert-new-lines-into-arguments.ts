@@ -144,7 +144,6 @@ export function insertLinesIntoArguments(
                 //     return true;
                 // });
             }
-            // console.log({codePath, siblingChildren: findingSiblingChildren});
 
             // don't walk any deeper
             return false;

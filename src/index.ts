@@ -1,17 +1,17 @@
-import {getObjectTypedKeys} from '@augment-vir/common';
+import {getObjectTypedKeys, mapObjectValues} from '@augment-vir/common';
 import {
-    getSupportInfo,
     Parser,
     Plugin,
     Printer,
     RequiredOptions,
     SupportLanguage,
     SupportOption,
+    getSupportInfo,
 } from 'prettier';
 import {parsers as babelParsers} from 'prettier/parser-babel';
 import {parsers as tsParsers} from 'prettier/parser-typescript';
-import {defaultMultilineArrayOptions, MultilineArrayOptions, optionHelp} from './options';
-import {addCustomPreprocessing} from './preprocessing';
+import {MultilineArrayOptions, defaultMultilineArrayOptions, optionHelp} from './options';
+import {wrapParser} from './preprocessing';
 import {multilineArrayPrinter} from './printer/multiline-array-printer';
 
 // exports in case others want to utilize these
@@ -29,24 +29,17 @@ export const languages: SupportLanguage[] = getSupportInfo().languages.filter(({
     ].includes(name),
 );
 
-export const parsers: Record<string, Parser<any>> = Object.entries({
-    typescript: tsParsers.typescript,
-    babel: babelParsers.babel,
-    'babel-ts': babelParsers['babel-ts'],
-    json: babelParsers.json,
-    json5: babelParsers.json5,
-}).reduce(
-    (
-        accum,
-        [
-            key,
-            entry,
-        ],
-    ) => {
-        accum[key] = addCustomPreprocessing(entry, key);
-        return accum;
+export const parsers: Record<string, Parser<any>> = mapObjectValues(
+    {
+        typescript: tsParsers.typescript,
+        babel: babelParsers.babel,
+        'babel-ts': babelParsers['babel-ts'],
+        json: babelParsers.json,
+        json5: babelParsers.json5,
     },
-    {} as Record<string, Parser>,
+    (languageName, parserEntry) => {
+        return wrapParser(parserEntry, languageName);
+    },
 );
 
 export const printers: Record<string, Printer<any>> = {

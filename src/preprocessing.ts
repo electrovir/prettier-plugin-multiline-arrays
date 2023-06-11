@@ -1,4 +1,5 @@
 import {Parser, ParserOptions, Plugin, Printer} from 'prettier';
+import {createWrappedMultiTargetProxy} from 'proxy-vir';
 import {pluginMarker} from './plugin-marker';
 import {multilineArrayPrinter} from './printer/multiline-array-printer';
 import {setOriginalPrinter} from './printer/original-printer';
@@ -54,9 +55,24 @@ function findPluginsByParserName(parserName: string, options: ParserOptions): Pl
     });
 }
 
-export function addCustomPreprocessing(originalParser: Parser, parserName: string) {
-    const thisPluginPreprocess = (text: string, options: ParserOptions) => {
-        const pluginsWithPreprocessor = findPluginsByParserName(parserName, options).filter(
+export function wrapParser(originalParser: Parser, parserName: string) {
+    /** Create a multi-target proxy of parsers so that we don't block other plugins. */
+    const parserProxy = createWrappedMultiTargetProxy<Parser>({
+        initialTarget: originalParser,
+    });
+
+    function multilineArraysPluginPreprocess(text: string, options: ParserOptions) {
+        const pluginsWithRelevantParsers = findPluginsByParserName(parserName, options);
+        pluginsWithRelevantParsers.forEach((plugin) => {
+            const currentParser = plugin.parsers?.[parserName];
+            if (currentParser) {
+                if ((plugin as any)?.name?.includes('prettier-plugin-sort-json')) {
+                    parserProxy.proxyModifier.addOverrideTarget(currentParser);
+                }
+            }
+        });
+
+        const pluginsWithPreprocessor = pluginsWithRelevantParsers.filter(
             (plugin) => !!plugin.parsers?.[parserName]?.preprocess,
         );
 
@@ -80,12 +96,11 @@ export function addCustomPreprocessing(originalParser: Parser, parserName: strin
         addMultilinePrinter(options);
 
         return processedText;
-    };
+    }
 
-    const parser = {
-        ...originalParser,
-        preprocess: thisPluginPreprocess,
-    };
+    parserProxy.proxyModifier.addOverrideTarget({
+        preprocess: multilineArraysPluginPreprocess,
+    });
 
-    return parser;
+    return parserProxy.proxy;
 }

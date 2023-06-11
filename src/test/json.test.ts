@@ -16,14 +16,14 @@ const jsonTests: MultilineArrayTest[] = [
         expect: `
             {
                 "hello": "there",
+                "object": {"example": "instance"},
                 "stuff": [
                     "a",
                     "b",
                     "c",
                     "d",
                     "e"
-                ],
-                "object": {"example": "instance"}
+                ]
             }
         `,
     },
@@ -175,6 +175,7 @@ const jsonTests: MultilineArrayTest[] = [
         expect: `
             {
                 "hello": "there",
+                "object": {"example": "instance"},
                 "stuff": [
                     "a",
                     "b",
@@ -184,8 +185,7 @@ const jsonTests: MultilineArrayTest[] = [
                     {
                         "example": "instance"
                     }
-                ],
-                "object": {"example": "instance"}
+                ]
             }
         `,
     },
@@ -202,6 +202,7 @@ const jsonTests: MultilineArrayTest[] = [
         expect: `
             {
                 "hello": "there",
+                "object": {"example": "instance"},
                 "stuff": [
                     "a",
                     "b",
@@ -215,8 +216,7 @@ const jsonTests: MultilineArrayTest[] = [
                         "i",
                         "j"
                     ]
-                ],
-                "object": {"example": "instance"}
+                ]
             }
         `,
     },
@@ -233,6 +233,7 @@ const jsonTests: MultilineArrayTest[] = [
         expect: `
             {
                 "hello": "there",
+                "object": {"example": "instance"},
                 "stuff": [
                     "a",
                     "b",
@@ -253,8 +254,7 @@ const jsonTests: MultilineArrayTest[] = [
                         "i",
                         "j"
                     ]
-                ],
-                "object": {"example": "instance"}
+                ]
             }
         `,
     },
