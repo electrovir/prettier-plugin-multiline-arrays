@@ -1,9 +1,12 @@
 import {getObjectTypedKeys, mapObjectValues} from '@augment-vir/common';
 import {
+    BooleanSupportOption,
+    IntSupportOption,
     Parser,
     Plugin,
     Printer,
     RequiredOptions,
+    StringSupportOption,
     SupportLanguage,
     SupportOption,
     getSupportInfo,
@@ -51,16 +54,15 @@ export const options: Record<keyof MultilineArrayOptions, SupportOption> = getOb
     defaultMultilineArrayOptions,
 ).reduce((accum, key) => {
     const defaultValue = defaultMultilineArrayOptions[key];
-    const supportOption: SupportOption = {
+    const supportOption: StringSupportOption | IntSupportOption | BooleanSupportOption = {
         name: key,
-        type:
-            typeof defaultValue === 'number'
-                ? 'int'
-                : // prettier's types are wrong here, 'string' is expected
-                  (typeof defaultValue as any),
+        type: (typeof defaultValue === 'number' ? 'int' : typeof defaultValue) as
+            | 'string'
+            | 'boolean'
+            | 'int',
         category: 'multilineArray',
         since: '0.0.1',
-        default: Array.isArray(defaultValue) ? defaultValue.join(' ') : (defaultValue as any),
+        default: defaultValue as any,
         description: optionHelp[key],
     };
     accum[key] = supportOption;

@@ -336,7 +336,7 @@ function insertLinesIntoArray(
                             if (debug) {
                                 console.info('got concat child doc');
                                 console.info(currentDoc.parts, {firstPart, secondPart});
-                                console.log(
+                                console.info(
                                     isDocCommand(firstPart),
                                     isDocCommand(secondPart),
                                     (firstPart as any).type === 'line',
@@ -511,15 +511,21 @@ export function printWithMultilineArrays(
             relevantSetLineCount ??
             parseNextLineCounts(inputOptions.multilineArraysLinePattern, false, debug);
 
-        const relevantSetWrapThreshold = getLatestSetValue(
+        const relevantSetWrapCommentThreshold = getLatestSetValue(
             currentLineNumber,
             commentTriggers.setWrapThresholds,
         );
 
         const wrapThreshold: number =
             commentTriggers.nextWrapThresholds[lastLine] ??
-            relevantSetWrapThreshold ??
-            inputOptions.multilineArraysWrapThreshold;
+            relevantSetWrapCommentThreshold ??
+            (inputOptions.multilineArraysWrapThreshold < 0
+                ? Infinity
+                : inputOptions.multilineArraysWrapThreshold);
+
+        const includesCommentTrigger: boolean =
+            (commentTriggers.nextWrapThresholds[lastLine] ?? relevantSetWrapCommentThreshold) !=
+                undefined || !!lineCounts.length;
 
         if (debug) {
             if (isArgumentsLikeNode(node)) {
@@ -530,7 +536,17 @@ export function printWithMultilineArrays(
             console.info({options: {lineCounts, wrapThreshold}});
         }
 
-        const manualWrap = includesTrailingComma || includesLeadingNewline;
+        const manualWrap = includesCommentTrigger
+            ? false
+            : includesTrailingComma || includesLeadingNewline;
+
+        // console.log({
+        //     wrapThreshold,
+        //     includesCommentTrigger,
+        //     manualWrap,
+        //     includesTrailingComma,
+        //     includesLeadingNewline,
+        // });
 
         const newDoc = isArgumentsLikeNode(node)
             ? insertLinesIntoArguments(

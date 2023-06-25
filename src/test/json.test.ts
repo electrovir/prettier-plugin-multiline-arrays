@@ -26,6 +26,9 @@ const jsonTests: MultilineArrayTest[] = [
                 ]
             }
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         it: 'should format tsconfig.json keys still',
@@ -219,6 +222,9 @@ const jsonTests: MultilineArrayTest[] = [
                 ]
             }
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         it: 'with multiple nested arrays',
@@ -257,6 +263,9 @@ const jsonTests: MultilineArrayTest[] = [
                 ]
             }
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         it: 'basic JSON array with a comment',

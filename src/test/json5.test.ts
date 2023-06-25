@@ -26,6 +26,9 @@ const json5Tests: MultilineArrayTest[] = [
                 object: {example: 'instance'},
             }
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         it: 'basic wrap threshold comment',
@@ -124,6 +127,9 @@ const json5Tests: MultilineArrayTest[] = [
                 object: {example: 'instance'},
             }
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         it: 'with nested array',
@@ -155,6 +161,9 @@ const json5Tests: MultilineArrayTest[] = [
                 object: {example: 'instance'},
             }
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
     {
         it: 'with multiple nested arrays',
@@ -193,6 +202,9 @@ const json5Tests: MultilineArrayTest[] = [
                 object: {example: 'instance'},
             }
         `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
     },
 ];
 

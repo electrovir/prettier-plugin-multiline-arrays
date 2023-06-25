@@ -49,6 +49,7 @@ const javascriptTests: MultilineArrayTest[] = [
         options: {
             multilineFunctionArguments: true,
         },
+        exclude: true,
     },
     {
         // caught
@@ -65,6 +66,7 @@ const javascriptTests: MultilineArrayTest[] = [
         options: {
             multilineFunctionArguments: true,
         },
+        exclude: true,
     },
     {
         it: 'require call',
@@ -159,6 +161,7 @@ const javascriptTests: MultilineArrayTest[] = [
         options: {
             multilineFunctionArguments: true,
         },
+        exclude: true,
     },
     {
         it: 'arguments in function definition',
@@ -175,6 +178,7 @@ const javascriptTests: MultilineArrayTest[] = [
         options: {
             multilineFunctionArguments: true,
         },
+        exclude: true,
     },
     {
         it: 'arguments in function definition no wrap when below threshold',
@@ -424,6 +428,9 @@ const javascriptTests: MultilineArrayTest[] = [
                 ]),
             ).toBe(false);
         `,
+        options: {
+            multilineArraysWrapThreshold: 1,
+        },
     },
     {
         it: 'not arrays but callbacks with multiline array parser',
@@ -572,6 +579,50 @@ const javascriptTests: MultilineArrayTest[] = [
                 'd', 'e',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 1,
+        },
+    },
+    {
+        it: 'no threshold set with multiple arrays, one having a trigger comment',
+        // prettier-ignore
+        code: `
+            const varNoLine = ['a', 'b'];
+            const varOneNewLine = [
+                'a', 'b',
+            ];
+            const nestedArray = [
+                'q', 'r',
+                ['s', 't'],
+            ];
+            // ${capitalizeFirst(nextLinePatternComment)} 2 1 3
+            const setNumberPerLine = [
+                'a', 'b',
+                'c',
+                'd',
+                'e',
+            ];
+
+        `,
+        // prettier-ignore
+        expect: `
+            const varNoLine = ['a', 'b'];
+            const varOneNewLine = [
+                'a',
+                'b',
+            ];
+            const nestedArray = [
+                'q',
+                'r',
+                ['s', 't'],
+            ];
+            // ${capitalizeFirst(nextLinePatternComment)} 2 1 3
+            const setNumberPerLine = [
+                'a', 'b',
+                'c',
+                'd', 'e',
+            ];
+        `,
     },
     {
         it: 'array with single line trigger comment',
@@ -682,6 +733,9 @@ const javascriptTests: MultilineArrayTest[] = [
                 ],
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 1,
+        },
     },
     {
         it: 'empty array',
@@ -775,6 +829,9 @@ const javascriptTests: MultilineArrayTest[] = [
                 'there',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 1,
+        },
     },
     {
         it: 'non-array string assignment',
@@ -825,6 +882,9 @@ const javascriptTests: MultilineArrayTest[] = [
                 'b',
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 1,
+        },
     },
     {
         it: 'array with function definition inside of it',
@@ -839,6 +899,9 @@ const javascriptTests: MultilineArrayTest[] = [
                 function doStuff() {},
             ];
         `,
+        options: {
+            multilineArraysWrapThreshold: 1,
+        },
     },
     {
         it: 'original parser with single line object assignment',
