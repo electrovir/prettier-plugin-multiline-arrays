@@ -17,22 +17,16 @@ import {MultilineArrayOptions, defaultMultilineArrayOptions, optionHelp} from '.
 import {wrapParser} from './preprocessing';
 import {multilineArrayPrinter} from './printer/multiline-array-printer';
 
+
 // exports in case others want to utilize these
 export * from './options';
 export {pluginMarker} from './plugin-marker';
 
-export const languages: SupportLanguage[] = getSupportInfo().languages.filter(({name}) =>
-    [
-        'JavaScript',
-        'TypeScript',
-        'JSON',
-        'JSON5',
-        'JSON with Comments',
-        'JSON.stringify',
-    ].includes(name),
-);
 
-export const parsers: Record<string, Parser<any>> = mapObjectValues(
+async function loadPlugin(): Promise<Plugin> {
+    
+
+const parsers: Record<string, Parser<any>> = mapObjectValues(
     {
         typescript: tsParsers.typescript,
         babel: babelParsers.babel,
@@ -41,16 +35,16 @@ export const parsers: Record<string, Parser<any>> = mapObjectValues(
         json5: babelParsers.json5,
     },
     (languageName, parserEntry) => {
-        return wrapParser(parserEntry, languageName);
+        return wrapParser(parserEntry as any, languageName);
     },
 );
 
-export const printers: Record<string, Printer<any>> = {
+const printers: Record<string, Printer<any>> = {
     estree: multilineArrayPrinter,
     'estree-json': multilineArrayPrinter,
 };
 
-export const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTypedKeys(
+const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTypedKeys(
     defaultMultilineArrayOptions,
 ).reduce((accum, key) => {
     const defaultValue = defaultMultilineArrayOptions[key];
@@ -64,19 +58,38 @@ export const options: Record<keyof MultilineArrayOptions, SupportOption> = getOb
         since: '0.0.1',
         default: defaultValue as any,
         description: optionHelp[key],
-    };
+    } as any;
     accum[key] = supportOption;
     return accum;
 }, {} as Record<keyof MultilineArrayOptions, SupportOption>);
 
-export const defaultOptions: Partial<RequiredOptions> & Required<MultilineArrayOptions> =
+const defaultOptions: Partial<RequiredOptions> & Required<MultilineArrayOptions> =
     defaultMultilineArrayOptions;
+    
+const languages: SupportLanguage[] = (await getSupportInfo()).languages.filter(({name}) =>
+    [
+        'JavaScript',
+        'TypeScript',
+        'JSON',
+        'JSON5',
+        'JSON with Comments',
+        'JSON.stringify',
+    ].includes(name),
+);
 
-/** Not actually exported. Just for type checking purposes. */
-const plugin: Plugin = {
+    const plugin: Plugin = {
     options,
     printers,
     defaultOptions,
     parsers,
     languages,
+    
 };
+    return plugin;
+}
+
+/**
+ * 
+ *  this doesn't work because it return a promise, but how else can we access the languages?
+ */
+export default loadPlugin();

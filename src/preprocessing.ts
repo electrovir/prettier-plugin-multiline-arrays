@@ -61,7 +61,10 @@ export function wrapParser(originalParser: Parser, parserName: string) {
         initialTarget: originalParser,
     });
 
+    console.log('attaching the preprocessor', originalParser);
     function multilineArraysPluginPreprocess(text: string, options: ParserOptions) {
+        
+    console.log('firing the preprocessor');
         const pluginsWithRelevantParsers = findPluginsByParserName(parserName, options);
         pluginsWithRelevantParsers.forEach((plugin) => {
             const currentParser = plugin.parsers?.[parserName];

@@ -6,7 +6,7 @@
         "esModuleInterop": true,
         "exactOptionalPropertyTypes": true,
         "forceConsistentCasingInFileNames": true,
-        "module": "CommonJS",
+        "module": "node16",
         "moduleResolution": "Node",
         "noImplicitAny": true,
         "noImplicitOverride": true,
@@ -18,7 +18,7 @@
         "skipDefaultLibCheck": true,
         "skipLibCheck": true,
         "strict": true,
-        "target": "ESNext",
+        "target": "ES2021",
         "useUnknownInCatchVariables": true
     },
     "exclude": [

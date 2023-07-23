@@ -92,12 +92,13 @@ function insertLinesIntoArray(
                 console.info({firstIndentContentsChild: startingLine});
             }
             if (!isDocCommand(startingLine) || startingLine.type !== 'line') {
-                if (isDocCommand(startingLine) && startingLine.type === 'concat') {
-                    undoAllMutations();
-                    return false;
-                } else {
+                // // todo: I think this needs to check for arrays now instead of concat
+                // if (isDocCommand(startingLine) && startingLine.type === 'concat') {
+                //     undoAllMutations();
+                //     return false;
+                // } else {
                     throw new Error(`${found} first indent child was not a line.`);
-                }
+                // }
             }
             indentContents[0] = '';
             undoMutations.push(() => {
@@ -330,35 +331,35 @@ function insertLinesIntoArray(
                                     parentToMutate[siblingIndex] = commaSibling;
                                 });
                             }
-                        } else if (isDocCommand(currentDoc) && currentDoc.type === 'concat') {
-                            const firstPart = currentDoc.parts[0];
-                            const secondPart = currentDoc.parts[1];
-                            if (debug) {
-                                console.info('got concat child doc');
-                                console.info(currentDoc.parts, {firstPart, secondPart});
-                                console.info(
-                                    isDocCommand(firstPart),
-                                    isDocCommand(secondPart),
-                                    (firstPart as any).type === 'line',
-                                    (firstPart as any).hard,
-                                    (secondPart as any).type === 'break-parent',
-                                );
-                            }
-                            if (
-                                isDocCommand(firstPart) &&
-                                isDocCommand(secondPart) &&
-                                firstPart.type === 'line' &&
-                                firstPart.hard &&
-                                secondPart.type === 'break-parent'
-                            ) {
-                                if (debug) {
-                                    console.info('concat child was indeed a line break');
-                                }
-                                forceFinalLineBreakExists = true;
-                                return false;
-                            } else if (debug) {
-                                console.info('concat child doc was not a line break');
-                            }
+                        // } else if (isDocCommand(currentDoc) && currentDoc.type === 'concat') {
+                        //     const firstPart = currentDoc.parts[0];
+                        //     const secondPart = currentDoc.parts[1];
+                        //     if (debug) {
+                        //         console.info('got concat child doc');
+                        //         console.info(currentDoc.parts, {firstPart, secondPart});
+                        //         console.info(
+                        //             isDocCommand(firstPart),
+                        //             isDocCommand(secondPart),
+                        //             (firstPart as any).type === 'line',
+                        //             (firstPart as any).hard,
+                        //             (secondPart as any).type === 'break-parent',
+                        //         );
+                        //     }
+                        //     if (
+                        //         isDocCommand(firstPart) &&
+                        //         isDocCommand(secondPart) &&
+                        //         firstPart.type === 'line' &&
+                        //         firstPart.hard &&
+                        //         secondPart.type === 'break-parent'
+                        //     ) {
+                        //         if (debug) {
+                        //             console.info('concat child was indeed a line break');
+                        //         }
+                        //         forceFinalLineBreakExists = true;
+                        //         return false;
+                        //     } else if (debug) {
+                        //         console.info('concat child doc was not a line break');
+                        //     }
                         }
                         return true;
                     },

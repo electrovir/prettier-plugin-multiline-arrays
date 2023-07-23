@@ -41,11 +41,11 @@
         "test:types": "tsc --noEmit"
     },
     "dependencies": {
-        "@augment-vir/common": "^15.3.0",
+        "@augment-vir/common": "^15.5.0",
         "proxy-vir": "^0.0.1"
     },
     "devDependencies": {
-        "@augment-vir/chai": "^15.3.0",
+        "@augment-vir/chai": "^15.5.0",
         "@electrovir/nyc": "^15.1.0-fix0",
         "@istanbuljs/nyc-config-typescript": "^1.0.2",
         "@types/chai": "^4.3.5",
@@ -55,24 +55,22 @@
         "chai": "^4.3.7",
         "cross-env": "^7.0.3",
         "cspell": "^6.31.2",
-        "esbuild": "^0.18.13",
+        "esbuild": "^0.18.16",
         "istanbul-smart-text-reporter": "^1.1.2",
         "markdown-code-example-inserter": "^0.3.1",
         "mocha": "^10.2.0",
         "mocha-spec-reporter-with-file-names": "^0.0.3",
         "npm-check-updates": "^16.10.16",
         "prettier": "^3.0.0",
-        "prettier-plugin-interpolated-html-tags": "^0.0.4",
-        "prettier-plugin-jsdoc": "^0.4.2",
+        "prettier-plugin-jsdoc": "^1.0.1",
         "prettier-plugin-multiline-arrays": "*",
         "prettier-plugin-organize-imports": "^3.2.3",
         "prettier-plugin-packagejson": "^2.4.5",
-        "prettier-plugin-sort-json": "^1.0.0",
         "prettier-plugin-toml": "^0.3.1",
         "test-as-package": "^0.0.4",
         "ts-node": "^10.9.1",
         "typescript": "5.1.6",
-        "virmator": "^7.2.1"
+        "virmator": "^7.2.5"
     },
     "overrides": {
         "semver": "^7.5.2"

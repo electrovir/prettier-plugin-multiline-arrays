@@ -50,10 +50,10 @@ export function insertLinesIntoArguments(
                     codePath = 'indent';
                 }
                 // case 2. sibling is concat
-                else if (isDocCommand(openingSibling) && openingSibling.type === 'concat') {
-                    findingSiblingChildren = openingSibling.parts;
-                    codePath = 'concat';
-                }
+                // else if (isDocCommand(openingSibling) && openingSibling.type === 'concat') {
+                //     findingSiblingChildren = openingSibling.parts;
+                //     codePath = 'concat';
+                // }
                 // case 3. sibling is group
                 else if (openingSibling.type === 'group') {
                     const originalBreakValue = openingSibling.break;

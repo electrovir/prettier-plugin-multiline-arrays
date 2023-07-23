@@ -116,12 +116,12 @@ The precedence of forcing wrapping goes as follows:
 Tested to be compatible with the following plugins. It is likely compatible with many others as well. This plugin must be placed in the order specified below.
 
 1. `prettier-plugin-toml`
-2. `prettier-plugin-sort-json`
+2. `prettier-plugin-sort-json` (needs to be updated to v3)
 3. `prettier-plugin-packagejson`
 4. this plugin must be placed here
 5. `prettier-plugin-organize-imports`
 6. `prettier-plugin-jsdoc`
-7. `prettier-plugin-interpolated-html-tags`
+7. `prettier-plugin-interpolated-html-tags` (needs to be updated to v3)
 
 ## Dev
 

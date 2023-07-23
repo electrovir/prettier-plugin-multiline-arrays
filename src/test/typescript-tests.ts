@@ -190,6 +190,7 @@ export const typescriptTests: MultilineArrayTest[] = [
         options: {
             multilineArraysWrapThreshold: 10,
         },
+        force: true,
     },
     {
         it: 'an array without wrapping should only take up one line',
