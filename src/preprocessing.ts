@@ -62,7 +62,6 @@ export function wrapParser(originalParser: Parser, parserName: string) {
     });
 
     console.log('attaching the preprocessor', originalParser);
-    debugger;
     function multilineArraysPluginPreprocess(text: string, options: ParserOptions) {
         
     console.log('firing the preprocessor');

@@ -66,11 +66,6 @@ const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTyp
 const defaultOptions: Partial<RequiredOptions> & Required<MultilineArrayOptions> =
     defaultMultilineArrayOptions;
     
-    getSupportInfo().then(supportInfo => {
-        debugger;
-        // console.log(supportInfo.languages)
-    })
-    
     // const languages = [
     //     {name: 'JavaScript', parsers: ['babel', 'acorn', 'espree', 'meriyah', 'babel-flow', 'babel-ts', 'flow', 'typescript']},
     //     {name: 'TypeScript', parsers: ['typescript', 'babel-ts']},

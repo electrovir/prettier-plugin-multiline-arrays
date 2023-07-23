@@ -1,3 +1,4 @@
+import * as prettierPluginBabel from "prettier/plugins/babel";
 import {Node} from 'estree';
 import {AstPath, ParserOptions, Printer} from 'prettier';
 import {MultilineArrayOptions, envDebugKey, fillInOptions} from '../options';
@@ -14,13 +15,13 @@ function wrapInOriginalPrinterCall<T extends string = string>(
         const originalPrinter = getOriginalPrinter();
 
         if (property === 'print') {
-            const path = args[0] as AstPath;
             const options = args[1] as ParserOptions;
+            debugger;
+            const argsToUse = args[3] ? args : args.slice(0,3);
             const originalOutput = originalPrinter.print.call(
                 originalPrinter,
-                path,
-                options,
-                ...(args.slice(2) as [any]),
+                ...(argsToUse as [any, any, any, any])
+                
             );
             if (
                 options.filepath?.endsWith('package.json') &&
