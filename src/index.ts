@@ -11,6 +11,7 @@ import {
     SupportOption,
     getSupportInfo,
 } from 'prettier';
+import  * as prettierAll from 'prettier';
 import {parsers as babelParsers} from 'prettier/parser-babel';
 import {parsers as tsParsers} from 'prettier/parser-typescript';
 import {MultilineArrayOptions, defaultMultilineArrayOptions, optionHelp} from './options';
@@ -23,7 +24,6 @@ export * from './options';
 export {pluginMarker} from './plugin-marker';
 
 
-async function loadPlugin(): Promise<Plugin> {
     
 
 const parsers: Record<string, Parser<any>> = mapObjectValues(
@@ -66,30 +66,26 @@ const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTyp
 const defaultOptions: Partial<RequiredOptions> & Required<MultilineArrayOptions> =
     defaultMultilineArrayOptions;
     
-const languages: SupportLanguage[] = (await getSupportInfo()).languages.filter(({name}) =>
-    [
-        'JavaScript',
-        'TypeScript',
-        'JSON',
-        'JSON5',
-        'JSON with Comments',
-        'JSON.stringify',
-    ].includes(name),
-);
+    getSupportInfo().then(supportInfo => {
+        debugger;
+        // console.log(supportInfo.languages)
+    })
+    
+    // const languages = [
+    //     {name: 'JavaScript', parsers: ['babel', 'acorn', 'espree', 'meriyah', 'babel-flow', 'babel-ts', 'flow', 'typescript']},
+    //     {name: 'TypeScript', parsers: ['typescript', 'babel-ts']},
+    //     {name: 'JSON.stringify', parsers: ['json-stringify']},
+    //     {name: 'JSON', parsers: ['json']},
+    //     {name: 'JSON with Comments', parsers: ['json']},
+    //     {name: 'JSON5', parsers: ['json5']},
+    // ]
 
     const plugin: Plugin = {
     options,
     printers,
     defaultOptions,
     parsers,
-    languages,
-    
+    // languages,
 };
-    return plugin;
-}
 
-/**
- * 
- *  this doesn't work because it return a promise, but how else can we access the languages?
- */
-export default loadPlugin();
+export {options, defaultOptions, parsers};
