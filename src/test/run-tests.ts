@@ -62,7 +62,12 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser:
             try {
                 const inputCode = removeIndent(test.code);
                 const expected = removeIndent(test.expect ?? test.code);
-                const formatted = await runPrettierFormat(inputCode, extension, test.options, parser);
+                const formatted = await runPrettierFormat(
+                    inputCode,
+                    extension,
+                    test.options,
+                    parser,
+                );
                 assert.strictEqual(formatted, expected);
                 if (formatted !== expected) {
                     allPassed = false;

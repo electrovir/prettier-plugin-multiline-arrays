@@ -38,3 +38,7 @@ export function isDocCommand(
 ): inputDoc is doc.builders.DocCommand {
     return !!inputDoc && typeof inputDoc !== 'string' && !Array.isArray(inputDoc);
 }
+
+export function isDocArray(inputDoc: Doc | undefined | null): inputDoc is Doc[] {
+    return Array.isArray(inputDoc);
+}

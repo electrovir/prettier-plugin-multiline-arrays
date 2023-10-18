@@ -922,6 +922,9 @@ const javascriptTests: MultilineArrayTest[] = [
     },
 ];
 
+// TODO: Use raw javascript for all tests, which does not include type declarations.
+// This worked previously, because prettier/babel used to always recognize flow syntax.
+// See: https://prettier.io/blog/2023/07/05/3.0.0#remove-flow-syntax-support-from-babel-parser-14314httpsgithubcomprettierprettierpull14314-by-fiskerhttpsgithubcomfisker-thorn0httpsgithubcomthorn0
 describe('javascript multiline array formatting', () => {
-    runTests('.js', javascriptTests, 'babel');
+    runTests('.js.flow', javascriptTests, 'babel');
 });

@@ -1,4 +1,3 @@
-import * as prettierPluginBabel from "prettier/plugins/babel";
 import {Node} from 'estree';
 import {AstPath, ParserOptions, Printer} from 'prettier';
 import {MultilineArrayOptions, envDebugKey, fillInOptions} from '../options';
@@ -15,13 +14,13 @@ function wrapInOriginalPrinterCall<T extends string = string>(
         const originalPrinter = getOriginalPrinter();
 
         if (property === 'print') {
+            const path = args[0] as AstPath;
             const options = args[1] as ParserOptions;
-            debugger;
-            const argsToUse = args[3] ? args : args.slice(0,3);
             const originalOutput = originalPrinter.print.call(
                 originalPrinter,
-                ...(argsToUse as [any, any, any, any])
-                
+                path,
+                options,
+                ...(args.slice(2) as [any]),
             );
             if (
                 options.filepath?.endsWith('package.json') &&
@@ -69,9 +68,6 @@ function wrapInOriginalPrinterCall<T extends string = string>(
 }
 
 const handleComments: Printer['handleComments'] = {
-    // the avoidAstMutation property is not defined in the types
-    // @ts-expect-error
-    avoidAstMutation: true,
     endOfLine: wrapInOriginalPrinterCall<keyof NonNullable<Printer['handleComments']>>(
         'handleComments',
         'endOfLine',
@@ -89,6 +85,14 @@ const handleComments: Printer['handleComments'] = {
 /** This is a proxy because the original printer is only set at run time. */
 export const multilineArrayPrinter = new Proxy<Printer<Node>>({} as Printer<Node>, {
     get: (target, property: keyof Printer) => {
+        // the avoidAstMutation property is not defined in the types
+        // @ts-expect-error
+        if (property === 'experimentalFeatures') {
+            return {
+                avoidAstMutation: true,
+            };
+        }
+
         /**
          * "handleComments" is the only printer property which isn't a callback function, so for
          * simplicity, ignore it.
@@ -96,6 +100,12 @@ export const multilineArrayPrinter = new Proxy<Printer<Node>>({} as Printer<Node
         if (property === 'handleComments') {
             return handleComments;
         }
+
+        const originalPrinter = getOriginalPrinter();
+        if (originalPrinter[property] === undefined) {
+            return undefined;
+        }
+
         /**
          * We have to return a callback so that we can extract the jsPlugin from the options
          * argument

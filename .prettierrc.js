@@ -1,4 +1,3 @@
-
 /**
  * @typedef {import('prettier-plugin-multiline-arrays').MultilineArrayOptions} MultilineOptions
  *
@@ -12,19 +11,18 @@ const prettierConfig = {
     endOfLine: 'lf',
     htmlWhitespaceSensitivity: 'ignore',
     jsonRecursiveSort: true,
-    multilineArraysWrapThreshold: 1,
-    pluginSearchDirs: false,
     printWidth: 100,
     singleQuote: true,
     tabWidth: 4,
     trailingComma: 'all',
     plugins: [
-    'prettier-plugin-toml',
-    'prettier-plugin-packagejson',
-    'prettier-plugin-multiline-arrays',
-    'prettier-plugin-organize-imports',
-    'prettier-plugin-jsdoc',
-]
+        'prettier-plugin-toml',
+        'prettier-plugin-sort-json',
+        'prettier-plugin-packagejson',
+        'prettier-plugin-multiline-arrays',
+        'prettier-plugin-organize-imports',
+        'prettier-plugin-jsdoc',
+    ],
 };
 
 module.exports = prettierConfig;

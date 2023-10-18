@@ -46,7 +46,7 @@ function addMultilinePrinter(options: ParserOptions): void {
 }
 
 function findPluginsByParserName(parserName: string, options: ParserOptions): Plugin[] {
-    return options.plugins.filter((plugin): plugin is Plugin => {
+    return options.plugins?.filter((plugin): plugin is Plugin => {
         return (
             typeof plugin === 'object' &&
             (plugin as any).pluginMarker !== pluginMarker &&
@@ -61,10 +61,7 @@ export function wrapParser(originalParser: Parser, parserName: string) {
         initialTarget: originalParser,
     });
 
-    console.log('attaching the preprocessor', originalParser);
     function multilineArraysPluginPreprocess(text: string, options: ParserOptions) {
-        
-    console.log('firing the preprocessor');
         const pluginsWithRelevantParsers = findPluginsByParserName(parserName, options);
         pluginsWithRelevantParsers.forEach((plugin) => {
             const currentParser = plugin.parsers?.[parserName];
@@ -86,6 +83,12 @@ export function wrapParser(originalParser: Parser, parserName: string) {
                 processedText,
                 {
                     ...options,
+                    ...((pluginWithPreprocessor as any)?.name?.includes(
+                        'prettier-plugin-organize-imports',
+                    ) &&
+                        options.filepath?.endsWith('.js.flow') && {
+                            filepath: options.filepath.slice(0, -5),
+                        }),
                     plugins: options.plugins.filter(
                         (plugin) => (plugin as any).pluginMarker !== pluginMarker,
                     ),
