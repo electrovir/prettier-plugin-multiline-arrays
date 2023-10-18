@@ -54,7 +54,7 @@
         "@types/prettier": "^3.0.0",
         "chai": "^4.3.10",
         "cross-env": "^7.0.3",
-        "cspell": "^6.31.3",
+        "cspell": "^7.3.8",
         "esbuild": "^0.18.20",
         "istanbul-smart-text-reporter": "^1.1.2",
         "markdown-code-example-inserter": "^0.3.2",
