@@ -1268,9 +1268,6 @@ export const typescriptTests: MultilineArrayTest[] = [
             ];
 
         `,
-        options: {
-            multilineArraysWrapThreshold: -1,
-        },
         // prettier-ignore
         expect: `
             const varNoLine = ['a', 'b'];
