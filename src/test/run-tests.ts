@@ -1,8 +1,7 @@
-import {PartialAndNullable} from '@augment-vir/common';
+import {PartialAndNullable, removeColor} from '@augment-vir/common';
 import {assert} from 'chai';
 import {it} from 'mocha';
-import {format as prettierFormat, Options as PrettierOptions} from 'prettier';
-import {stripColor} from '../augments/string';
+import {Options as PrettierOptions, format as prettierFormat} from 'prettier';
 import {MultilineArrayOptions} from '../options';
 import {repoConfig} from './prettier-config';
 
@@ -75,11 +74,11 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser:
             } catch (error) {
                 allPassed = false;
                 if (test.failureMessage && error instanceof Error) {
-                    const strippedMessage = stripColor(error.message);
+                    const strippedMessage = removeColor(error.message);
                     if (test.failureMessage !== strippedMessage) {
                         console.info({strippedMessage});
                     }
-                    assert.strictEqual(stripColor(strippedMessage), test.failureMessage);
+                    assert.strictEqual(removeColor(strippedMessage), test.failureMessage);
                 } else {
                     throw error;
                 }
