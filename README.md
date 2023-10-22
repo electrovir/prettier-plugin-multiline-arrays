@@ -121,7 +121,7 @@ Tested to be compatible with the following plugins. It is likely compatible with
 4. this plugin must be placed here
 5. `prettier-plugin-organize-imports`
 6. `prettier-plugin-jsdoc`
-7. `prettier-plugin-interpolated-html-tags`
+7. ~~`prettier-plugin-interpolated-html-tags`~~ (needs to be updated to v3)
 
 ## Dev
 

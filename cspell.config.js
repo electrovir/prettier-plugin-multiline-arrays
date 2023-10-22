@@ -7,5 +7,8 @@ module.exports = {
         ...baseConfig.words,
         'farmerpaul',
         'Robinfr',
+        'espree',
+        'meriyah',
+        'nodenext',
     ],
 };

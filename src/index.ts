@@ -7,12 +7,10 @@ import {
     Printer,
     RequiredOptions,
     StringSupportOption,
-    SupportLanguage,
     SupportOption,
-    getSupportInfo,
 } from 'prettier';
-import {parsers as babelParsers} from 'prettier/parser-babel';
 import {parsers as tsParsers} from 'prettier/parser-typescript';
+import {parsers as babelParsers} from 'prettier/plugins/babel';
 import {MultilineArrayOptions, defaultMultilineArrayOptions, optionHelp} from './options';
 import {wrapParser} from './preprocessing';
 import {multilineArrayPrinter} from './printer/multiline-array-printer';
@@ -21,18 +19,7 @@ import {multilineArrayPrinter} from './printer/multiline-array-printer';
 export * from './options';
 export {pluginMarker} from './plugin-marker';
 
-export const languages: SupportLanguage[] = getSupportInfo().languages.filter(({name}) =>
-    [
-        'JavaScript',
-        'TypeScript',
-        'JSON',
-        'JSON5',
-        'JSON with Comments',
-        'JSON.stringify',
-    ].includes(name),
-);
-
-export const parsers: Record<string, Parser<any>> = mapObjectValues(
+const parsers: Record<string, Parser<any>> = mapObjectValues(
     {
         typescript: tsParsers.typescript,
         babel: babelParsers.babel,
@@ -41,38 +28,61 @@ export const parsers: Record<string, Parser<any>> = mapObjectValues(
         json5: babelParsers.json5,
     },
     (languageName, parserEntry) => {
-        return wrapParser(parserEntry, languageName);
+        return wrapParser(parserEntry as any, languageName);
     },
 );
 
-export const printers: Record<string, Printer<any>> = {
+const printers: Record<string, Printer<any>> = {
     estree: multilineArrayPrinter,
     'estree-json': multilineArrayPrinter,
 };
 
-export const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTypedKeys(
+const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTypedKeys(
     defaultMultilineArrayOptions,
-).reduce((accum, key) => {
-    const defaultValue = defaultMultilineArrayOptions[key];
-    const supportOption: StringSupportOption | IntSupportOption | BooleanSupportOption = {
-        name: key,
-        type: (typeof defaultValue === 'number' ? 'int' : typeof defaultValue) as
-            | 'string'
-            | 'boolean'
-            | 'int',
-        category: 'multilineArray',
-        since: '0.0.1',
-        default: defaultValue as any,
-        description: optionHelp[key],
-    };
-    accum[key] = supportOption;
-    return accum;
-}, {} as Record<keyof MultilineArrayOptions, SupportOption>);
+).reduce(
+    (accum, key) => {
+        const defaultValue = defaultMultilineArrayOptions[key];
+        const supportOption: StringSupportOption | IntSupportOption | BooleanSupportOption = {
+            name: key,
+            type: (typeof defaultValue === 'number' ? 'int' : typeof defaultValue) as
+                | 'string'
+                | 'boolean'
+                | 'int',
+            category: 'multilineArray',
+            since: '0.0.1',
+            default: defaultValue as any,
+            description: optionHelp[key],
+        } as any;
+        accum[key] = supportOption;
+        return accum;
+    },
+    {} as Record<keyof MultilineArrayOptions, SupportOption>,
+);
 
-export const defaultOptions: Partial<RequiredOptions> & Required<MultilineArrayOptions> =
+const defaultOptions: Partial<RequiredOptions> & Required<MultilineArrayOptions> =
     defaultMultilineArrayOptions;
 
-/** Not actually exported. Just for type checking purposes. */
+const languages = [
+    {
+        name: 'JavaScript',
+        parsers: [
+            'babel',
+            'acorn',
+            'espree',
+            'meriyah',
+            'babel-flow',
+            'babel-ts',
+            'flow',
+            'typescript',
+        ],
+    },
+    {name: 'TypeScript', parsers: ['typescript', 'babel-ts']},
+    {name: 'JSON.stringify', parsers: ['json-stringify']},
+    {name: 'JSON', parsers: ['json']},
+    {name: 'JSON with Comments', parsers: ['json']},
+    {name: 'JSON5', parsers: ['json5']},
+];
+
 const plugin: Plugin = {
     options,
     printers,
@@ -80,3 +90,5 @@ const plugin: Plugin = {
     parsers,
     languages,
 };
+
+export {defaultOptions, options, parsers};

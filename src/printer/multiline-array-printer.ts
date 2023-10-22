@@ -68,9 +68,6 @@ function wrapInOriginalPrinterCall<T extends string = string>(
 }
 
 const handleComments: Printer['handleComments'] = {
-    // the avoidAstMutation property is not defined in the types
-    // @ts-expect-error
-    avoidAstMutation: true,
     endOfLine: wrapInOriginalPrinterCall<keyof NonNullable<Printer['handleComments']>>(
         'handleComments',
         'endOfLine',
@@ -88,6 +85,14 @@ const handleComments: Printer['handleComments'] = {
 /** This is a proxy because the original printer is only set at run time. */
 export const multilineArrayPrinter = new Proxy<Printer<Node>>({} as Printer<Node>, {
     get: (target, property: keyof Printer) => {
+        // the avoidAstMutation property is not defined in the types
+        // @ts-expect-error
+        if (property === 'experimentalFeatures') {
+            return {
+                avoidAstMutation: true,
+            };
+        }
+
         /**
          * "handleComments" is the only printer property which isn't a callback function, so for
          * simplicity, ignore it.
@@ -95,6 +100,12 @@ export const multilineArrayPrinter = new Proxy<Printer<Node>>({} as Printer<Node
         if (property === 'handleComments') {
             return handleComments;
         }
+
+        const originalPrinter = getOriginalPrinter();
+        if (originalPrinter[property] === undefined) {
+            return undefined;
+        }
+
         /**
          * We have to return a callback so that we can extract the jsPlugin from the options
          * argument

@@ -1,4 +1,4 @@
-const baseOptions = require('./.virmator/mocharc-base');
+const baseOptions = require('./configs/mocha.config.js');
 
 /** @type {import('mocha').MochaOptions} */
 const mochaConfig = {

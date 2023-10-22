@@ -6,12 +6,12 @@ import {stripColor} from '../augments/string';
 import {MultilineArrayOptions} from '../options';
 import {repoConfig} from './prettier-config';
 
-function runPrettierFormat(
+async function runPrettierFormat(
     code: string,
     extension: string,
     options: Partial<MultilineArrayOptions> = {},
     parser: string | undefined,
-): string {
+): Promise<string> {
     if (extension.startsWith('.')) {
         extension = extension.slice(1);
     }
@@ -32,7 +32,7 @@ function runPrettierFormat(
         plugins,
     };
 
-    return prettierFormat(code, prettierOptions);
+    return await prettierFormat(code, prettierOptions);
 }
 
 export type MultilineArrayTest = {
@@ -58,11 +58,16 @@ function removeIndent(input: string): string {
 
 export function runTests(extension: string, tests: MultilineArrayTest[], parser: string) {
     tests.forEach((test) => {
-        function testCallback() {
+        async function testCallback() {
             try {
                 const inputCode = removeIndent(test.code);
                 const expected = removeIndent(test.expect ?? test.code);
-                const formatted = runPrettierFormat(inputCode, extension, test.options, parser);
+                const formatted = await runPrettierFormat(
+                    inputCode,
+                    extension,
+                    test.options,
+                    parser,
+                );
                 assert.strictEqual(formatted, expected);
                 if (formatted !== expected) {
                     allPassed = false;
@@ -83,9 +88,7 @@ export function runTests(extension: string, tests: MultilineArrayTest[], parser:
 
         if (test.force) {
             forced = true;
-            it.only(test.it, () => {
-                testCallback();
-            });
+            it.only(test.it, testCallback);
         } else if (test.exclude) {
             it.skip(test.it, testCallback);
         } else {

@@ -1,7 +1,7 @@
 import {getObjectTypedKeys, PropertyValueType} from '@augment-vir/common';
-import {CallExpression, Node} from 'estree';
+import {CallExpression} from 'estree';
 import {AstPath, Doc, doc, ParserOptions} from 'prettier';
-import {isDocCommand, stringifyDoc} from '../augments/doc';
+import {isDocArray, isDocCommand, stringifyDoc} from '../augments/doc';
 import {MultilineArrayOptions} from '../options';
 import {walkDoc} from './child-docs';
 import {
@@ -92,7 +92,7 @@ function insertLinesIntoArray(
                 console.info({firstIndentContentsChild: startingLine});
             }
             if (!isDocCommand(startingLine) || startingLine.type !== 'line') {
-                if (isDocCommand(startingLine) && startingLine.type === 'concat') {
+                if (isDocArray(startingLine)) {
                     undoAllMutations();
                     return false;
                 } else {
@@ -330,12 +330,12 @@ function insertLinesIntoArray(
                                     parentToMutate[siblingIndex] = commaSibling;
                                 });
                             }
-                        } else if (isDocCommand(currentDoc) && currentDoc.type === 'concat') {
-                            const firstPart = currentDoc.parts[0];
-                            const secondPart = currentDoc.parts[1];
+                        } else if (isDocArray(currentDoc)) {
+                            const firstPart = currentDoc[0];
+                            const secondPart = currentDoc[1];
                             if (debug) {
                                 console.info('got concat child doc');
-                                console.info(currentDoc.parts, {firstPart, secondPart});
+                                console.info(currentDoc, {firstPart, secondPart});
                                 console.info(
                                     isDocCommand(firstPart),
                                     isDocCommand(secondPart),
@@ -434,17 +434,20 @@ function getLatestSetValue<T extends object>(
 ): PropertyValueType<T> | undefined {
     const relevantSetLineCountsKey: keyof T = getObjectTypedKeys(triggers)
         .sort()
-        .reduce((closestKey, currentKey): keyof T => {
-            if (Number(currentKey) < currentLine) {
-                const currentData = triggers[currentKey];
+        .reduce(
+            (closestKey, currentKey): keyof T => {
+                if (Number(currentKey) < currentLine) {
+                    const currentData = triggers[currentKey];
 
-                if (currentData && currentData.lineEnd > currentLine) {
-                    return currentKey;
+                    if (currentData && currentData.lineEnd > currentLine) {
+                        return currentKey;
+                    }
                 }
-            }
 
-            return closestKey;
-        }, '' as keyof T);
+                return closestKey;
+            },
+            '' as keyof T,
+        );
     const relevantSetLineCount: PropertyValueType<T> | undefined =
         triggers[relevantSetLineCountsKey]?.data;
 
@@ -463,7 +466,7 @@ export function printWithMultilineArrays(
             `Could not find valid root node in ${path.stack.map((entry) => entry.type).join(',')}`,
         );
     }
-    const node = path.getValue() as Node | undefined;
+    const node = path.getNode();
 
     if (
         node &&

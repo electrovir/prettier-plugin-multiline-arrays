@@ -1,5 +1,5 @@
 import {Doc, doc} from 'prettier';
-import {isDocCommand, stringifyDoc} from '../augments/doc';
+import {isDocArray, isDocCommand, stringifyDoc} from '../augments/doc';
 import {walkDoc} from './child-docs';
 
 const nestingSyntaxOpen = '[{(`' as const;
@@ -50,8 +50,8 @@ export function insertLinesIntoArguments(
                     codePath = 'indent';
                 }
                 // case 2. sibling is concat
-                else if (isDocCommand(openingSibling) && openingSibling.type === 'concat') {
-                    findingSiblingChildren = openingSibling.parts;
+                else if (isDocArray(openingSibling)) {
+                    findingSiblingChildren = openingSibling;
                     codePath = 'concat';
                 }
                 // case 3. sibling is group
