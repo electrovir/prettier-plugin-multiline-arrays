@@ -28,14 +28,14 @@
     "scripts": {
         "compile": "rm -rf dist && virmator compile",
         "debug": "cross-env NEW_LINE_DEBUG=true npm run test",
-        "docs:update": "virmator code-in-markdown",
+        "docs": "virmator docs",
         "format": "virmator format",
         "publish": "virmator publish \"npm run compile && npm run test:all\"",
         "test": "npm run compile && test-as-package \"virmator test\"",
         "test:all": "concurrently --kill-others-on-fail --kill-signal SIGKILL -c auto --colors --names types,tests,spelling,format,docs \"npm run test:types\" \"npm run test\" \"npm run test:spelling\" \"npm run test:format\" \"npm run test:docs\"",
         "test:coverage": "npm run test coverage",
         "test:debug": "npm run compile && test-as-package \"virmator test --inspect-brk --parallel=false\"",
-        "test:docs": "virmator code-in-markdown check",
+        "test:docs": "virmator docs check",
         "test:format": "prettier --color \"./**/*.+(cjs|css|graphql|html|js|json|jsx|less|md|mjs|scss|toml|ts|tsx|yaml|yml)\" --check",
         "test:spelling": "virmator spellcheck",
         "test:types": "tsc --noEmit"
@@ -70,6 +70,7 @@
         "prettier-plugin-toml": "^1.0.0",
         "test-as-package": "^0.0.4",
         "ts-node": "^10.9.1",
+        "typedoc": "^0.25.2",
         "typescript": "^5.2.2",
         "virmator": "^9.1.3"
     },
