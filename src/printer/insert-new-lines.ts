@@ -1,7 +1,7 @@
 import {getObjectTypedKeys, PropertyValueType} from '@augment-vir/common';
 import {CallExpression} from 'estree';
 import {AstPath, Doc, doc, ParserOptions} from 'prettier';
-import {isDocArray, isDocCommand, stringifyDoc} from '../augments/doc';
+import {isDocCommand, stringifyDoc} from '../augments/doc';
 import {MultilineArrayOptions} from '../options';
 import {walkDoc} from './child-docs';
 import {
@@ -92,7 +92,7 @@ function insertLinesIntoArray(
                 console.info({firstIndentContentsChild: startingLine});
             }
             if (!isDocCommand(startingLine) || startingLine.type !== 'line') {
-                if (isDocArray(startingLine)) {
+                if (Array.isArray(startingLine)) {
                     undoAllMutations();
                     return false;
                 } else {
@@ -330,7 +330,7 @@ function insertLinesIntoArray(
                                     parentToMutate[siblingIndex] = commaSibling;
                                 });
                             }
-                        } else if (isDocArray(currentDoc)) {
+                        } else if (Array.isArray(currentDoc)) {
                             const firstPart = currentDoc[0];
                             const secondPart = currentDoc[1];
                             if (debug) {
