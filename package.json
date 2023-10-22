@@ -1,6 +1,6 @@
 {
     "name": "prettier-plugin-multiline-arrays",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "Prettier plugin to force all arrays to be multiline.",
     "keywords": [
         "array",
@@ -43,6 +43,9 @@
     "dependencies": {
         "@augment-vir/common": "^15.3.0",
         "proxy-vir": "^0.0.1"
+    },
+    "peerDependencies": {
+        "prettier": "^2.8.2"
     },
     "devDependencies": {
         "@augment-vir/chai": "^15.3.0",
