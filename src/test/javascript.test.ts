@@ -741,16 +741,16 @@ const javascriptTests: MultilineArrayTest[] = [
         it: 'empty array',
         // prettier-ignore
         code: `
-            const myVar1: string[] = [];
+            const myVar1 = [];
         `,
     },
     {
         it: 'single element array on one line',
         // prettier-ignore
-        code: `let anotherThing: string[] = ['1 1'];`,
+        code: `let anotherThing = ['1 1'];`,
         // prettier-ignore
         expect: `
-            let anotherThing: string[] = [
+            let anotherThing = [
                 '1 1',
             ];
         `,
@@ -762,11 +762,11 @@ const javascriptTests: MultilineArrayTest[] = [
         it: 'single element array on multiple lines',
         // prettier-ignore
         code: `
-            let anotherThing: string[] = ['1 1'
+            let anotherThing = ['1 1'
             ];`,
         // prettier-ignore
         expect: `
-            let anotherThing: string[] = [
+            let anotherThing = [
                 '1 1',
             ];
         `,
@@ -778,24 +778,24 @@ const javascriptTests: MultilineArrayTest[] = [
         it: 'multiple different styled arrays all together',
         // prettier-ignore
         code: `
-            const myVar2: string[] = [];
-            let anotherThing: string[] = ['1 1'];
-            let anotherThing2: string[] = ['1 1'
+            const myVar2 = [];
+            let anotherThing = ['1 1'];
+            let anotherThing2 = ['1 1'
             ];
-            const also: string[] = [
+            const also = [
                 '2, 1',
                 '2, 2',
             ];`,
         // prettier-ignore
         expect: `
-            const myVar2: string[] = [];
-            let anotherThing: string[] = [
+            const myVar2 = [];
+            let anotherThing = [
                 '1 1',
             ];
-            let anotherThing2: string[] = [
+            let anotherThing2 = [
                 '1 1',
             ];
-            const also: string[] = [
+            const also = [
                 '2, 1',
                 '2, 2',
             ];
@@ -807,10 +807,10 @@ const javascriptTests: MultilineArrayTest[] = [
     {
         it: 'single element string array with type definition',
         // prettier-ignore
-        code: `const myVar: string[] = ['hello'];`,
+        code: `const myVar = ['hello'];`,
         // prettier-ignore
         expect: `
-            const myVar: string[] = [
+            const myVar = [
                 'hello',
             ];
         `,
@@ -821,10 +821,10 @@ const javascriptTests: MultilineArrayTest[] = [
     {
         it: 'double element string array with type definition',
         // prettier-ignore
-        code: `const myVar: string[] = ['hello', 'there'];`,
+        code: `const myVar = ['hello', 'there'];`,
         // prettier-ignore
         expect: `
-            const myVar: string[] = [
+            const myVar = [
                 'hello',
                 'there',
             ];
@@ -837,25 +837,25 @@ const javascriptTests: MultilineArrayTest[] = [
         it: 'non-array string assignment',
         // prettier-ignore
         code: `
-            const myVar:string=
+            const myVar=
             'hello';`,
         // prettier-ignore
         expect: `
-            const myVar: string = 'hello';
+            const myVar = 'hello';
         `,
     },
     {
         it: 'non-array single line object assignment',
         // prettier-ignore
         code: `
-            const myVar: object = {a: 'here', b: 'there'};
+            const myVar = {a: 'here', b: 'there'};
         `,
     },
     {
         it: 'non-array multi-line object assignment',
         // prettier-ignore
         code: `
-            const myVar: object = {
+            const myVar = {
                 a: 'here',
                 b: 'there',
             };
@@ -907,14 +907,14 @@ const javascriptTests: MultilineArrayTest[] = [
         it: 'original parser with single line object assignment',
         // prettier-ignore
         code: `
-            const myVar: object = {a: 'where', b: 'everywhere'};
+            const myVar = {a: 'where', b: 'everywhere'};
         `,
     },
     {
         it: 'original parser with multi-line object assignment',
         // prettier-ignore
         code: `
-            const myVar: object = {
+            const myVar = {
                 a: 'where',
                 b: 'everywhere',
             };
@@ -922,9 +922,6 @@ const javascriptTests: MultilineArrayTest[] = [
     },
 ];
 
-// TODO: Use raw javascript for all tests, which does not include type declarations.
-// This worked previously, because prettier/babel used to always recognize flow syntax.
-// See: https://prettier.io/blog/2023/07/05/3.0.0#remove-flow-syntax-support-from-babel-parser-14314httpsgithubcomprettierprettierpull14314-by-fiskerhttpsgithubcomfisker-thorn0httpsgithubcomthorn0
 describe('javascript multiline array formatting', () => {
-    runTests('.js.flow', javascriptTests, 'babel');
+    runTests('.js', javascriptTests, 'babel');
 });

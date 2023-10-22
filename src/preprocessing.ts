@@ -83,12 +83,6 @@ export function wrapParser(originalParser: Parser, parserName: string) {
                 processedText,
                 {
                     ...options,
-                    ...((pluginWithPreprocessor as any)?.name?.includes(
-                        'prettier-plugin-organize-imports',
-                    ) &&
-                        options.filepath?.endsWith('.js.flow') && {
-                            filepath: options.filepath.slice(0, -5),
-                        }),
                     plugins: options.plugins.filter(
                         (plugin) => (plugin as any).pluginMarker !== pluginMarker,
                     ),
