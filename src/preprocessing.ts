@@ -46,7 +46,7 @@ function addMultilinePrinter(options: ParserOptions): void {
 }
 
 function findPluginsByParserName(parserName: string, options: ParserOptions): Plugin[] {
-    return options.plugins?.filter((plugin): plugin is Plugin => {
+    return (options.plugins ?? []).filter((plugin): plugin is Plugin => {
         return (
             typeof plugin === 'object' &&
             (plugin as any).pluginMarker !== pluginMarker &&
