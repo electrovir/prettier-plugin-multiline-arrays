@@ -19,7 +19,7 @@ import {multilineArrayPrinter} from './printer/multiline-array-printer';
 export * from './options';
 export {pluginMarker} from './plugin-marker';
 
-const parsers: Record<string, Parser<any>> = mapObjectValues(
+export const parsers: Record<string, Parser<any>> = mapObjectValues(
     {
         typescript: tsParsers.typescript,
         babel: babelParsers.babel,
@@ -28,7 +28,7 @@ const parsers: Record<string, Parser<any>> = mapObjectValues(
         json5: babelParsers.json5,
     },
     (languageName, parserEntry) => {
-        return wrapParser(parserEntry as any, languageName);
+        return wrapParser(parserEntry, languageName);
     },
 );
 
@@ -37,7 +37,7 @@ const printers: Record<string, Printer<any>> = {
     'estree-json': multilineArrayPrinter,
 };
 
-const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTypedKeys(
+export const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTypedKeys(
     defaultMultilineArrayOptions,
 ).reduce(
     (accum, key) => {
@@ -49,46 +49,22 @@ const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTyp
                 | 'boolean'
                 | 'int',
             category: 'multilineArray',
-            since: '0.0.1',
             default: defaultValue as any,
             description: optionHelp[key],
-        } as any;
+        };
         accum[key] = supportOption;
         return accum;
     },
     {} as Record<keyof MultilineArrayOptions, SupportOption>,
 );
 
-const defaultOptions: Partial<RequiredOptions> & Required<MultilineArrayOptions> =
+export const defaultOptions: Partial<RequiredOptions> & Required<MultilineArrayOptions> =
     defaultMultilineArrayOptions;
 
-const languages = [
-    {
-        name: 'JavaScript',
-        parsers: [
-            'babel',
-            'acorn',
-            'espree',
-            'meriyah',
-            'babel-flow',
-            'babel-ts',
-            'flow',
-            'typescript',
-        ],
-    },
-    {name: 'TypeScript', parsers: ['typescript', 'babel-ts']},
-    {name: 'JSON.stringify', parsers: ['json-stringify']},
-    {name: 'JSON', parsers: ['json']},
-    {name: 'JSON with Comments', parsers: ['json']},
-    {name: 'JSON5', parsers: ['json5']},
-];
-
+/** Not actually exported: this is just for type checking purposes. */
 const plugin: Plugin = {
     options,
     printers,
     defaultOptions,
     parsers,
-    languages,
 };
-
-export {defaultOptions, options, parsers};
