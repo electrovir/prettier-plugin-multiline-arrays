@@ -8,7 +8,6 @@ on:
 jobs:
     tagged-release:
         name: 'Tagged Release'
-        if: github.event.base_ref == 'refs/heads/main' || github.event.base_ref == 'refs/heads/master'
         runs-on: 'ubuntu-latest'
 
         steps:
