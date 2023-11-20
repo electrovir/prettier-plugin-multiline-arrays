@@ -9,6 +9,5 @@ module.exports = {
         'Robinfr',
         'espree',
         'meriyah',
-        'nodenext',
     ],
 };

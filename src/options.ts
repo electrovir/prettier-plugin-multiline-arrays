@@ -23,7 +23,7 @@ export type MultilineArrayOptions = {
     /**
      * If there are MORE elements in the array than this, the array will be forced to wrap.
      *
-     * The default is 1, which indicates that all arrays with more than 1 element will wrap.
+     * This defaults to -1, indicating that no special wrapping enforcement will take place.
      *
      * Set to 2 to only wrap if there are more than 2 element. Etc.
      */

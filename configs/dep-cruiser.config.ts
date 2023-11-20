@@ -7,6 +7,12 @@ const baseConfig = generateDepCruiserConfig({
         'no-orphans': {
             from: [
                 'src/index.ts',
+                'src/readme-examples',
+            ],
+        },
+        'not-to-unresolvable': {
+            to: [
+                'prettier/parser-typescript',
             ],
         },
     },

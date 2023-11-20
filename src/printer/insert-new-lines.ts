@@ -488,8 +488,8 @@ export function printWithMultilineArrays(
             'arguments' in node
                 ? (node as CallExpression).arguments
                 : 'params' in node
-                ? node.params
-                : node.elements,
+                  ? node.params
+                  : node.elements,
             splitOriginalText,
             debug,
         );
@@ -498,8 +498,8 @@ export function printWithMultilineArrays(
             'arguments' in node
                 ? (node as CallExpression).arguments
                 : 'params' in node
-                ? node.params
-                : node.elements,
+                  ? node.params
+                  : node.elements,
             splitOriginalText,
             debug,
         );
