@@ -1,6 +1,6 @@
 {
     "name": "prettier-plugin-multiline-arrays",
-    "version": "3.0.3",
+    "version": "3.0.4",
     "description": "Prettier plugin to force all arrays to be multiline.",
     "keywords": [
         "array",
@@ -29,7 +29,7 @@
         "compile": "rm -rf dist && virmator compile",
         "debug": "cross-env NEW_LINE_DEBUG=true npm run test",
         "docs": "virmator docs",
-        "format": "virmator format",
+        "format": "prettier --color \"./**/*.+(cjs|css|graphql|html|js|json|jsx|less|md|mjs|scss|toml|ts|tsx|yaml|yml)\" --write --list-different",
         "publish": "virmator publish \"npm run compile && npm run test:all\"",
         "test": "npm run compile && test-as-package \"virmator test\"",
         "test:all": "npm test && concurrently --kill-others-on-fail --kill-signal SIGKILL -c auto --colors --names types,spelling,format,docs,deps \"npm run test:types\" \"npm run test:spelling\" \"npm run test:format\" \"npm run test:docs\" \"npm run test:deps\"",
@@ -42,45 +42,42 @@
         "test:types": "tsc --noEmit"
     },
     "dependencies": {
-        "@augment-vir/common": "^22.0.0",
-        "proxy-vir": "^0.0.2"
+        "@augment-vir/common": "^23.3.4",
+        "proxy-vir": "^1.0.0"
     },
     "devDependencies": {
-        "@augment-vir/chai": "^22.0.0",
+        "@augment-vir/chai": "^23.3.4",
         "@electrovir/nyc": "^15.1.0-fix0",
         "@istanbuljs/nyc-config-typescript": "^1.0.2",
-        "@types/chai": "^4.3.10",
+        "@types/chai": "^4.3.11",
         "@types/esprima": "^4.0.6",
         "@types/estree": "^1.0.5",
-        "@types/mocha": "^10.0.4",
+        "@types/mocha": "^10.0.6",
         "chai": "^4.3.10",
         "cross-env": "^7.0.3",
-        "cspell": "^8.0.0",
-        "dependency-cruiser": "^15.3.0",
-        "esbuild": "^0.19.6",
-        "istanbul-smart-text-reporter": "^1.1.3",
-        "markdown-code-example-inserter": "^0.3.3",
-        "mocha": "^10.2.0",
+        "cspell": "^8.4.0",
+        "dependency-cruiser": "^16.2.1",
+        "esbuild": "^0.20.1",
+        "istanbul-smart-text-reporter": "^1.1.4",
+        "markdown-code-example-inserter": "^1.0.0",
+        "mocha": "^10.3.0",
         "mocha-spec-reporter-with-file-names": "^0.0.3",
         "npm-check-updates": "~16.12.3",
-        "prettier-plugin-interpolated-html-tags": "^1.0.3",
-        "prettier-plugin-jsdoc": "^1.1.1",
-        "prettier-plugin-multiline-arrays": "file:./",
+        "prettier-plugin-interpolated-html-tags": "^1.0.5",
+        "prettier-plugin-jsdoc": "^1.3.0",
+        "prettier-plugin-multiline-arrays": "./",
         "prettier-plugin-organize-imports": "^3.2.4",
-        "prettier-plugin-packagejson": "^2.4.6",
+        "prettier-plugin-packagejson": "^2.4.11",
         "prettier-plugin-sort-json": "^3.1.0",
-        "prettier-plugin-toml": "^1.0.0",
-        "test-as-package": "^0.0.5",
-        "ts-node": "^10.9.1",
-        "type-fest": "^4.8.1",
-        "typedoc": "^0.25.3",
-        "typescript": "^5.2.2",
-        "virmator": "^11.1.2"
+        "prettier-plugin-toml": "^2.0.1",
+        "test-as-package": "^1.0.0",
+        "ts-node": "^10.9.2",
+        "type-fest": "^4.10.2",
+        "typedoc": "^0.25.8",
+        "typescript": "^5.3.3",
+        "virmator": "^11.3.3"
     },
     "peerDependencies": {
-        "prettier": "^3.0.0"
-    },
-    "overrides": {
-        "semver": "^7.5.2"
+        "prettier": ">=3.0.0"
     }
 }
