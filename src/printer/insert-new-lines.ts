@@ -63,7 +63,7 @@ function insertLinesIntoArray(
                 parentDoc[childIndex + 2] = maybeBreak.breakContents;
             }
             const indentIndex = childIndex + 1;
-            const bracketSibling = parentDoc[indentIndex];
+            const bracketSibling = parentDoc[indentIndex] === '' ? parentDoc[indentIndex + 1] : parentDoc[indentIndex];
             if (debug) {
                 console.info({bracketSibling});
             }
