@@ -30,7 +30,10 @@ function addMultilinePrinter(options: ActualParserOptions): void {
         const plugins = options.plugins ?? [];
         const firstMatchedPlugin = plugins.find(
             (plugin): plugin is Plugin =>
-                typeof plugin !== 'string' && !!plugin.printers && !!plugin.printers[astFormat],
+                typeof plugin !== 'string' &&
+                !(plugin instanceof URL) &&
+                !!plugin.printers &&
+                !!plugin.printers[astFormat],
         );
         if (!firstMatchedPlugin || typeof firstMatchedPlugin === 'string') {
             throw new Error(`Matched invalid first plugin: ${firstMatchedPlugin}`);
@@ -56,10 +59,11 @@ function addMultilinePrinter(options: ActualParserOptions): void {
     }
 }
 
-function findPluginsByParserName(parserName: string, plugins: (Plugin | string)[]): Plugin[] {
+function findPluginsByParserName(parserName: string, plugins: (Plugin | URL | string)[]): Plugin[] {
     return plugins.filter((plugin): plugin is Plugin => {
         return (
             typeof plugin === 'object' &&
+            !(plugin instanceof URL) &&
             (plugin as {pluginMarker: any}).pluginMarker !== pluginMarker &&
             !!plugin.parsers?.[parserName]
         );
