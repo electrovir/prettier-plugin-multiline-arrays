@@ -15,7 +15,6 @@ export function walkDoc(
         currentDoc: Doc,
         parents: Parents[],
         index: number | undefined,
-         
     ) => boolean | void | undefined,
     parents: Parents[] = [],
     index: number | undefined = undefined,

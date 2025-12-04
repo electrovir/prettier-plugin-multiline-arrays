@@ -2,14 +2,13 @@ import {type Node} from 'estree';
 import {type AstPath, type Doc, type ParserOptions, type Printer} from 'prettier';
 // The estree plugin is bundled with Prettier and exposes the base printers we want to wrap.
 // Its types don't currently export `printers`, so we access it via the module's exported value.
- 
 import estreePluginModule from 'prettier/plugins/estree';
+import {type MultilineArrayOptions, fillInOptions} from '../options.js';
+import {printWithMultilineArrays} from './insert-new-lines.js';
 
 const estreePlugin = estreePluginModule as unknown as {
     printers: Record<string, Printer<Node>>;
 };
-import {type MultilineArrayOptions, fillInOptions} from '../options.js';
-import {printWithMultilineArrays} from './insert-new-lines.js';
 
 // Enable verbose Doc-walking diagnostics when MULTILINE_DEBUG is set.
 const debug = !!process.env.MULTILINE_DEBUG;
@@ -19,8 +18,8 @@ function createMultilineArrayPrinter(basePrinter: Printer<Node>): Printer<Node> 
         ...basePrinter,
         print(path: AstPath<Node>, options: ParserOptions, print: (path: AstPath<Node>) => Doc) {
             if (debug) {
-                 
-                console.info('[multiline-arrays] multilineArrayPrinter.print for node:',
+                console.info(
+                    '[multiline-arrays] multilineArrayPrinter.print for node:',
                     path.getNode()?.type,
                 );
             }
@@ -56,5 +55,10 @@ export const multilineJsonPrinter: Printer<Node> = createMultilineArrayPrinter(
 // plugin (including Prettier's own internal plugin resolution) will go through our multiline
 // wrappers. We capture the original printers above, so the wrappers still delegate to the
 // unmodified implementations when computing the base Doc.
+//
+// Note: this mutation happens when this module is imported. In normal Prettier usage, plugins
+// are loaded before printers are resolved, so all estree-based printing should go through these
+// wrappers. If some other code caches the original printers *before* this plugin is loaded,
+// those cached references would bypass the multiline behavior.
 estreePlugin.printers.estree = multilineArrayPrinter;
 estreePlugin.printers['estree-json'] = multilineJsonPrinter;

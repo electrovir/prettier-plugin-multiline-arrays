@@ -19,9 +19,9 @@ function addMultilinePrinter(options: ActualParserOptions): void {
 
     /**
      * Ensure this plugin appears before any other plugin that also provides a printer for the
-     * current astFormat. This makes Prettier pick our printers when resolving the printer
-     * plugin, while still letting Prettier fully normalize the printer object (including
-     * getVisitorKeys and embed front‑matter support).
+     * current astFormat. This makes Prettier pick our printers when resolving the printer plugin,
+     * while still letting Prettier fully normalize the printer object (including getVisitorKeys and
+     * embed front‑matter support).
      */
     const plugins = options.plugins ?? [];
     const thisPluginIndex = plugins.findIndex((plugin) => {

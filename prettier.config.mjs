@@ -10,11 +10,11 @@ const prettierConfig = {
     ...basePrettierConfig,
     // Ensure tests use the local plugin implementation from this repo rather than any
     // globally-installed or parent-folder copies.
+    // @ts-expect-error - TS can't verify that this string replacement is valid.
     plugins: basePrettierConfig.plugins.map((plugin) =>
         plugin === 'prettier-plugin-multiline-arrays'
             ? new URL('./dist/index.js', import.meta.url).href
-            : plugin,
-    ),
+            : plugin),
     multilineArraysWrapThreshold: -1,
 };
 

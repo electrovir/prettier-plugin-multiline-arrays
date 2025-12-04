@@ -56,49 +56,49 @@ function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
         resets: [],
     };
 
-    const internalCommentTriggers: InternalCommentTriggers = comments.reduce(
-        (accum: InternalCommentTriggers, currentComment) => {
-            const commentText = (currentComment.value as string | undefined)?.replace(/\n/g, ' ');
+    const internalCommentTriggers: InternalCommentTriggers = comments.reduce((
+        accum: InternalCommentTriggers,
+        currentComment,
+    ) => {
+        const commentText = (currentComment.value as string | undefined)?.replace(/\n/g, ' ');
 
-            if (!currentComment.loc) {
-                throw new Error(`Cannot read line location for comment ${currentComment.value}`);
-            }
+        if (!currentComment.loc) {
+            throw new Error(`Cannot read line location for comment ${currentComment.value}`);
+        }
 
-            const nextLineCounts = getLineCounts(commentText, true, debug);
-            if (nextLineCounts.length) {
-                accum.nextLineCounts[currentComment.loc.end.line] = nextLineCounts;
-            }
+        const nextLineCounts = getLineCounts(commentText, true, debug);
+        if (nextLineCounts.length) {
+            accum.nextLineCounts[currentComment.loc.end.line] = nextLineCounts;
+        }
 
-            const nextWrapThreshold = getWrapThreshold(commentText, true);
-            if (nextWrapThreshold != undefined) {
-                accum.nextWrapThresholds[currentComment.loc.end.line] = nextWrapThreshold;
-            }
+        const nextWrapThreshold = getWrapThreshold(commentText, true);
+        if (nextWrapThreshold != undefined) {
+            accum.nextWrapThresholds[currentComment.loc.end.line] = nextWrapThreshold;
+        }
 
-            const setLineCounts = getLineCounts(commentText, false, debug);
-            if (setLineCounts.length) {
-                accum.setLineCounts[currentComment.loc.end.line] = {
-                    data: setLineCounts,
-                    lineEnd: Infinity,
-                };
-            }
+        const setLineCounts = getLineCounts(commentText, false, debug);
+        if (setLineCounts.length) {
+            accum.setLineCounts[currentComment.loc.end.line] = {
+                data: setLineCounts,
+                lineEnd: Infinity,
+            };
+        }
 
-            const setWrapThreshold = getWrapThreshold(commentText, false);
-            if (setWrapThreshold != undefined) {
-                accum.setWrapThresholds[currentComment.loc.end.line] = {
-                    data: setWrapThreshold,
-                    lineEnd: Infinity,
-                };
-            }
+        const setWrapThreshold = getWrapThreshold(commentText, false);
+        if (setWrapThreshold != undefined) {
+            accum.setWrapThresholds[currentComment.loc.end.line] = {
+                data: setWrapThreshold,
+                lineEnd: Infinity,
+            };
+        }
 
-            const resetComment = isResetComment(commentText);
-            if (resetComment) {
-                accum.resets.push(currentComment.loc.end.line);
-            }
+        const resetComment = isResetComment(commentText);
+        if (resetComment) {
+            accum.resets.push(currentComment.loc.end.line);
+        }
 
-            return accum;
-        },
-        starterTriggers,
-    );
+        return accum;
+    }, starterTriggers);
 
     internalCommentTriggers.resets.sort();
 
@@ -188,8 +188,7 @@ export function parseNextLineCounts(input: string, nextOnly: boolean, debug: boo
     }
 
     const numbers = split.map((entry) =>
-        entry && !!entry.trim().match(/^\d+$/) ? Number(entry.trim()) : NaN,
-    );
+        entry && !!entry.trim().match(/^\d+$/) ? Number(entry.trim()) : NaN);
 
     const invalidNumbers = numbers
         .map((entry, index) => ({index, entry, original: split[index]}))

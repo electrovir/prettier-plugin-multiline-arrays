@@ -36,19 +36,18 @@
         "lint": "virmator lint fix",
         "publish": "virmator publish npm run test:all",
         "test": "npm run compile && test-as-package virmator test node",
-        "test:win": "npm run compile:win && npx tsx --test --experimental-test-snapshots --test-reporter spec \"src/**/*.test.ts\"",
         "test:all": "npm run compile && runstorm --names tests,spelling,format,deps,lint \"npm test\" \"npm run test:spelling\" \"npm run test:format\" \"npm run test:deps\" \"npm run test:lint\"",
         "test:deps": "virmator deps check",
         "test:docs": "virmator docs check",
         "test:format": "virmator format check",
         "test:lint": "virmator lint",
         "test:spelling": "virmator spellcheck",
-        "test:update": "npm run test update"
+        "test:update": "npm run test update",
+        "test:win": "npm run compile:win && npx tsx --test --experimental-test-snapshots --test-reporter spec \"src/**/*.test.ts\""
     },
     "dependencies": {
         "@augment-vir/common": "^31.54.3",
-        "proxy-vir": "^2.0.1",
-        "tsx": "^4.21.0"
+        "proxy-vir": "^2.0.1"
     },
     "devDependencies": {
         "@augment-vir/assert": "^31.54.3",
@@ -92,6 +91,7 @@
         "prettier-plugin-toml": "^2.0.6",
         "runstorm": "^0.6.2",
         "test-as-package": "^2.0.4",
+        "tsx": "^4.21.0",
         "type-fest": "^5.3.0",
         "typedoc": "^0.28.15",
         "typescript": "^5.9.3",
