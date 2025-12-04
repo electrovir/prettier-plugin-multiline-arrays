@@ -3,8 +3,6 @@ import {type Parser, type ParserOptions, type Plugin, type Printer} from 'pretti
 import {createWrappedMultiTargetProxy} from 'proxy-vir';
 import {type SetOptional} from 'type-fest';
 import {pluginMarker} from './plugin-marker.js';
-import {multilineArrayPrinter} from './printer/multiline-array-printer.js';
-import {setOriginalPrinter} from './printer/original-printer.js';
 
 /** Prettier's type definitions are not true. */
 type ActualParserOptions = SetOptional<ParserOptions, 'plugins'> &
@@ -14,49 +12,52 @@ type ActualParserOptions = SetOptional<ParserOptions, 'plugins'> &
     }>;
 
 function addMultilinePrinter(options: ActualParserOptions): void {
-    if ('printer' in options) {
-        setOriginalPrinter(options.printer);
-        // overwrite the printer with ours
-        options.printer = multilineArrayPrinter;
-    } else {
-        const astFormat = options.astFormat;
-        if (!astFormat) {
-            throw new Error(`Could not find astFormat while adding printer.`);
-        }
-        /**
-         * If the printer hasn't already been assigned in options, rearrange plugins so that ours
-         * gets chosen.
-         */
-        const plugins = options.plugins ?? [];
-        const firstMatchedPlugin = plugins.find(
-            (plugin): plugin is Plugin =>
-                typeof plugin !== 'string' &&
-                !(plugin instanceof URL) &&
-                !!plugin.printers &&
-                !!plugin.printers[astFormat],
-        );
-        if (!firstMatchedPlugin || typeof firstMatchedPlugin === 'string') {
-            throw new Error(`Matched invalid first plugin: ${firstMatchedPlugin}`);
-        }
-        const matchedPrinter = firstMatchedPlugin.printers?.[astFormat];
-        if (!matchedPrinter) {
-            throw new Error(
-                `Printer not found on matched plugin: ${stringify(firstMatchedPlugin)}`,
-            );
-        }
-        setOriginalPrinter(matchedPrinter);
-        const thisPluginIndex = plugins.findIndex((plugin) => {
-            return (plugin as {pluginMarker: any}).pluginMarker === pluginMarker;
-        });
-        const thisPlugin = plugins[thisPluginIndex];
-        if (!thisPlugin) {
-            throw new Error(`This plugin was not found.`);
-        }
-        // remove this plugin from its current location in the array
-        plugins.splice(thisPluginIndex, 1);
-        // add this plugin to the beginning of the array so its printer is found first
-        plugins.splice(0, 0, thisPlugin);
+    const astFormat = options.astFormat;
+    if (!astFormat) {
+        throw new Error(`Could not find astFormat while adding printer.`);
     }
+
+    /**
+     * Ensure this plugin appears before any other plugin that also provides a printer for the
+     * current astFormat. This makes Prettier pick our printers when resolving the printer
+     * plugin, while still letting Prettier fully normalize the printer object (including
+     * getVisitorKeys and embed front‑matter support).
+     */
+    const plugins = options.plugins ?? [];
+    const thisPluginIndex = plugins.findIndex((plugin) => {
+        return (plugin as {pluginMarker: any}).pluginMarker === pluginMarker;
+    });
+
+    const firstMatchedPlugin = plugins.find(
+        (plugin, index): plugin is Plugin =>
+            index !== thisPluginIndex &&
+            typeof plugin !== 'string' &&
+            !(plugin instanceof URL) &&
+            !!plugin.printers &&
+            !!plugin.printers[astFormat],
+    );
+    if (!firstMatchedPlugin || typeof firstMatchedPlugin === 'string') {
+        throw new Error(`Matched invalid first plugin: ${firstMatchedPlugin}`);
+    }
+    const matchedPrinter = firstMatchedPlugin.printers?.[astFormat];
+    if (!matchedPrinter) {
+        throw new Error(`Printer not found on matched plugin: ${stringify(firstMatchedPlugin)}`);
+    }
+
+    const thisPlugin = plugins[thisPluginIndex];
+    if (!thisPlugin) {
+        throw new Error(`This plugin was not found.`);
+    }
+
+    if (thisPluginIndex <= 0) {
+        // Already the first plugin; nothing else to do.
+        return;
+    }
+
+    // remove this plugin from its current location in the array
+    plugins.splice(thisPluginIndex, 1);
+    // add this plugin to the beginning of the array so its printer is found first
+    plugins.splice(0, 0, thisPlugin);
 }
 
 function findPluginsByParserName(parserName: string, plugins: (Plugin | URL | string)[]): Plugin[] {
@@ -76,7 +77,11 @@ export function wrapParser(originalParser: Parser, parserName: string) {
         initialTarget: originalParser,
     });
 
-    function multilineArraysPluginPreprocess(text: string, options: ActualParserOptions) {
+    if (process.env.MULTILINE_DEBUG) {
+        console.info('[multiline-arrays] wrapParser active for parser:', parserName);
+    }
+
+    async function multilineArraysPluginPreprocess(text: string, options: ActualParserOptions) {
         const pluginsFromOptions = options.plugins ?? [];
         const pluginsWithRelevantParsers = findPluginsByParserName(parserName, pluginsFromOptions);
         pluginsWithRelevantParsers.forEach((plugin) => {
@@ -97,8 +102,8 @@ export function wrapParser(originalParser: Parser, parserName: string) {
 
         let processedText = text;
 
-        pluginsWithPreprocessor.forEach((pluginWithPreprocessor) => {
-            const nextText = pluginWithPreprocessor.parsers?.[parserName]?.preprocess?.(
+        for (const pluginWithPreprocessor of pluginsWithPreprocessor) {
+            const nextText = await pluginWithPreprocessor.parsers?.[parserName]?.preprocess?.(
                 processedText,
                 {
                     ...options,
@@ -110,7 +115,7 @@ export function wrapParser(originalParser: Parser, parserName: string) {
             if (nextText != undefined) {
                 processedText = nextText;
             }
-        });
+        }
 
         addMultilinePrinter(options);
 

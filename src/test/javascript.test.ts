@@ -166,13 +166,13 @@ const javascriptTests: MultilineArrayTest[] = [
         // caused a max call stack exceeded error once
         it: 'single object element with multiline template',
         code: `
-        
-        
-        
-        
+
+
+
+
             const stuff = [
-            
-            
+
+
                 {
                     innerStuff: \`
                         const myVar = {a: 'where', b: 'everywhere'};
@@ -253,12 +253,12 @@ const javascriptTests: MultilineArrayTest[] = [
                 apiRequest: async (details) => {
                     async function waitForResponse() {
                         return new Promise((resolve) => {
-                            ipcRenderer.once(
-                                getApiResponseEventName(details.type, requestId),
-                                (event, data) => {
-                                    resolve(data);
-                                },
-                            );
+                            ipcRenderer.once(getApiResponseEventName(details.type, requestId), (
+                                event,
+                                data,
+                            ) => {
+                                resolve(data);
+                            });
                         });
                     }
                 },

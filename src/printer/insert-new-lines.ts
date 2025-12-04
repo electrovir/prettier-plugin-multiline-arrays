@@ -522,6 +522,10 @@ export function printWithMultilineArrays(
     }
     const node = path.getNode();
 
+    if (debug) {
+        console.info('[multiline-arrays] printWithMultilineArrays node type:', node?.type);
+    }
+
     if (node && isArrayLikeNode(node)) {
         if (!node.loc) {
             throw new Error(`Could not find location of node ${node.type}`);

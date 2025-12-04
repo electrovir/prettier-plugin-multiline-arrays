@@ -699,7 +699,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 'prettier-plugin-sort-json', 'prettier-plugin-packagejson',
                 'prettier-plugin-multiline-arrays', 'prettier-plugin-organize-imports', 'prettier-plugin-jsdoc',
             ];
-          
+
             // ${nextLinePatternComment} 2 1
             const availableTags = [
                 'a', 'aside', 'b', 'blockquote', 'br', 'code', 'em', 'figcaption', 'figure', 'h3', 'h4', 'hr', 'i', 'iframe', 'img', 'li', 'ol', 'p', 'pre', 's', 'strong', 'u', 'ul', 'video',
@@ -711,7 +711,7 @@ export const typescriptTests: MultilineArrayTest[] = [
                 'prettier-plugin-sort-json', 'prettier-plugin-packagejson', 'prettier-plugin-multiline-arrays',
                 'prettier-plugin-organize-imports', 'prettier-plugin-jsdoc',
             ];
-            
+
             // ${nextLinePatternComment} 2 1
             const availableTags = [
                 'a', 'aside',
@@ -834,13 +834,13 @@ export const typescriptTests: MultilineArrayTest[] = [
         // caused a max call stack exceeded error once
         it: 'single object element with multiline template',
         code: `
-        
-        
-        
-        
+
+
+
+
             const stuff = [
-            
-            
+
+
                 {
                     innerStuff: \`
                         const myVar: object = {a: 'where', b: 'everywhere'};
@@ -1027,12 +1027,12 @@ export const typescriptTests: MultilineArrayTest[] = [
                 ): Promise<ApiFullResponse<ApiRequestType>> => {
                     async function waitForResponse(): Promise<ApiFullResponse<ApiRequestType>> {
                         return new Promise((resolve) => {
-                            ipcRenderer.once(
-                                getApiResponseEventName(details.type, requestId),
-                                (event, data) => {
-                                    resolve(data);
-                                },
-                            );
+                            ipcRenderer.once(getApiResponseEventName(details.type, requestId), (
+                                event,
+                                data,
+                            ) => {
+                                resolve(data);
+                            });
                         });
                     }
                 },

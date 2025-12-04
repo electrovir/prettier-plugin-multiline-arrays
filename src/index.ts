@@ -13,7 +13,7 @@ import {parsers as babelParsers} from 'prettier/plugins/babel';
 import {parsers as tsParsers} from 'prettier/plugins/typescript';
 import {type MultilineArrayOptions, defaultMultilineArrayOptions, optionHelp} from './options.js';
 import {wrapParser} from './preprocessing.js';
-import {multilineArrayPrinter} from './printer/multiline-array-printer.js';
+import {multilineArrayPrinter, multilineJsonPrinter} from './printer/multiline-array-printer.js';
 
 // exports in case others want to utilize these
 export * from './options.js';
@@ -34,7 +34,7 @@ export const parsers: Record<string, Parser> = mapObjectValues(
 
 const printers: Record<string, Printer> = {
     estree: multilineArrayPrinter,
-    'estree-json': multilineArrayPrinter,
+    'estree-json': multilineJsonPrinter,
 };
 
 export const options: Record<keyof MultilineArrayOptions, SupportOption> = getObjectTypedKeys(

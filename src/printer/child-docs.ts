@@ -15,7 +15,7 @@ export function walkDoc(
         currentDoc: Doc,
         parents: Parents[],
         index: number | undefined,
-        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+         
     ) => boolean | void | undefined,
     parents: Parents[] = [],
     index: number | undefined = undefined,
