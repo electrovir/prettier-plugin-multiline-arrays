@@ -10,7 +10,6 @@
         "./dist/",
         "./node_modules/",
         "./test-files/",
-        "src/test/test-format.ts",
         "src/all-files-for-code-coverage.test.ts"
     ],
     "extends": "@virmator/compile/configs/tsconfig.base.json"

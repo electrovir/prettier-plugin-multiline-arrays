@@ -1,7 +1,9 @@
-import {stringify} from '@augment-vir/common';
+import {check, checkWrap} from '@augment-vir/assert';
+import {type MaybePromise, stringify} from '@augment-vir/common';
 import {type Parser, type ParserOptions, type Plugin, type Printer} from 'prettier';
 import {createWrappedMultiTargetProxy} from 'proxy-vir';
 import {type SetOptional} from 'type-fest';
+import {envDebugKey} from './options.js';
 import {pluginMarker} from './plugin-marker.js';
 
 /** Prettier's type definitions are not true. */
@@ -25,7 +27,7 @@ function addMultilinePrinter(options: ActualParserOptions): void {
      */
     const plugins = options.plugins ?? [];
     const thisPluginIndex = plugins.findIndex((plugin) => {
-        return (plugin as {pluginMarker: any}).pluginMarker === pluginMarker;
+        return checkWrap.isObject(plugin)?.pluginMarker === pluginMarker;
     });
 
     const firstMatchedPlugin = plugins.find(
@@ -50,13 +52,13 @@ function addMultilinePrinter(options: ActualParserOptions): void {
     }
 
     if (thisPluginIndex <= 0) {
-        // Already the first plugin; nothing else to do.
+        /** Already the first plugin; nothing else to do. */
         return;
     }
 
-    // remove this plugin from its current location in the array
+    /** Remove this plugin from its current location in the array. */
     plugins.splice(thisPluginIndex, 1);
-    // add this plugin to the beginning of the array so its printer is found first
+    /** Add this plugin to the beginning of the array so its printer is found first. */
     plugins.splice(0, 0, thisPlugin);
 }
 
@@ -77,11 +79,11 @@ export function wrapParser(originalParser: Parser, parserName: string) {
         initialTarget: originalParser,
     });
 
-    if (process.env.MULTILINE_DEBUG) {
+    if (process.env[envDebugKey]) {
         console.info('[multiline-arrays] wrapParser active for parser:', parserName);
     }
 
-    async function multilineArraysPluginPreprocess(text: string, options: ActualParserOptions) {
+    function multilineArraysPluginPreprocess(text: string, options: ActualParserOptions) {
         const pluginsFromOptions = options.plugins ?? [];
         const pluginsWithRelevantParsers = findPluginsByParserName(parserName, pluginsFromOptions);
         pluginsWithRelevantParsers.forEach((plugin) => {
@@ -102,8 +104,12 @@ export function wrapParser(originalParser: Parser, parserName: string) {
 
         let processedText = text;
 
-        for (const pluginWithPreprocessor of pluginsWithPreprocessor) {
-            const nextText = await pluginWithPreprocessor.parsers?.[parserName]?.preprocess?.(
+        const receivedPromise = false as boolean;
+
+        const nextTexts: MaybePromise<string | undefined>[] = [];
+
+        pluginsWithPreprocessor.forEach((pluginWithPreprocessor) => {
+            const nextText = pluginWithPreprocessor.parsers?.[parserName]?.preprocess?.(
                 processedText,
                 {
                     ...options,
@@ -112,18 +118,38 @@ export function wrapParser(originalParser: Parser, parserName: string) {
                     ),
                 },
             );
-            if (nextText != undefined) {
-                processedText = nextText;
+            nextTexts.push(nextText);
+            if (check.isPromiseLike(nextText)) {
+                nextTexts.push(nextText);
             }
+        });
+
+        if (receivedPromise) {
+            // eslint-disable-next-line @typescript-eslint/await-thenable
+            return Promise.all(nextTexts).then((awaitedNextTexts) => {
+                awaitedNextTexts.forEach((nextText) => {
+                    if (nextText != undefined) {
+                        processedText = nextText;
+                    }
+                });
+                addMultilinePrinter(options);
+
+                return processedText;
+            });
+        } else {
+            nextTexts.forEach((nextText) => {
+                if (nextText != undefined) {
+                    processedText = nextText as string;
+                }
+            });
+            addMultilinePrinter(options);
+
+            return processedText;
         }
-
-        addMultilinePrinter(options);
-
-        return processedText;
     }
 
     parserProxy.proxyModifier.addOverrideTarget({
-        preprocess: multilineArraysPluginPreprocess,
+        preprocess: multilineArraysPluginPreprocess as any,
     });
 
     return parserProxy.proxy;

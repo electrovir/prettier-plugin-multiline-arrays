@@ -244,7 +244,7 @@ function insertLinesIntoArray(
                             }
                             if (!Array.isArray(innerCurrentParentDoc)) {
                                 console.error({innerParentDoc: innerCurrentParentDoc});
-                                throw new Error(`Found comma but innerParentDoc is not an array.`);
+                                throw new Error('Found comma but innerParentDoc is not an array.');
                             }
                             if (commaChildIndex == undefined) {
                                 throw new Error(`Found comma but childIndex is undefined.`);
@@ -255,13 +255,13 @@ function insertLinesIntoArray(
                             if (commaChildIndex === innerCurrentParentDoc.length - 1) {
                                 const commaGrandParent = commaParents[1];
                                 if (commaGrandParent == undefined) {
-                                    throw new Error(`Could not find grandparent of comma group.`);
+                                    throw new Error('Could not find grandparent of comma group.');
                                 }
                                 if (commaGrandParent.childIndexInThisParent == undefined) {
-                                    throw new Error(`Could not find index of comma group parent`);
+                                    throw new Error('Could not find index of comma group parent');
                                 }
                                 if (!Array.isArray(commaGrandParent.parent)) {
-                                    throw new TypeError(`Comma group grandparent is not an array.`);
+                                    throw new TypeError('Comma group grandparent is not an array.');
                                 }
                                 siblingIndex = commaGrandParent.childIndexInThisParent + 1;
                                 parentToMutate = commaGrandParent.parent;

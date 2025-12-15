@@ -1,4 +1,3 @@
-import tseslintParser from '@typescript-eslint/parser';
 import {defineEslintConfig} from '@virmator/lint/configs/eslint.config.base.mjs';
 import {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -9,25 +8,8 @@ export default [
     ...defineEslintConfig(__dirname),
     {
         ignores: [
-            'eslint.config.mjs',
-            'prettier.config.mjs',
-            'scripts/format-file.mjs',
             /** Add file globs that should be ignored. */
         ],
-        languageOptions: {
-            parser: tseslintParser,
-            parserOptions: {
-                ecmaFeatures: {
-                    impliedStrict: true,
-                },
-                ecmaVersion: 'latest',
-                jsDocParsingMode: 'all',
-                project: './tsconfig.json',
-                sourceType: 'module',
-                tsconfigRootDir: __dirname,
-                warnOnUnsupportedTypeScriptVersion: true,
-            },
-        },
     },
     {
         rules: {

@@ -8,9 +8,10 @@ import {basePrettierConfig} from '@virmator/format/configs/prettier.config.base.
  */
 const prettierConfig = {
     ...basePrettierConfig,
-    // Ensure tests use the local plugin implementation from this repo rather than any
-    // globally-installed or parent-folder copies.
-    // @ts-expect-error - TS can't verify that this string replacement is valid.
+    /**
+     * Ensure tests use the local plugin implementation from this repo rather than any
+     * globally-installed or parent-folder copies.
+     */
     plugins: basePrettierConfig.plugins.map((plugin) =>
         plugin === 'prettier-plugin-multiline-arrays'
             ? new URL('./dist/index.js', import.meta.url).href
