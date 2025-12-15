@@ -149,7 +149,7 @@ export function wrapParser(originalParser: Parser, parserName: string) {
     }
 
     parserProxy.proxyModifier.addOverrideTarget({
-        preprocess: multilineArraysPluginPreprocess as any,
+        preprocess: multilineArraysPluginPreprocess,
     });
 
     return parserProxy.proxy;
