@@ -61,6 +61,14 @@ export const options: Record<keyof MultilineArrayOptions, SupportOption> = getOb
 export const defaultOptions: Partial<RequiredOptions> & Required<MultilineArrayOptions> =
     defaultMultilineArrayOptions;
 
+/*
+ * Augment Prettier's `Options` interface with multiline array options.
+ */
+declare module 'prettier' {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- module augmentation requires extends
+    interface Options extends Partial<MultilineArrayOptions> {}
+}
+
 /** Not actually exported: this is just for type checking purposes. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const plugin: Plugin = {
