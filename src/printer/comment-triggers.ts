@@ -32,6 +32,13 @@ type InternalCommentTriggers = CommentTriggers & {
 };
 
 const mappedCommentTriggers = new WeakMap<Node, CommentTriggers>();
+const triggerCommentTexts = [
+    nextLinePatternComment,
+    nextWrapThresholdComment,
+    resetComment,
+    setLinePatternComment,
+    setWrapThresholdComment,
+];
 
 export function getCommentTriggers(key: Node, debug: boolean): CommentTriggers {
     const alreadyExisting = mappedCommentTriggers.get(key);
@@ -39,6 +46,15 @@ export function getCommentTriggers(key: Node, debug: boolean): CommentTriggers {
         return setCommentTriggers(key, debug);
     }
     return alreadyExisting;
+}
+
+/**
+ * Used by parser wrappers that collect trigger comments before AST comment attachment. The oxc
+ * wrapper needs this because trigger comments may be sanitized before `@prettier/plugin-oxc` parses
+ * the file.
+ */
+export function setCommentTriggersForNode(key: Node, commentTriggers: CommentTriggers): void {
+    mappedCommentTriggers.set(key, commentTriggers);
 }
 
 function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
@@ -50,6 +66,14 @@ function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
         });
     }
 
+    const commentTriggers = parseCommentTriggers(comments, debug);
+
+    // save to a map so we don't have to recalculate these every time
+    mappedCommentTriggers.set(rootNode, commentTriggers);
+    return commentTriggers;
+}
+
+export function parseCommentTriggers(comments: Comment[], debug: boolean): CommentTriggers {
     const starterTriggers: InternalCommentTriggers = {
         nextLineCounts: {},
         setLineCounts: {},
@@ -102,7 +126,7 @@ function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
         starterTriggers,
     );
 
-    internalCommentTriggers.resets.sort();
+    internalCommentTriggers.resets.sort((a, b) => a - b);
 
     setResets(internalCommentTriggers);
 
@@ -111,8 +135,6 @@ function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
     };
     delete (commentTriggers as Partial<InternalCommentTriggers>).resets;
 
-    // save to a map so we don't have to recalculate these every time
-    mappedCommentTriggers.set(rootNode, commentTriggers);
     return commentTriggers;
 }
 
@@ -121,25 +143,33 @@ function setResets(internalCommentTriggers: InternalCommentTriggers): void {
         return;
     }
 
-    const setLineCountLineNumbers = getObjectTypedKeys(internalCommentTriggers.setLineCounts);
-    if (setLineCountLineNumbers.length) {
-        setLineCountLineNumbers.forEach((lineNumber) => {
-            const currentLineNumberStats = internalCommentTriggers.setLineCounts[lineNumber];
-            if (!currentLineNumberStats) {
-                throw new Error(
-                    `Line number stats were undefined for "${lineNumber}" in "${JSON.stringify(
-                        internalCommentTriggers.setLineCounts,
-                    )}"`,
-                );
-            }
-            const endLineNumber: number =
-                internalCommentTriggers.resets.find((resetLineNumber): boolean => {
-                    return lineNumber < resetLineNumber;
-                }) ?? currentLineNumberStats.lineEnd;
+    applyResetWindows(internalCommentTriggers.setLineCounts, internalCommentTriggers.resets);
+    applyResetWindows(internalCommentTriggers.setWrapThresholds, internalCommentTriggers.resets);
+}
 
-            currentLineNumberStats.lineEnd = endLineNumber;
-        });
-    }
+/** Persistent `set-*` comments stop applying at the next reset comment after their own line. */
+function applyResetWindows<T extends LineNumberDetails<unknown>>(
+    setTriggers: CommentTriggerWithEnding<T>,
+    resets: number[],
+): void {
+    getObjectTypedKeys(setTriggers).forEach((lineNumber) => {
+        const currentLineNumberStats = setTriggers[lineNumber];
+        const numericLineNumber = Number(lineNumber);
+        const endLineNumber: number =
+            resets.find((resetLineNumber): boolean => {
+                return numericLineNumber < resetLineNumber;
+            }) ?? currentLineNumberStats.lineEnd;
+
+        currentLineNumberStats.lineEnd = endLineNumber;
+    });
+}
+
+export function isTriggerCommentText(commentText: string): boolean {
+    const lowerCaseCommentText = commentText.toLowerCase();
+
+    return triggerCommentTexts.some((triggerCommentText) => {
+        return lowerCaseCommentText.includes(triggerCommentText);
+    });
 }
 
 function getWrapThreshold(commentText: string | undefined, nextOnly: boolean): number | undefined {

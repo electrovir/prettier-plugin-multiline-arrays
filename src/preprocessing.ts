@@ -7,13 +7,13 @@ import {createMultilineArrayPrinter} from './printer/multiline-array-printer.js'
 import {setOriginalPrinter} from './printer/original-printer.js';
 
 /** Prettier's type definitions are not true. */
-type ActualParserOptions = SetOptional<ParserOptions, 'plugins'> &
+export type ActualParserOptions = SetOptional<ParserOptions, 'plugins'> &
     Partial<{
         astFormat: string;
         printer: Printer;
     }>;
 
-function addMultilinePrinter(options: ActualParserOptions): void {
+export function addMultilinePrinter(options: ActualParserOptions): void {
     if ('printer' in options) {
         setOriginalPrinter(options.printer);
         /** Overwrite the printer with ours. */
@@ -61,13 +61,29 @@ function addMultilinePrinter(options: ActualParserOptions): void {
 
 function findPluginsByParserName(parserName: string, plugins: (Plugin | URL | string)[]): Plugin[] {
     return plugins.filter((plugin): plugin is Plugin => {
-        return (
-            typeof plugin === 'object' &&
-            !(plugin instanceof URL) &&
-            (plugin as {pluginMarker: any}).pluginMarker !== pluginMarker &&
-            !!plugin.parsers?.[parserName]
-        );
+        return isExternalPluginWithParser(plugin, parserName);
     });
+}
+
+export function isExternalPluginWithParser(
+    plugin: Plugin | URL | string,
+    parserName: string,
+): plugin is Plugin {
+    return (
+        typeof plugin === 'object' &&
+        !(plugin instanceof URL) &&
+        (plugin as {pluginMarker: any}).pluginMarker !== pluginMarker &&
+        !!plugin.parsers?.[parserName]
+    );
+}
+
+export function removePlugin(options: ActualParserOptions): ParserOptions {
+    return {
+        ...options,
+        plugins: (options.plugins ?? []).filter(
+            (plugin) => (plugin as {pluginMarker: any}).pluginMarker !== pluginMarker,
+        ),
+    } as ParserOptions;
 }
 
 export function wrapParser(originalParser: Parser, parserName: string) {
@@ -100,12 +116,7 @@ export function wrapParser(originalParser: Parser, parserName: string) {
         pluginsWithPreprocessor.forEach((pluginWithPreprocessor) => {
             const nextText = pluginWithPreprocessor.parsers?.[parserName]?.preprocess?.(
                 processedText,
-                {
-                    ...options,
-                    plugins: pluginsFromOptions.filter(
-                        (plugin) => (plugin as {pluginMarker: any}).pluginMarker !== pluginMarker,
-                    ),
-                },
+                removePlugin(options),
             );
             if (nextText != undefined) {
                 processedText = nextText;

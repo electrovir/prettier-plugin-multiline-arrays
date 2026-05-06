@@ -12,6 +12,7 @@ import {
 import {parsers as babelParsers} from 'prettier/plugins/babel';
 import {parsers as tsParsers} from 'prettier/plugins/typescript';
 import {type MultilineArrayOptions, defaultMultilineArrayOptions, optionHelp} from './options.js';
+import {wrapOxcParser} from './preprocessing-oxc.js';
 import {wrapParser} from './preprocessing.js';
 import {multilineArrayPrinter} from './printer/multiline-array-printer.js';
 
@@ -19,7 +20,7 @@ import {multilineArrayPrinter} from './printer/multiline-array-printer.js';
 export * from './options.js';
 export {pluginMarker} from './plugin-marker.js';
 
-export const parsers: Record<string, Parser> = mapObjectValues(
+const wrappedBundledParsers: Record<string, Parser> = mapObjectValues(
     {
         typescript: tsParsers.typescript,
         babel: babelParsers.babel,
@@ -31,6 +32,12 @@ export const parsers: Record<string, Parser> = mapObjectValues(
         return wrapParser(parserEntry, languageName);
     },
 );
+
+export const parsers: Record<string, Parser> = {
+    ...wrappedBundledParsers,
+    oxc: wrapOxcParser('oxc'),
+    'oxc-ts': wrapOxcParser('oxc-ts'),
+};
 
 const printers: Record<string, Printer> = {
     estree: multilineArrayPrinter,
