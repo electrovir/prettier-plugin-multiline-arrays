@@ -162,6 +162,38 @@ const oxcJsTriggerCommentInTemplateExpressionTest: MultilineArrayTest = {
     it: 'formats JavaScript arrays with oxc trigger comments in template expressions',
 };
 
+const oxcTsTriggerTextInRegexLiteralTest: MultilineArrayTest = {
+    it: 'ignores TypeScript oxc trigger text inside regex literals',
+    code: `
+            const matcher = /${nextWrapThresholdComment} 0/;
+            const values = [1];
+    `,
+    options: {
+        plugins: oxcPlugins,
+    },
+};
+
+const oxcJsTriggerTextInRegexLiteralTest: MultilineArrayTest = {
+    ...oxcTsTriggerTextInRegexLiteralTest,
+    it: 'ignores JavaScript oxc trigger text inside regex literals',
+};
+
+const oxcTsTriggerTextInTemplateRawTest: MultilineArrayTest = {
+    it: 'ignores TypeScript oxc trigger text inside template raw text',
+    code: `
+            const message = \`// ${nextWrapThresholdComment} 0\`;
+            const values = [1];
+    `,
+    options: {
+        plugins: oxcPlugins,
+    },
+};
+
+const oxcJsTriggerTextInTemplateRawTest: MultilineArrayTest = {
+    ...oxcTsTriggerTextInTemplateRawTest,
+    it: 'ignores JavaScript oxc trigger text inside template raw text',
+};
+
 const sortImportsLinePatternCode = `
             import {localSecond} from './local-second';
             import {packageValue} from 'package';
@@ -280,6 +312,8 @@ describe('oxc multiline array formatting', () => {
             oxcTsDanglingTriggerCommentInCallArgumentsTest,
             oxcTsTriggerCommentBeforeDeclarationTest,
             oxcTsTriggerCommentInTemplateExpressionTest,
+            oxcTsTriggerTextInRegexLiteralTest,
+            oxcTsTriggerTextInTemplateRawTest,
             oxcTsLinePatternWithoutSortImportsTest,
             oxcTsLinePatternWithSortImportsTest,
         ],
@@ -293,6 +327,8 @@ describe('oxc multiline array formatting', () => {
             oxcJsOrdinaryCommentInCallArgumentsTest,
             oxcJsDanglingTriggerCommentInCallArgumentsTest,
             oxcJsTriggerCommentInTemplateExpressionTest,
+            oxcJsTriggerTextInRegexLiteralTest,
+            oxcJsTriggerTextInTemplateRawTest,
         ],
         'oxc',
     );

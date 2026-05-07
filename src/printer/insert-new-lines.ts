@@ -11,7 +11,6 @@ import {
     parseNextLineCounts,
 } from './comment-triggers.js';
 import {containsLeadingNewline} from './leading-new-line.js';
-import {getPreservedCommentDocsForNode, prependDocs} from './preserved-comments.js';
 import {getArrayLikeElements, isArrayLikeNode} from './supported-node-types.js';
 import {containsTrailingComma} from './trailing-comma.js';
 
@@ -557,7 +556,6 @@ function getTriggerContext(
           commentTriggers: CommentTriggers;
           currentLineNumber: number;
           loc: NonNullable<Node['loc']>;
-          preservedCommentDocs: Doc[];
           splitOriginalText: string[];
       }
     | undefined {
@@ -574,23 +572,14 @@ function getTriggerContext(
     }
 
     const currentLineNumber = loc.start.line;
-    const lastLine = currentLineNumber - 1;
     const commentTriggers = getCommentTriggers(rootNode, debug);
     const originalText: string = inputOptions.originalText;
     const splitOriginalText: string[] = originalText.split('\n');
-    const preservedCommentDocs = getPreservedCommentDocsForNode(
-        path,
-        node,
-        lastLine,
-        commentTriggers,
-        splitOriginalText,
-    );
 
     return {
         commentTriggers,
         currentLineNumber,
         loc,
-        preservedCommentDocs,
         splitOriginalText,
     };
 }
@@ -695,8 +684,8 @@ export function printWithMultilineArrays(
             debug,
         );
 
-        return prependDocs(triggerContext.preservedCommentDocs, newDoc);
+        return newDoc;
     }
 
-    return prependDocs(triggerContext?.preservedCommentDocs ?? [], originalFormattedOutput);
+    return originalFormattedOutput;
 }

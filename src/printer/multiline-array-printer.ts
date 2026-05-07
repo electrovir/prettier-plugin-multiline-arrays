@@ -20,9 +20,9 @@ export function createMultilineArrayPrinter(basePrinter: Printer<Node>): Printer
 
     return {
         ...basePrinter,
-        canAttachComment(node) {
+        canAttachComment(...args) {
             try {
-                return basePrinter.canAttachComment?.(node) ?? false;
+                return basePrinter.canAttachComment?.(...args) ?? false;
             } catch {
                 return true;
             }

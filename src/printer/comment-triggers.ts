@@ -16,12 +16,6 @@ import {extractComments} from './comments.js';
 type LineNumberDetails<T> = {[lineNumber: number]: T};
 export type LineCounts = LineNumberDetails<number[]>;
 export type WrapThresholds = LineNumberDetails<number>;
-export type PreservedComment = {
-    loc: NonNullable<Comment['loc']>;
-    type: Comment['type'];
-    value: string;
-};
-export type PreservedComments = LineNumberDetails<PreservedComment[]>;
 export type CommentTriggerWithEnding<T> = {
     [P in keyof T]: {data: T[P]; lineEnd: number};
 };
@@ -30,7 +24,6 @@ export type CommentTriggers = {
     nextLineCounts: LineCounts;
     setLineCounts: CommentTriggerWithEnding<LineCounts>;
     nextWrapThresholds: WrapThresholds;
-    preservedComments: PreservedComments;
     setWrapThresholds: CommentTriggerWithEnding<WrapThresholds>;
 };
 
@@ -39,46 +32,13 @@ type InternalCommentTriggers = CommentTriggers & {
 };
 
 const mappedCommentTriggers = new WeakMap<Node, CommentTriggers>();
-const triggerCommentTexts = [
-    nextLinePatternComment,
-    nextWrapThresholdComment,
-    resetComment,
-    setLinePatternComment,
-    setWrapThresholdComment,
-];
 
 export function getCommentTriggers(key: Node, debug: boolean): CommentTriggers {
-    const alreadyExisting = findCachedCommentTriggers(key);
+    const alreadyExisting = mappedCommentTriggers.get(key);
     if (!alreadyExisting) {
         return setCommentTriggers(key, debug);
     }
     return alreadyExisting;
-}
-
-function findCachedCommentTriggers(key: Node): CommentTriggers | undefined {
-    /**
-     * Prettier may use either a parser wrapper AST or its `program` child as the root seen by the
-     * printer, so cache both identities when available.
-     */
-    return mappedCommentTriggers.get(key) ?? getCachedProgramTriggers(key);
-}
-
-function getCachedProgramTriggers(key: Node): CommentTriggers | undefined {
-    const program = (key as {program?: unknown}).program;
-    if (program && typeof program === 'object') {
-        return mappedCommentTriggers.get(program as Node);
-    } else {
-        return undefined;
-    }
-}
-
-/**
- * Used by parser wrappers that collect trigger comments before AST comment attachment. The oxc
- * wrapper needs this because trigger comments may be sanitized before `@prettier/plugin-oxc` parses
- * the file.
- */
-export function setCommentTriggersForNode(key: Node, commentTriggers: CommentTriggers): void {
-    mappedCommentTriggers.set(key, commentTriggers);
 }
 
 function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
@@ -102,7 +62,6 @@ export function parseCommentTriggers(comments: Comment[], debug: boolean): Comme
         nextLineCounts: {},
         setLineCounts: {},
         nextWrapThresholds: {},
-        preservedComments: {},
         setWrapThresholds: {},
         resets: [],
     };
@@ -113,19 +72,6 @@ export function parseCommentTriggers(comments: Comment[], debug: boolean): Comme
 
             if (!currentComment.loc) {
                 throw new Error(`Cannot read line location for comment ${currentComment.value}`);
-            }
-
-            if (isTriggerCommentText(commentText ?? '')) {
-                let preservedComments = accum.preservedComments[currentComment.loc.end.line];
-                if (!preservedComments) {
-                    preservedComments = [];
-                    accum.preservedComments[currentComment.loc.end.line] = preservedComments;
-                }
-                preservedComments.push({
-                    loc: currentComment.loc,
-                    type: currentComment.type,
-                    value: currentComment.value,
-                });
             }
 
             const nextLineCounts = getLineCounts(commentText, true, debug);
@@ -199,14 +145,6 @@ function applyResetWindows<T extends LineNumberDetails<unknown>>(
             }) ?? currentLineNumberStats.lineEnd;
 
         currentLineNumberStats.lineEnd = endLineNumber;
-    });
-}
-
-export function isTriggerCommentText(commentText: string): boolean {
-    const lowerCaseCommentText = commentText.toLowerCase();
-
-    return triggerCommentTexts.some((triggerCommentText) => {
-        return lowerCaseCommentText.includes(triggerCommentText);
     });
 }
 
