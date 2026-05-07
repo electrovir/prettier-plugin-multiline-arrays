@@ -775,6 +775,42 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        it: 'reset should clear set threshold comment',
+        code: `
+            // ${setWrapThresholdComment} 8
+            const originalArray: Readonly<number[]> = [
+                0,
+                1,
+                2,
+                3,
+                4,
+            ] as const;
+            // ${resetComment}
+            const originalArray2: Readonly<number[]> = [
+                0,
+                1,
+                2,
+                3,
+                4,
+            ] as const;
+        `,
+        expect: `
+            // ${setWrapThresholdComment} 8
+            const originalArray: Readonly<number[]> = [0, 1, 2, 3, 4] as const;
+            // ${resetComment}
+            const originalArray2: Readonly<number[]> = [
+                0,
+                1,
+                2,
+                3,
+                4,
+            ] as const;
+        `,
+        options: {
+            multilineArraysWrapThreshold: 0,
+        },
+    },
+    {
         it: 'single line comment with just one line wrapped',
         code: `
             describe(filterMap.name, () => {

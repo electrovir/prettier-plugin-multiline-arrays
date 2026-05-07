@@ -9,6 +9,7 @@ module.exports = {
         ...baseConfig.words,
         'espree',
         'farmerpaul',
+        'ianvs',
         'meriyah',
         'robinfr',
     ],

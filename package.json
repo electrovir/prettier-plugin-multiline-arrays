@@ -54,6 +54,8 @@
         "@augment-vir/test": "^31.68.4",
         "@eslint/eslintrc": "^3.3.5",
         "@eslint/js": "^9.39.2",
+        "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+        "@prettier/plugin-oxc": "^0.1.4",
         "@stylistic/eslint-plugin": "^5.10.0",
         "@stylistic/eslint-plugin-ts": "^4.4.1",
         "@types/esprima": "^4.0.6",

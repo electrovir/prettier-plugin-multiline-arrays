@@ -26,7 +26,10 @@ function isMaybeComment(input: any): input is Comment {
 export function extractComments(node: any): Comment[] {
     if (!node || typeof node !== 'object') {
         return [];
+    } else if (Array.isArray(node.comments)) {
+        return dedupeComments(node.comments.filter(isMaybeComment));
     }
+
     const comments: Comment[] = [];
 
     if (Array.isArray(node)) {
@@ -42,6 +45,27 @@ export function extractComments(node: any): Comment[] {
         }
     });
 
-    // this might duplicate comments but our later code doesn't care
-    return comments;
+    return dedupeComments(comments);
+}
+
+function dedupeComments(comments: Comment[]): Comment[] {
+    const seenComments = new Set<string>();
+
+    return comments.filter((comment) => {
+        const key = [
+            comment.type,
+            comment.value,
+            comment.loc?.start.line,
+            comment.loc?.start.column,
+            comment.loc?.end.line,
+            comment.loc?.end.column,
+        ].join(':');
+
+        if (seenComments.has(key)) {
+            return false;
+        }
+
+        seenComments.add(key);
+        return true;
+    });
 }

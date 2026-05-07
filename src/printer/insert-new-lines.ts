@@ -1,9 +1,11 @@
 import {type AnyObject, getObjectTypedKeys, stringify, type Values} from '@augment-vir/common';
+import {type Node} from 'estree';
 import {type AstPath, type Doc, doc, type ParserOptions} from 'prettier';
 import {isDocCommand} from '../augments/doc.js';
 import {type MultilineArrayOptions} from '../options.js';
 import {walkDoc} from './child-docs.js';
 import {
+    type CommentTriggers,
     type CommentTriggerWithEnding,
     getCommentTriggers,
     parseNextLineCounts,
@@ -541,34 +543,64 @@ function getLatestSetValue<T extends object>(
     return relevantSetLineCount;
 }
 
+function getNodeLocation(node: unknown): NonNullable<Node['loc']> | undefined {
+    return (node as Partial<Node> | undefined)?.loc ?? undefined;
+}
+
+function getTriggerContext(
+    path: AstPath,
+    inputOptions: MultilineArrayOptions & ParserOptions,
+    debug: boolean,
+):
+    | {
+          commentTriggers: CommentTriggers;
+          currentLineNumber: number;
+          loc: NonNullable<Node['loc']>;
+          splitOriginalText: string[];
+      }
+    | undefined {
+    const rootNode = path.stack[0];
+    const node = path.getNode();
+    const loc = getNodeLocation(node);
+
+    if (!rootNode) {
+        throw new Error(
+            `Could not find valid root node in ${path.stack.map((entry) => entry.type).join(',')}`,
+        );
+    } else if (!loc) {
+        return undefined;
+    }
+
+    const currentLineNumber = loc.start.line;
+    const commentTriggers = getCommentTriggers(rootNode, debug);
+    const originalText: string = inputOptions.originalText;
+    const splitOriginalText: string[] = originalText.split('\n');
+
+    return {
+        commentTriggers,
+        currentLineNumber,
+        loc,
+        splitOriginalText,
+    };
+}
+
 export function printWithMultilineArrays(
     originalFormattedOutput: Doc,
     path: AstPath,
     inputOptions: MultilineArrayOptions & ParserOptions,
     debug: boolean,
 ): Doc {
-    const rootNode = path.stack[0];
-    if (!rootNode) {
-        throw new Error(
-            `Could not find valid root node in ${path.stack.map((entry) => entry.type).join(',')}`,
-        );
-    }
     const node = path.getNode();
+    const triggerContext = getTriggerContext(path, inputOptions, debug);
 
     if (debug) {
         console.info('[multiline-arrays] printWithMultilineArrays node type:', node?.type);
     }
 
     if (node && isArrayLikeNode(node)) {
-        if (!node.loc) {
+        if (!triggerContext) {
             throw new Error(`Could not find location of node ${node.type}`);
         }
-        const currentLineNumber = node.loc.start.line;
-        const lastLine = currentLineNumber - 1;
-        const commentTriggers = getCommentTriggers(rootNode, debug);
-
-        const originalText: string = inputOptions.originalText;
-        const splitOriginalText: string[] = originalText.split('\n');
 
         /**
          * ArrayPattern nodes in Babel-TS include their `typeAnnotation` in the node's `loc`, so the
@@ -581,51 +613,54 @@ export function printWithMultilineArrays(
         ).typeAnnotation?.loc?.start;
         const arrayLoc = typeAnnotationStart
             ? {
-                  start: node.loc.start,
+                  start: triggerContext.loc.start,
                   end: typeAnnotationStart,
               }
-            : node.loc;
+            : triggerContext.loc;
 
         const elements = getArrayLikeElements(node);
 
         const includesLeadingNewline = containsLeadingNewline(
             arrayLoc,
             elements,
-            splitOriginalText,
+            triggerContext.splitOriginalText,
             debug,
         );
         const includesTrailingComma = containsTrailingComma(
             arrayLoc,
             elements,
-            splitOriginalText,
+            triggerContext.splitOriginalText,
             debug,
         );
 
         const relevantSetLineCount: number[] | undefined = getLatestSetValue(
-            currentLineNumber,
-            commentTriggers.setLineCounts,
+            triggerContext.currentLineNumber,
+            triggerContext.commentTriggers.setLineCounts,
         );
 
         const lineCounts: number[] =
-            commentTriggers.nextLineCounts[lastLine] ??
+            triggerContext.commentTriggers.nextLineCounts[triggerContext.currentLineNumber - 1] ??
             relevantSetLineCount ??
             parseNextLineCounts(inputOptions.multilineArraysLinePattern, false, debug);
 
         const relevantSetWrapCommentThreshold = getLatestSetValue(
-            currentLineNumber,
-            commentTriggers.setWrapThresholds,
+            triggerContext.currentLineNumber,
+            triggerContext.commentTriggers.setWrapThresholds,
         );
 
         const wrapThreshold: number =
-            commentTriggers.nextWrapThresholds[lastLine] ??
+            triggerContext.commentTriggers.nextWrapThresholds[
+                triggerContext.currentLineNumber - 1
+            ] ??
             relevantSetWrapCommentThreshold ??
             (inputOptions.multilineArraysWrapThreshold < 0
                 ? Infinity
                 : inputOptions.multilineArraysWrapThreshold);
 
         const includesCommentTrigger: boolean =
-            (commentTriggers.nextWrapThresholds[lastLine] ?? relevantSetWrapCommentThreshold) !=
-                undefined || !!lineCounts.length;
+            (triggerContext.commentTriggers.nextWrapThresholds[
+                triggerContext.currentLineNumber - 1
+            ] ?? relevantSetWrapCommentThreshold) != undefined || !!lineCounts.length;
 
         if (debug) {
             console.info(`======= Starting call to ${insertLinesIntoArray.name}: =======`);
@@ -648,6 +683,7 @@ export function printWithMultilineArrays(
             wrapThreshold,
             debug,
         );
+
         return newDoc;
     }
 
