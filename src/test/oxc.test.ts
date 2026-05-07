@@ -83,7 +83,7 @@ const oxcJsTriggerCommentInCallArgumentsTest: MultilineArrayTest = {
 };
 
 const oxcTsOrdinaryCommentInCallArgumentsTest: MultilineArrayTest = {
-    it: 'formats TypeScript call arguments with ordinary oxc line comments once upstream supports them',
+    it: 'formats TypeScript call arguments with ordinary oxc line comments',
     code: `
             const result = call(
                 // hello
@@ -93,16 +93,46 @@ const oxcTsOrdinaryCommentInCallArgumentsTest: MultilineArrayTest = {
     options: {
         plugins: oxcPlugins,
     },
-    /**
-     * The plugin-owned trigger-comment workaround intentionally does not hide ordinary comments.
-     * Keep this skipped test as a reminder to re-check the upstream oxc comment-attachment crash.
-     */
-    skip: true,
 };
 
 const oxcJsOrdinaryCommentInCallArgumentsTest: MultilineArrayTest = {
     ...oxcTsOrdinaryCommentInCallArgumentsTest,
-    it: 'formats JavaScript call arguments with ordinary oxc line comments once upstream supports them',
+    it: 'formats JavaScript call arguments with ordinary oxc line comments',
+};
+
+const oxcTsDanglingTriggerCommentInCallArgumentsTest: MultilineArrayTest = {
+    it: 'preserves TypeScript oxc trigger comments that do not apply to an array',
+    code: `
+            const result = call(
+                // ${nextWrapThresholdComment} 4
+                value,
+            );
+    `,
+    options: {
+        plugins: oxcPlugins,
+    },
+};
+
+const oxcJsDanglingTriggerCommentInCallArgumentsTest: MultilineArrayTest = {
+    ...oxcTsDanglingTriggerCommentInCallArgumentsTest,
+    it: 'preserves JavaScript oxc trigger comments that do not apply to an array',
+};
+
+const oxcTsTriggerCommentBeforeDeclarationTest: MultilineArrayTest = {
+    it: 'formats TypeScript arrays with oxc trigger comments before declarations',
+    code: `
+            // ${nextWrapThresholdComment} 0
+            const values = ['hello'];
+    `,
+    expect: `
+            // ${nextWrapThresholdComment} 0
+            const values = [
+                'hello',
+            ];
+    `,
+    options: {
+        plugins: oxcPlugins,
+    },
 };
 
 const sortImportsLinePatternCode = `
@@ -202,6 +232,8 @@ describe('oxc multiline array formatting', () => {
             oxcTsTest,
             oxcTsTriggerCommentInCallArgumentsTest,
             oxcTsOrdinaryCommentInCallArgumentsTest,
+            oxcTsDanglingTriggerCommentInCallArgumentsTest,
+            oxcTsTriggerCommentBeforeDeclarationTest,
             oxcTsLinePatternWithoutSortImportsTest,
             oxcTsLinePatternWithSortImportsTest,
         ],
@@ -213,6 +245,7 @@ describe('oxc multiline array formatting', () => {
             oxcJsTest,
             oxcJsTriggerCommentInCallArgumentsTest,
             oxcJsOrdinaryCommentInCallArgumentsTest,
+            oxcJsDanglingTriggerCommentInCallArgumentsTest,
         ],
         'oxc',
     );

@@ -168,29 +168,30 @@ function addLocationsToAst(input: unknown, text: string): void {
     addLocations(input);
 }
 
-function replaceWithLocationPreservingWhitespace(input: string): string {
-    return input.replace(/[^\r\n]/g, ' ');
+function addRangeToComment<T extends Comment>(comment: T, start: number, end: number): T {
+    return Object.assign(comment, {
+        end,
+        range: [
+            start,
+            end,
+        ],
+        start,
+    });
 }
 
 /**
  * `@prettier/plugin-oxc@0.1.4` can crash while attaching line comments in call arguments
- * (`isChildWontPrint` / `canAttachComment`). This plugin only needs its own trigger comments, so
- * scan those comments from raw text before oxc sees them and replace them with same-length
- * whitespace. That preserves line/column offsets for AST nodes while preventing oxc from trying to
- * attach comments that only this plugin consumes.
+ * (`isChildWontPrint` / `canAttachComment`). The printer wrapper guards that hook; this scan keeps
+ * trigger metadata independent from oxc's comment attachment.
  *
- * This is deliberately not a general comment parser: ordinary comments are left in place so oxc can
- * keep handling them, and so upstream fixes naturally take effect.
+ * This is deliberately not a general comment parser: ordinary comments are left to oxc, and so
+ * upstream fixes naturally take effect.
  */
 function sanitizeOxcTriggerComments(text: string): {
     comments: Comment[];
     text: string;
 } {
     const comments: Comment[] = [];
-    const replacements: {
-        end: number;
-        start: number;
-    }[] = [];
     const getLocation = createLocationFinder(text);
 
     let characterIndex = 0;
@@ -229,19 +230,20 @@ function sanitizeOxcTriggerComments(text: string): {
 
             const commentText = text.slice(commentTextStart, characterIndex);
             if (isTriggerCommentText(commentText)) {
-                /** Replace the whole `// ...` span, but keep the newline after it intact. */
-                replacements.push({
-                    end: characterIndex,
-                    start: commentStart,
-                });
-                comments.push({
-                    loc: {
-                        end: getLocation(characterIndex),
-                        start: getLocation(commentStart),
-                    },
-                    type: 'Line',
-                    value: commentText,
-                });
+                comments.push(
+                    addRangeToComment(
+                        {
+                            loc: {
+                                end: getLocation(characterIndex),
+                                start: getLocation(commentStart),
+                            },
+                            type: 'Line',
+                            value: commentText,
+                        },
+                        commentStart,
+                        characterIndex,
+                    ),
+                );
             }
         } else if (currentCharacter === '/' && nextCharacter === '*') {
             const commentStart = characterIndex;
@@ -254,19 +256,20 @@ function sanitizeOxcTriggerComments(text: string): {
             );
 
             if (isTriggerCommentText(commentText)) {
-                /** Block triggers may span lines; preserve any line breaks inside the block. */
-                replacements.push({
-                    end: commentEnd,
-                    start: commentStart,
-                });
-                comments.push({
-                    loc: {
-                        end: getLocation(commentEnd),
-                        start: getLocation(commentStart),
-                    },
-                    type: 'Block',
-                    value: commentText,
-                });
+                comments.push(
+                    addRangeToComment(
+                        {
+                            loc: {
+                                end: getLocation(commentEnd),
+                                start: getLocation(commentStart),
+                            },
+                            type: 'Block',
+                            value: commentText,
+                        },
+                        commentStart,
+                        commentEnd,
+                    ),
+                );
             }
 
             characterIndex = commentEnd;
@@ -275,19 +278,9 @@ function sanitizeOxcTriggerComments(text: string): {
         }
     }
 
-    const sanitizedText = replacements.reduceRight((currentText, replacement) => {
-        return [
-            currentText.slice(0, replacement.start),
-            replaceWithLocationPreservingWhitespace(
-                currentText.slice(replacement.start, replacement.end),
-            ),
-            currentText.slice(replacement.end),
-        ].join('');
-    }, text);
-
     return {
         comments,
-        text: sanitizedText,
+        text,
     };
 }
 

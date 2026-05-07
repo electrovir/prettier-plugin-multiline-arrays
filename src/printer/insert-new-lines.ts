@@ -1,4 +1,5 @@
 import {type AnyObject, getObjectTypedKeys, stringify, type Values} from '@augment-vir/common';
+import {type Node} from 'estree';
 import {type AstPath, type Doc, doc, type ParserOptions} from 'prettier';
 import {isDocCommand} from '../augments/doc.js';
 import {type MultilineArrayOptions} from '../options.js';
@@ -579,21 +580,113 @@ function getMissingPreservedCommentDocs(
      * those comments here, but skip comments that are still present in parser-owned source text so
      * Babel/TypeScript paths do not duplicate them.
      */
-    return (commentTriggers.preservedComments[lineNumber] ?? []).flatMap((comment): Doc[] => {
-        const sourceTextAtCommentLocation = getSourceTextAtCommentLocation(
-            comment,
-            splitOriginalText,
-        );
+    const missingCommentDocs = (commentTriggers.preservedComments[lineNumber] ?? []).flatMap(
+        (comment): Doc[] => {
+            const sourceTextAtCommentLocation = getSourceTextAtCommentLocation(
+                comment,
+                splitOriginalText,
+            );
 
-        if (sourceTextAtCommentLocation.trim()) {
-            return [];
+            if (sourceTextAtCommentLocation.trim()) {
+                return [];
+            }
+
+            return [
+                formatPreservedComment(comment),
+                doc.builders.hardline,
+            ];
+        },
+    );
+
+    return missingCommentDocs;
+}
+
+function hasSameLineAncestor(path: AstPath, currentNode: unknown, lineNumber: number): boolean {
+    return path.ancestors.some((ancestor): boolean => {
+        if (ancestor === currentNode) {
+            return false;
         }
 
-        return [
-            formatPreservedComment(comment),
-            doc.builders.hardline,
-        ];
+        const ancestorStartLine = (ancestor as Partial<Node> | undefined)?.loc?.start.line;
+
+        return ancestorStartLine === lineNumber;
     });
+}
+
+function getMissingPreservedCommentDocsForNode(
+    path: AstPath,
+    node: unknown,
+    lineNumber: number,
+    commentTriggers: CommentTriggers,
+    splitOriginalText: string[],
+): Doc[] {
+    if (hasSameLineAncestor(path, node, lineNumber + 1)) {
+        return [];
+    }
+
+    return getMissingPreservedCommentDocs(lineNumber, commentTriggers, splitOriginalText);
+}
+
+function prependDocs(docsToPrepend: Doc[], docToAppend: Doc): Doc {
+    if (docsToPrepend.length) {
+        return [
+            ...docsToPrepend,
+            docToAppend,
+        ];
+    } else {
+        return docToAppend;
+    }
+}
+
+function getNodeLocation(node: unknown): NonNullable<Node['loc']> | undefined {
+    return (node as Partial<Node> | undefined)?.loc ?? undefined;
+}
+
+function getTriggerContext(
+    path: AstPath,
+    inputOptions: MultilineArrayOptions & ParserOptions,
+    debug: boolean,
+):
+    | {
+          commentTriggers: CommentTriggers;
+          currentLineNumber: number;
+          loc: NonNullable<Node['loc']>;
+          preservedCommentDocs: Doc[];
+          splitOriginalText: string[];
+      }
+    | undefined {
+    const rootNode = path.stack[0];
+    const node = path.getNode();
+    const loc = getNodeLocation(node);
+
+    if (!rootNode) {
+        throw new Error(
+            `Could not find valid root node in ${path.stack.map((entry) => entry.type).join(',')}`,
+        );
+    } else if (!loc) {
+        return undefined;
+    }
+
+    const currentLineNumber = loc.start.line;
+    const lastLine = currentLineNumber - 1;
+    const commentTriggers = getCommentTriggers(rootNode, debug, inputOptions);
+    const originalText: string = inputOptions.originalText;
+    const splitOriginalText: string[] = originalText.split('\n');
+    const preservedCommentDocs = getMissingPreservedCommentDocsForNode(
+        path,
+        node,
+        lastLine,
+        commentTriggers,
+        splitOriginalText,
+    );
+
+    return {
+        commentTriggers,
+        currentLineNumber,
+        loc,
+        preservedCommentDocs,
+        splitOriginalText,
+    };
 }
 
 export function printWithMultilineArrays(
@@ -602,28 +695,17 @@ export function printWithMultilineArrays(
     inputOptions: MultilineArrayOptions & ParserOptions,
     debug: boolean,
 ): Doc {
-    const rootNode = path.stack[0];
-    if (!rootNode) {
-        throw new Error(
-            `Could not find valid root node in ${path.stack.map((entry) => entry.type).join(',')}`,
-        );
-    }
     const node = path.getNode();
+    const triggerContext = getTriggerContext(path, inputOptions, debug);
 
     if (debug) {
         console.info('[multiline-arrays] printWithMultilineArrays node type:', node?.type);
     }
 
     if (node && isArrayLikeNode(node)) {
-        if (!node.loc) {
+        if (!triggerContext) {
             throw new Error(`Could not find location of node ${node.type}`);
         }
-        const currentLineNumber = node.loc.start.line;
-        const lastLine = currentLineNumber - 1;
-        const commentTriggers = getCommentTriggers(rootNode, debug, inputOptions);
-
-        const originalText: string = inputOptions.originalText;
-        const splitOriginalText: string[] = originalText.split('\n');
 
         /**
          * ArrayPattern nodes in Babel-TS include their `typeAnnotation` in the node's `loc`, so the
@@ -636,51 +718,54 @@ export function printWithMultilineArrays(
         ).typeAnnotation?.loc?.start;
         const arrayLoc = typeAnnotationStart
             ? {
-                  start: node.loc.start,
+                  start: triggerContext.loc.start,
                   end: typeAnnotationStart,
               }
-            : node.loc;
+            : triggerContext.loc;
 
         const elements = getArrayLikeElements(node);
 
         const includesLeadingNewline = containsLeadingNewline(
             arrayLoc,
             elements,
-            splitOriginalText,
+            triggerContext.splitOriginalText,
             debug,
         );
         const includesTrailingComma = containsTrailingComma(
             arrayLoc,
             elements,
-            splitOriginalText,
+            triggerContext.splitOriginalText,
             debug,
         );
 
         const relevantSetLineCount: number[] | undefined = getLatestSetValue(
-            currentLineNumber,
-            commentTriggers.setLineCounts,
+            triggerContext.currentLineNumber,
+            triggerContext.commentTriggers.setLineCounts,
         );
 
         const lineCounts: number[] =
-            commentTriggers.nextLineCounts[lastLine] ??
+            triggerContext.commentTriggers.nextLineCounts[triggerContext.currentLineNumber - 1] ??
             relevantSetLineCount ??
             parseNextLineCounts(inputOptions.multilineArraysLinePattern, false, debug);
 
         const relevantSetWrapCommentThreshold = getLatestSetValue(
-            currentLineNumber,
-            commentTriggers.setWrapThresholds,
+            triggerContext.currentLineNumber,
+            triggerContext.commentTriggers.setWrapThresholds,
         );
 
         const wrapThreshold: number =
-            commentTriggers.nextWrapThresholds[lastLine] ??
+            triggerContext.commentTriggers.nextWrapThresholds[
+                triggerContext.currentLineNumber - 1
+            ] ??
             relevantSetWrapCommentThreshold ??
             (inputOptions.multilineArraysWrapThreshold < 0
                 ? Infinity
                 : inputOptions.multilineArraysWrapThreshold);
 
         const includesCommentTrigger: boolean =
-            (commentTriggers.nextWrapThresholds[lastLine] ?? relevantSetWrapCommentThreshold) !=
-                undefined || !!lineCounts.length;
+            (triggerContext.commentTriggers.nextWrapThresholds[
+                triggerContext.currentLineNumber - 1
+            ] ?? relevantSetWrapCommentThreshold) != undefined || !!lineCounts.length;
 
         if (debug) {
             console.info(`======= Starting call to ${insertLinesIntoArray.name}: =======`);
@@ -703,19 +788,9 @@ export function printWithMultilineArrays(
             wrapThreshold,
             debug,
         );
-        const preservedCommentDocs = getMissingPreservedCommentDocs(
-            lastLine,
-            commentTriggers,
-            splitOriginalText,
-        );
 
-        return preservedCommentDocs.length
-            ? [
-                  ...preservedCommentDocs,
-                  newDoc,
-              ]
-            : newDoc;
+        return prependDocs(triggerContext.preservedCommentDocs, newDoc);
     }
 
-    return originalFormattedOutput;
+    return prependDocs(triggerContext?.preservedCommentDocs ?? [], originalFormattedOutput);
 }

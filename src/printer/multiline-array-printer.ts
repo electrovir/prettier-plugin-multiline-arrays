@@ -16,8 +16,43 @@ const estreePlugin = estreePluginModule as unknown as {
 const debug = !!process.env[envDebugKey];
 
 export function createMultilineArrayPrinter(basePrinter: Printer<Node>): Printer<Node> {
+    const baseHandleComments = basePrinter.handleComments;
+
     return {
         ...basePrinter,
+        canAttachComment(node) {
+            try {
+                return basePrinter.canAttachComment?.(node) ?? false;
+            } catch {
+                return true;
+            }
+        },
+        handleComments: baseHandleComments
+            ? {
+                  ...baseHandleComments,
+                  endOfLine(...args) {
+                      try {
+                          return baseHandleComments.endOfLine?.(...args) ?? false;
+                      } catch {
+                          return false;
+                      }
+                  },
+                  ownLine(...args) {
+                      try {
+                          return baseHandleComments.ownLine?.(...args) ?? false;
+                      } catch {
+                          return false;
+                      }
+                  },
+                  remaining(...args) {
+                      try {
+                          return baseHandleComments.remaining?.(...args) ?? false;
+                      } catch {
+                          return false;
+                      }
+                  },
+              }
+            : undefined,
         /**
          * The 4th parameter `args` is used by Prettier internally. We must declare it to preserve
          * the function's arity (Function.length), which Prettier checks to determine behavior.
