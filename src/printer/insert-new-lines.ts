@@ -565,7 +565,7 @@ export function printWithMultilineArrays(
         }
         const currentLineNumber = node.loc.start.line;
         const lastLine = currentLineNumber - 1;
-        const commentTriggers = getCommentTriggers(rootNode, debug);
+        const commentTriggers = getCommentTriggers(rootNode, debug, inputOptions);
 
         const originalText: string = inputOptions.originalText;
         const splitOriginalText: string[] = originalText.split('\n');

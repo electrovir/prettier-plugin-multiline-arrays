@@ -1,11 +1,20 @@
 import {describe} from '@augment-vir/test';
 import {type Options} from 'prettier';
-import {nextWrapThresholdComment} from '../options.js';
+import {nextLinePatternComment, nextWrapThresholdComment} from '../options.js';
 import {repoConfig} from './prettier-config.js';
 import {type MultilineArrayTest, runTests} from './run-tests.mock.js';
 
 const oxcPlugins = [
     '@prettier/plugin-oxc',
+    ...(repoConfig.plugins ?? []),
+] as Options['plugins'];
+const pluginsWithSortImports = [
+    '@ianvs/prettier-plugin-sort-imports',
+    ...(repoConfig.plugins ?? []),
+] as Options['plugins'];
+const oxcPluginsWithSortImports = [
+    '@prettier/plugin-oxc',
+    '@ianvs/prettier-plugin-sort-imports',
     ...(repoConfig.plugins ?? []),
 ] as Options['plugins'];
 
@@ -96,6 +105,96 @@ const oxcJsOrdinaryCommentInCallArgumentsTest: MultilineArrayTest = {
     it: 'formats JavaScript call arguments with ordinary oxc line comments once upstream supports them',
 };
 
+const sortImportsLinePatternCode = `
+            import {localSecond} from './local-second';
+            import {packageValue} from 'package';
+            import {second} from './second';
+            import {first} from './first';
+
+            const result = call(
+                // ${nextLinePatternComment} 4
+                [255, 0, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 0, 255, 255],
+            );
+`;
+
+const sortImportsLinePatternOxcExpect = `
+            import {packageValue} from 'package';
+
+            import {first} from './first';
+            import {localSecond} from './local-second';
+            import {second} from './second';
+
+            const result = call(
+                
+                [
+                    255, 0, 255, 255,
+                    0, 0, 0, 255,
+                    0, 0, 0, 255,
+                    255, 0, 255, 255,
+                ],
+            );
+`;
+
+const sortImportsLinePatternStandardExpect = `
+            import {packageValue} from 'package';
+
+            import {first} from './first';
+            import {localSecond} from './local-second';
+            import {second} from './second';
+
+            const result = call(
+                // ${nextLinePatternComment} 4
+                [
+                    255, 0, 255, 255,
+                    0, 0, 0, 255,
+                    0, 0, 0, 255,
+                    255, 0, 255, 255,
+                ],
+            );
+`;
+
+const oxcTsLinePatternWithSortImportsTest: MultilineArrayTest = {
+    it: 'formats TypeScript line pattern comments with oxc and sort imports',
+    code: sortImportsLinePatternCode,
+    expect: sortImportsLinePatternOxcExpect,
+    options: {
+        plugins: oxcPluginsWithSortImports,
+    },
+};
+
+const oxcTsLinePatternWithoutSortImportsTest: MultilineArrayTest = {
+    it: 'formats TypeScript line pattern comments with oxc without sort imports',
+    code: sortImportsLinePatternCode,
+    expect: `
+            import {localSecond} from './local-second';
+            import {packageValue} from 'package';
+            import {second} from './second';
+            import {first} from './first';
+
+            const result = call(
+                
+                [
+                    255, 0, 255, 255,
+                    0, 0, 0, 255,
+                    0, 0, 0, 255,
+                    255, 0, 255, 255,
+                ],
+            );
+    `,
+    options: {
+        plugins: oxcPlugins,
+    },
+};
+
+const typescriptLinePatternWithSortImportsTest: MultilineArrayTest = {
+    it: 'formats TypeScript line pattern comments with the TypeScript parser and sort imports',
+    code: sortImportsLinePatternCode,
+    expect: sortImportsLinePatternStandardExpect,
+    options: {
+        plugins: pluginsWithSortImports,
+    },
+};
+
 describe('oxc multiline array formatting', () => {
     runTests(
         '.ts',
@@ -103,6 +202,8 @@ describe('oxc multiline array formatting', () => {
             oxcTsTest,
             oxcTsTriggerCommentInCallArgumentsTest,
             oxcTsOrdinaryCommentInCallArgumentsTest,
+            oxcTsLinePatternWithoutSortImportsTest,
+            oxcTsLinePatternWithSortImportsTest,
         ],
         'oxc-ts',
     );
@@ -114,5 +215,12 @@ describe('oxc multiline array formatting', () => {
             oxcJsOrdinaryCommentInCallArgumentsTest,
         ],
         'oxc',
+    );
+    runTests(
+        '.ts',
+        [
+            typescriptLinePatternWithSortImportsTest,
+        ],
+        'typescript',
     );
 });

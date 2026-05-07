@@ -1,5 +1,6 @@
 import {getObjectTypedKeys} from '@augment-vir/common';
 import {type Comment, type Node} from 'estree';
+import {type ParserOptions} from 'prettier';
 import {
     nextLinePatternComment,
     nextWrapThresholdComment,
@@ -31,7 +32,11 @@ type InternalCommentTriggers = CommentTriggers & {
     resets: number[];
 };
 
+type TriggerLookupOptions = Partial<Pick<ParserOptions, 'originalText'>>;
+
 const mappedCommentTriggers = new WeakMap<Node, CommentTriggers>();
+const mappedCommentTriggersByOptions = new WeakMap<object, CommentTriggers>();
+const mappedCommentTriggersByText = new Map<string, CommentTriggers>();
 const triggerCommentTexts = [
     nextLinePatternComment,
     nextWrapThresholdComment,
@@ -40,12 +45,55 @@ const triggerCommentTexts = [
     setWrapThresholdComment,
 ];
 
-export function getCommentTriggers(key: Node, debug: boolean): CommentTriggers {
-    const alreadyExisting = mappedCommentTriggers.get(key);
+export function getCommentTriggers(
+    key: Node,
+    debug: boolean,
+    options?: TriggerLookupOptions,
+): CommentTriggers {
+    const alreadyExisting = findCachedCommentTriggers(key, options);
     if (!alreadyExisting) {
-        return setCommentTriggers(key, debug);
+        return setCommentTriggers(key, debug, options);
     }
     return alreadyExisting;
+}
+
+function findCachedCommentTriggers(
+    key: Node,
+    options: TriggerLookupOptions | undefined,
+): CommentTriggers | undefined {
+    /**
+     * Prefer exact AST identity, then progressively fall back to caches that survive parser/plugin
+     * pipelines which preserve text/options but replace the root object.
+     */
+    return (
+        mappedCommentTriggers.get(key) ??
+        getCachedProgramTriggers(key) ??
+        getCachedOptionsTriggers(options) ??
+        getCachedTextTriggers(options)
+    );
+}
+
+function getCachedProgramTriggers(key: Node): CommentTriggers | undefined {
+    const program = (key as {program?: unknown}).program;
+    if (program && typeof program === 'object') {
+        return mappedCommentTriggers.get(program as Node);
+    } else {
+        return undefined;
+    }
+}
+
+function getCachedOptionsTriggers(
+    options: TriggerLookupOptions | undefined,
+): CommentTriggers | undefined {
+    return options ? mappedCommentTriggersByOptions.get(options) : undefined;
+}
+
+function getCachedTextTriggers(
+    options: TriggerLookupOptions | undefined,
+): CommentTriggers | undefined {
+    return options?.originalText
+        ? mappedCommentTriggersByText.get(options.originalText)
+        : undefined;
 }
 
 /**
@@ -57,7 +105,28 @@ export function setCommentTriggersForNode(key: Node, commentTriggers: CommentTri
     mappedCommentTriggers.set(key, commentTriggers);
 }
 
-function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
+/**
+ * Parser wrappers can use this to persist trigger metadata when another plugin later swaps the AST
+ * root object. The text cache is intentionally a fallback: exact AST and options identity remain
+ * preferred when they survive the formatting pipeline.
+ */
+export function setCommentTriggersForOptions(
+    options: object,
+    commentTriggers: CommentTriggers,
+    textEntries: string[],
+): void {
+    mappedCommentTriggersByOptions.set(options, commentTriggers);
+
+    textEntries.forEach((textEntry) => {
+        mappedCommentTriggersByText.set(textEntry, commentTriggers);
+    });
+}
+
+function setCommentTriggers(
+    rootNode: Node,
+    debug: boolean,
+    options: TriggerLookupOptions | undefined,
+): CommentTriggers {
     // parse comments only on the root node so it only happens once
     const comments: Comment[] = extractComments(rootNode);
     if (debug) {
@@ -70,6 +139,17 @@ function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
 
     // save to a map so we don't have to recalculate these every time
     mappedCommentTriggers.set(rootNode, commentTriggers);
+    if (options && typeof options === 'object') {
+        setCommentTriggersForOptions(
+            options,
+            commentTriggers,
+            options.originalText
+                ? [
+                      options.originalText,
+                  ]
+                : [],
+        );
+    }
     return commentTriggers;
 }
 

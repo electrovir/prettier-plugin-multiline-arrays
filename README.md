@@ -98,10 +98,11 @@ Tested to be compatible with the following plugins. It is likely compatible with
 2. `prettier-plugin-sort-json`
 3. `prettier-plugin-packagejson`
 4. `@prettier/plugin-oxc`
-5. this plugin must be placed here
-6. `prettier-plugin-organize-imports`
-7. `prettier-plugin-jsdoc`
-8. `prettier-plugin-interpolated-html-tags`
+5. `@ianvs/prettier-plugin-sort-imports`
+6. this plugin must be placed here
+7. `prettier-plugin-organize-imports`
+8. `prettier-plugin-jsdoc`
+9. `prettier-plugin-interpolated-html-tags`
 
 ## Dev
 

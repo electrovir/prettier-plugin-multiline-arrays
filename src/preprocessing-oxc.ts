@@ -11,6 +11,7 @@ import {
     isTriggerCommentText,
     parseCommentTriggers,
     setCommentTriggersForNode,
+    setCommentTriggersForOptions,
 } from './printer/comment-triggers.js';
 
 type NodeWithLocation = Partial<{
@@ -327,19 +328,27 @@ export function wrapOxcParser(parserName: string): Parser {
         },
         preprocess(text, options: ActualParserOptions) {
             const externalParser = getExternalParser(parserName, options);
-            const sanitizedInput = sanitizeOxcTriggerComments(text);
-            const nextText =
-                externalParser.preprocess?.(sanitizedInput.text, removePlugin(options)) ??
-                sanitizedInput.text;
+            /**
+             * Run external preprocessors before scanning trigger comments. Plugins like
+             * `@ianvs/prettier-plugin-sort-imports` can rewrite imports and shift line numbers, so
+             * trigger metadata must be based on the exact text that oxc will parse.
+             */
+            const nextText = externalParser.preprocess?.(text, removePlugin(options)) ?? text;
+            const sanitizedInput = sanitizeOxcTriggerComments(nextText);
             const commentTriggers = parseCommentTriggers(sanitizedInput.comments, false);
 
             addMultilinePrinter(options);
+            setCommentTriggersForOptions(options, commentTriggers, [
+                text,
+                nextText,
+                sanitizedInput.text,
+            ]);
             oxcPreprocessResults.set(options, {
                 commentTriggers,
-                text: nextText,
+                text: sanitizedInput.text,
             });
 
-            return nextText;
+            return sanitizedInput.text;
         },
     };
 }
