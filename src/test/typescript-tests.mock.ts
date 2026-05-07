@@ -459,6 +459,69 @@ export const typescriptTests: MultilineArrayTest[] = [
         `,
     },
     {
+        it: 'line pattern comment targets array inside next new expression GitHub Issue #73',
+        code: `
+            // ${nextLinePatternComment} 2
+            new Set(
+                [
+                    1,
+                    2,
+                    3,
+                    4,
+                ],
+            );
+        `,
+        expect: `
+            // ${nextLinePatternComment} 2
+            new Set([
+                1, 2,
+                3, 4,
+            ]);
+        `,
+    },
+    {
+        it: 'line pattern comment targets outer array before nested call arrays GitHub Issue #73',
+        code: `
+            // ${nextLinePatternComment} 4
+            [
+                fn([1,2]),
+                2,
+                3,
+                4,
+            ]
+        `,
+        expect: `
+            // ${nextLinePatternComment} 4
+            [
+                fn([1, 2]), 2, 3, 4,
+            ];
+        `,
+    },
+    {
+        it: 'threshold comment targets array inside next call expression GitHub Issue #73',
+        code: `
+            // ${nextWrapThresholdComment} 4
+            fn(
+                [
+                    1,
+                    2,
+                ],
+            );
+        `,
+        expect: `
+            // ${nextWrapThresholdComment} 4
+            fn([1, 2]);
+        `,
+    },
+    {
+        it: 'next line comments do not skip over non-array statements',
+        code: `
+            // ${nextLinePatternComment} 2
+            doThing();
+            const laterArray = [0, 1, 2, 3];
+        `,
+    },
+    {
         it: 'set line pattern comment should carry through',
         code: `
             // ${setLinePatternComment} 2

@@ -12,6 +12,7 @@ import {
     untilSetWrapThresholdCommentRegExp,
 } from '../options.js';
 import {extractComments} from './comments.js';
+import {isArrayLikeNode} from './supported-node-types.js';
 
 type LineNumberDetails<T> = {[lineNumber: number]: T};
 export type LineCounts = LineNumberDetails<number[]>;
@@ -32,6 +33,23 @@ type InternalCommentTriggers = CommentTriggers & {
 };
 
 const mappedCommentTriggers = new WeakMap<Node, CommentTriggers>();
+const ignoredAstChildKeys = [
+    'comments',
+    'leadingComments',
+    'loc',
+    'range',
+    'raw',
+    'tokens',
+    'trailingComments',
+    'value',
+];
+const descendantBoundaryTypes = [
+    'ArrowFunctionExpression',
+    'ClassDeclaration',
+    'ClassExpression',
+    'FunctionDeclaration',
+    'FunctionExpression',
+];
 
 export function getCommentTriggers(key: Node, debug: boolean): CommentTriggers {
     const alreadyExisting = mappedCommentTriggers.get(key);
@@ -105,6 +123,7 @@ function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
     internalCommentTriggers.resets.sort();
 
     setResets(internalCommentTriggers);
+    mapNextCommentTriggers(rootNode, internalCommentTriggers);
 
     const commentTriggers = {
         ...internalCommentTriggers,
@@ -114,6 +133,113 @@ function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
     // save to a map so we don't have to recalculate these every time
     mappedCommentTriggers.set(rootNode, commentTriggers);
     return commentTriggers;
+}
+
+function mapNextCommentTriggers(
+    rootNode: Node,
+    internalCommentTriggers: InternalCommentTriggers,
+): void {
+    internalCommentTriggers.nextLineCounts = mapNextLineTriggers(
+        rootNode,
+        internalCommentTriggers.nextLineCounts,
+    );
+    internalCommentTriggers.nextWrapThresholds = mapNextLineTriggers(
+        rootNode,
+        internalCommentTriggers.nextWrapThresholds,
+    );
+}
+
+function mapNextLineTriggers<T>(
+    rootNode: Node,
+    triggers: LineNumberDetails<T>,
+): LineNumberDetails<T> {
+    return getObjectTypedKeys(triggers).reduce((mappedTriggers, triggerLineNumber) => {
+        const trigger = triggers[triggerLineNumber];
+        const triggerLineNumberText = String(triggerLineNumber);
+        const targetLineNumber = findArrayLikeTargetLine(
+            rootNode,
+            Number(triggerLineNumberText) + 1,
+        );
+
+        if (targetLineNumber != undefined && trigger != undefined) {
+            mappedTriggers[targetLineNumber] = trigger;
+        }
+
+        return mappedTriggers;
+    }, {} as LineNumberDetails<T>);
+}
+
+function findArrayLikeTargetLine(rootNode: Node, nextLineNumber: number): number | undefined {
+    return findAstNodesStartingOnLine(rootNode, nextLineNumber)
+        .flatMap((node) => findArrayLikeDescendantLines(node))
+        .sort((a, b) => a - b)[0];
+}
+
+function findAstNodesStartingOnLine(rootNode: Node, lineNumber: number): Node[] {
+    const matchingNodes: Node[] = [];
+    walkAstNodes(rootNode, (node) => {
+        if (node.loc?.start.line === lineNumber) {
+            matchingNodes.push(node);
+        }
+    });
+
+    return matchingNodes;
+}
+
+function findArrayLikeDescendantLines(rootNode: Node): number[] {
+    const lines: number[] = [];
+    walkAstNodes(rootNode, (node) => {
+        if (descendantBoundaryTypes.includes(node.type)) {
+            return false;
+        }
+
+        if (isArrayLikeNode(node) && node.loc) {
+            lines.push(node.loc.start.line);
+        }
+
+        return true;
+    });
+
+    return lines;
+}
+
+function walkAstNodes(
+    rootNode: Node,
+    callback: (node: Node, isRootNode: boolean) => boolean | void,
+): void {
+    const seenNodes = new WeakSet<object>();
+
+    function walk(input: unknown, isRootNode: boolean): void {
+        if (!input || typeof input !== 'object' || seenNodes.has(input)) {
+            return;
+        }
+
+        seenNodes.add(input);
+
+        if (Array.isArray(input)) {
+            input.forEach((entry) => walk(entry, false));
+            return;
+        }
+
+        const maybeNode = input as Partial<Node>;
+
+        if (typeof maybeNode.type !== 'string') {
+            return;
+        }
+
+        const shouldWalkChildren = callback(maybeNode as Node, isRootNode);
+        if (shouldWalkChildren === false) {
+            return;
+        }
+
+        Object.keys(input).forEach((nodeKey) => {
+            if (!ignoredAstChildKeys.includes(nodeKey)) {
+                walk((input as Record<string, unknown>)[nodeKey], false);
+            }
+        });
+    }
+
+    walk(rootNode, true);
 }
 
 function setResets(internalCommentTriggers: InternalCommentTriggers): void {

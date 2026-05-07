@@ -31,8 +31,10 @@ This plugin provides two new options for your Prettier config:
 
 ## Comment overrides
 
--   Add a comment starting with `prettier-multiline-arrays-next-threshold:` followed by a single number to control `multilineArraysWrapThreshold` for an array on the next line.
--   Add a comment starting with `prettier-multiline-arrays-next-line-pattern:` followed by a pattern of numbers to control `multilineArraysLinePattern` for an array on the next line.
+-   Add a comment starting with `prettier-multiline-arrays-next-threshold:` followed by a single number to control `multilineArraysWrapThreshold` for the next array-like expression.
+-   Add a comment starting with `prettier-multiline-arrays-next-line-pattern:` followed by a pattern of numbers to control `multilineArraysLinePattern` for the next array-like expression.
+
+`next` comments also target the first array-like expression inside a wrapper that starts on the following line, such as a constructor or function call with the array argument on a later line.
 
 To set a comment override for all arrays in a file following the comment, change `next` to `set`. Like so:
 
