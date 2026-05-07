@@ -9,9 +9,9 @@ import {
     type CommentTriggerWithEnding,
     getCommentTriggers,
     parseNextLineCounts,
-    type PreservedComment,
 } from './comment-triggers.js';
 import {containsLeadingNewline} from './leading-new-line.js';
+import {getPreservedCommentDocsForNode, prependDocs} from './preserved-comments.js';
 import {getArrayLikeElements, isArrayLikeNode} from './supported-node-types.js';
 import {containsTrailingComma} from './trailing-comma.js';
 
@@ -544,100 +544,6 @@ function getLatestSetValue<T extends object>(
     return relevantSetLineCount;
 }
 
-function formatPreservedComment(comment: PreservedComment): string {
-    return comment.type === 'Block' ? `/*${comment.value}*/` : `//${comment.value}`;
-}
-
-function getSourceTextAtCommentLocation(
-    comment: PreservedComment,
-    splitOriginalText: string[],
-): string {
-    const startLineIndex = comment.loc.start.line - 1;
-    const endLineIndex = comment.loc.end.line - 1;
-    const startLine = splitOriginalText[startLineIndex];
-    const endLine = splitOriginalText[endLineIndex];
-
-    if (startLine == undefined || endLine == undefined) {
-        return '';
-    } else if (startLineIndex === endLineIndex) {
-        return startLine.slice(comment.loc.start.column, comment.loc.end.column);
-    } else {
-        return [
-            startLine.slice(comment.loc.start.column),
-            ...splitOriginalText.slice(startLineIndex + 1, endLineIndex),
-            endLine.slice(0, comment.loc.end.column),
-        ].join('\n');
-    }
-}
-
-function getMissingPreservedCommentDocs(
-    lineNumber: number,
-    commentTriggers: CommentTriggers,
-    splitOriginalText: string[],
-): Doc[] {
-    /**
-     * The oxc wrapper replaces plugin-owned trigger comments with whitespace before parse. Re-emit
-     * those comments here, but skip comments that are still present in parser-owned source text so
-     * Babel/TypeScript paths do not duplicate them.
-     */
-    const missingCommentDocs = (commentTriggers.preservedComments[lineNumber] ?? []).flatMap(
-        (comment): Doc[] => {
-            const sourceTextAtCommentLocation = getSourceTextAtCommentLocation(
-                comment,
-                splitOriginalText,
-            );
-
-            if (sourceTextAtCommentLocation.trim()) {
-                return [];
-            }
-
-            return [
-                formatPreservedComment(comment),
-                doc.builders.hardline,
-            ];
-        },
-    );
-
-    return missingCommentDocs;
-}
-
-function hasSameLineAncestor(path: AstPath, currentNode: unknown, lineNumber: number): boolean {
-    return path.ancestors.some((ancestor): boolean => {
-        if (ancestor === currentNode) {
-            return false;
-        }
-
-        const ancestorStartLine = (ancestor as Partial<Node> | undefined)?.loc?.start.line;
-
-        return ancestorStartLine === lineNumber;
-    });
-}
-
-function getMissingPreservedCommentDocsForNode(
-    path: AstPath,
-    node: unknown,
-    lineNumber: number,
-    commentTriggers: CommentTriggers,
-    splitOriginalText: string[],
-): Doc[] {
-    if (hasSameLineAncestor(path, node, lineNumber + 1)) {
-        return [];
-    }
-
-    return getMissingPreservedCommentDocs(lineNumber, commentTriggers, splitOriginalText);
-}
-
-function prependDocs(docsToPrepend: Doc[], docToAppend: Doc): Doc {
-    if (docsToPrepend.length) {
-        return [
-            ...docsToPrepend,
-            docToAppend,
-        ];
-    } else {
-        return docToAppend;
-    }
-}
-
 function getNodeLocation(node: unknown): NonNullable<Node['loc']> | undefined {
     return (node as Partial<Node> | undefined)?.loc ?? undefined;
 }
@@ -669,10 +575,10 @@ function getTriggerContext(
 
     const currentLineNumber = loc.start.line;
     const lastLine = currentLineNumber - 1;
-    const commentTriggers = getCommentTriggers(rootNode, debug, inputOptions);
+    const commentTriggers = getCommentTriggers(rootNode, debug);
     const originalText: string = inputOptions.originalText;
     const splitOriginalText: string[] = originalText.split('\n');
-    const preservedCommentDocs = getMissingPreservedCommentDocsForNode(
+    const preservedCommentDocs = getPreservedCommentDocsForNode(
         path,
         node,
         lastLine,

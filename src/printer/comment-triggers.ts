@@ -1,6 +1,5 @@
 import {getObjectTypedKeys} from '@augment-vir/common';
 import {type Comment, type Node} from 'estree';
-import {type ParserOptions} from 'prettier';
 import {
     nextLinePatternComment,
     nextWrapThresholdComment,
@@ -39,10 +38,7 @@ type InternalCommentTriggers = CommentTriggers & {
     resets: number[];
 };
 
-type TriggerLookupOptions = Partial<Pick<ParserOptions, 'originalText'>>;
-
 const mappedCommentTriggers = new WeakMap<Node, CommentTriggers>();
-const mappedCommentTriggersByOptions = new WeakMap<object, CommentTriggers>();
 const triggerCommentTexts = [
     nextLinePatternComment,
     nextWrapThresholdComment,
@@ -51,31 +47,20 @@ const triggerCommentTexts = [
     setWrapThresholdComment,
 ];
 
-export function getCommentTriggers(
-    key: Node,
-    debug: boolean,
-    options?: TriggerLookupOptions,
-): CommentTriggers {
-    const alreadyExisting = findCachedCommentTriggers(key, options);
+export function getCommentTriggers(key: Node, debug: boolean): CommentTriggers {
+    const alreadyExisting = findCachedCommentTriggers(key);
     if (!alreadyExisting) {
-        return setCommentTriggers(key, debug, options);
+        return setCommentTriggers(key, debug);
     }
     return alreadyExisting;
 }
 
-function findCachedCommentTriggers(
-    key: Node,
-    options: TriggerLookupOptions | undefined,
-): CommentTriggers | undefined {
+function findCachedCommentTriggers(key: Node): CommentTriggers | undefined {
     /**
-     * Prefer exact AST identity, then progressively fall back to caches that survive parser/plugin
-     * pipelines which preserve text/options but replace the root object.
+     * Prettier may use either a parser wrapper AST or its `program` child as the root seen by the
+     * printer, so cache both identities when available.
      */
-    return (
-        mappedCommentTriggers.get(key) ??
-        getCachedProgramTriggers(key) ??
-        getCachedOptionsTriggers(options)
-    );
+    return mappedCommentTriggers.get(key) ?? getCachedProgramTriggers(key);
 }
 
 function getCachedProgramTriggers(key: Node): CommentTriggers | undefined {
@@ -87,12 +72,6 @@ function getCachedProgramTriggers(key: Node): CommentTriggers | undefined {
     }
 }
 
-function getCachedOptionsTriggers(
-    options: TriggerLookupOptions | undefined,
-): CommentTriggers | undefined {
-    return options ? mappedCommentTriggersByOptions.get(options) : undefined;
-}
-
 /**
  * Used by parser wrappers that collect trigger comments before AST comment attachment. The oxc
  * wrapper needs this because trigger comments may be sanitized before `@prettier/plugin-oxc` parses
@@ -102,22 +81,7 @@ export function setCommentTriggersForNode(key: Node, commentTriggers: CommentTri
     mappedCommentTriggers.set(key, commentTriggers);
 }
 
-/**
- * Parser wrappers can use this to persist trigger metadata when another plugin later swaps the AST
- * root object but preserves the same options object.
- */
-export function setCommentTriggersForOptions(
-    options: object,
-    commentTriggers: CommentTriggers,
-): void {
-    mappedCommentTriggersByOptions.set(options, commentTriggers);
-}
-
-function setCommentTriggers(
-    rootNode: Node,
-    debug: boolean,
-    options: TriggerLookupOptions | undefined,
-): CommentTriggers {
+function setCommentTriggers(rootNode: Node, debug: boolean): CommentTriggers {
     // parse comments only on the root node so it only happens once
     const comments: Comment[] = extractComments(rootNode);
     if (debug) {
@@ -130,9 +94,6 @@ function setCommentTriggers(
 
     // save to a map so we don't have to recalculate these every time
     mappedCommentTriggers.set(rootNode, commentTriggers);
-    if (options && typeof options === 'object') {
-        setCommentTriggersForOptions(options, commentTriggers);
-    }
     return commentTriggers;
 }
 
