@@ -17,6 +17,12 @@ import {extractComments} from './comments.js';
 type LineNumberDetails<T> = {[lineNumber: number]: T};
 export type LineCounts = LineNumberDetails<number[]>;
 export type WrapThresholds = LineNumberDetails<number>;
+export type PreservedComment = {
+    loc: NonNullable<Comment['loc']>;
+    type: Comment['type'];
+    value: string;
+};
+export type PreservedComments = LineNumberDetails<PreservedComment[]>;
 export type CommentTriggerWithEnding<T> = {
     [P in keyof T]: {data: T[P]; lineEnd: number};
 };
@@ -25,6 +31,7 @@ export type CommentTriggers = {
     nextLineCounts: LineCounts;
     setLineCounts: CommentTriggerWithEnding<LineCounts>;
     nextWrapThresholds: WrapThresholds;
+    preservedComments: PreservedComments;
     setWrapThresholds: CommentTriggerWithEnding<WrapThresholds>;
 };
 
@@ -158,6 +165,7 @@ export function parseCommentTriggers(comments: Comment[], debug: boolean): Comme
         nextLineCounts: {},
         setLineCounts: {},
         nextWrapThresholds: {},
+        preservedComments: {},
         setWrapThresholds: {},
         resets: [],
     };
@@ -168,6 +176,19 @@ export function parseCommentTriggers(comments: Comment[], debug: boolean): Comme
 
             if (!currentComment.loc) {
                 throw new Error(`Cannot read line location for comment ${currentComment.value}`);
+            }
+
+            if (isTriggerCommentText(commentText ?? '')) {
+                let preservedComments = accum.preservedComments[currentComment.loc.end.line];
+                if (!preservedComments) {
+                    preservedComments = [];
+                    accum.preservedComments[currentComment.loc.end.line] = preservedComments;
+                }
+                preservedComments.push({
+                    loc: currentComment.loc,
+                    type: currentComment.type,
+                    value: currentComment.value,
+                });
             }
 
             const nextLineCounts = getLineCounts(commentText, true, debug);

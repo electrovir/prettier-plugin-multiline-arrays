@@ -62,7 +62,7 @@ const oxcTsTriggerCommentInCallArgumentsTest: MultilineArrayTest = {
     `,
     expect: `
             const result = call(
-                
+                // ${nextWrapThresholdComment} 4
                 [
                     1,
                     2,
@@ -125,7 +125,7 @@ const sortImportsLinePatternOxcExpect = `
             import {second} from './second';
 
             const result = call(
-                
+                // ${nextLinePatternComment} 4
                 [
                     255, 0, 255, 255,
                     0, 0, 0, 255,
@@ -172,7 +172,7 @@ const oxcTsLinePatternWithoutSortImportsTest: MultilineArrayTest = {
             import {first} from './first';
 
             const result = call(
-                
+                // ${nextLinePatternComment} 4
                 [
                     255, 0, 255, 255,
                     0, 0, 0, 255,
