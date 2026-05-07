@@ -43,7 +43,6 @@ type TriggerLookupOptions = Partial<Pick<ParserOptions, 'originalText'>>;
 
 const mappedCommentTriggers = new WeakMap<Node, CommentTriggers>();
 const mappedCommentTriggersByOptions = new WeakMap<object, CommentTriggers>();
-const mappedCommentTriggersByText = new Map<string, CommentTriggers>();
 const triggerCommentTexts = [
     nextLinePatternComment,
     nextWrapThresholdComment,
@@ -75,8 +74,7 @@ function findCachedCommentTriggers(
     return (
         mappedCommentTriggers.get(key) ??
         getCachedProgramTriggers(key) ??
-        getCachedOptionsTriggers(options) ??
-        getCachedTextTriggers(options)
+        getCachedOptionsTriggers(options)
     );
 }
 
@@ -95,14 +93,6 @@ function getCachedOptionsTriggers(
     return options ? mappedCommentTriggersByOptions.get(options) : undefined;
 }
 
-function getCachedTextTriggers(
-    options: TriggerLookupOptions | undefined,
-): CommentTriggers | undefined {
-    return options?.originalText
-        ? mappedCommentTriggersByText.get(options.originalText)
-        : undefined;
-}
-
 /**
  * Used by parser wrappers that collect trigger comments before AST comment attachment. The oxc
  * wrapper needs this because trigger comments may be sanitized before `@prettier/plugin-oxc` parses
@@ -114,19 +104,13 @@ export function setCommentTriggersForNode(key: Node, commentTriggers: CommentTri
 
 /**
  * Parser wrappers can use this to persist trigger metadata when another plugin later swaps the AST
- * root object. The text cache is intentionally a fallback: exact AST and options identity remain
- * preferred when they survive the formatting pipeline.
+ * root object but preserves the same options object.
  */
 export function setCommentTriggersForOptions(
     options: object,
     commentTriggers: CommentTriggers,
-    textEntries: string[],
 ): void {
     mappedCommentTriggersByOptions.set(options, commentTriggers);
-
-    textEntries.forEach((textEntry) => {
-        mappedCommentTriggersByText.set(textEntry, commentTriggers);
-    });
 }
 
 function setCommentTriggers(
@@ -147,15 +131,7 @@ function setCommentTriggers(
     // save to a map so we don't have to recalculate these every time
     mappedCommentTriggers.set(rootNode, commentTriggers);
     if (options && typeof options === 'object') {
-        setCommentTriggersForOptions(
-            options,
-            commentTriggers,
-            options.originalText
-                ? [
-                      options.originalText,
-                  ]
-                : [],
-        );
+        setCommentTriggersForOptions(options, commentTriggers);
     }
     return commentTriggers;
 }

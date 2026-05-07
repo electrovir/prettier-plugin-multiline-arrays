@@ -1,5 +1,6 @@
-import {describe} from '@augment-vir/test';
-import {type Options} from 'prettier';
+import {assert} from '@augment-vir/assert';
+import {describe, it} from '@augment-vir/test';
+import {format, type Options} from 'prettier';
 import {nextLinePatternComment, nextWrapThresholdComment} from '../options.js';
 import {repoConfig} from './prettier-config.js';
 import {type MultilineArrayTest, runTests} from './run-tests.mock.js';
@@ -7,16 +8,16 @@ import {type MultilineArrayTest, runTests} from './run-tests.mock.js';
 const oxcPlugins = [
     '@prettier/plugin-oxc',
     ...(repoConfig.plugins ?? []),
-] as Options['plugins'];
+] as NonNullable<Options['plugins']>;
 const pluginsWithSortImports = [
     '@ianvs/prettier-plugin-sort-imports',
     ...(repoConfig.plugins ?? []),
-] as Options['plugins'];
+] as NonNullable<Options['plugins']>;
 const oxcPluginsWithSortImports = [
     '@prettier/plugin-oxc',
     '@ianvs/prettier-plugin-sort-imports',
     ...(repoConfig.plugins ?? []),
-] as Options['plugins'];
+] as NonNullable<Options['plugins']>;
 
 const oxcTsTest: MultilineArrayTest = {
     it: 'formats TypeScript arrays with the oxc parser',
@@ -135,6 +136,32 @@ const oxcTsTriggerCommentBeforeDeclarationTest: MultilineArrayTest = {
     },
 };
 
+const oxcTsTriggerCommentInTemplateExpressionTest: MultilineArrayTest = {
+    it: 'formats TypeScript arrays with oxc trigger comments in template expressions',
+    code: `
+            const text = \`\${call(
+                // ${nextWrapThresholdComment} 0
+                [1],
+            )}\`;
+    `,
+    expect: `
+            const text = \`\${call(
+                // ${nextWrapThresholdComment} 0
+                [
+                    1,
+                ],
+            )}\`;
+    `,
+    options: {
+        plugins: oxcPlugins,
+    },
+};
+
+const oxcJsTriggerCommentInTemplateExpressionTest: MultilineArrayTest = {
+    ...oxcTsTriggerCommentInTemplateExpressionTest,
+    it: 'formats JavaScript arrays with oxc trigger comments in template expressions',
+};
+
 const sortImportsLinePatternCode = `
             import {localSecond} from './local-second';
             import {packageValue} from 'package';
@@ -225,6 +252,24 @@ const typescriptLinePatternWithSortImportsTest: MultilineArrayTest = {
     },
 };
 
+const cacheIsolationCode = `import {z} from './z';
+import {pkg} from 'pkg';
+const result = call(
+    // ${nextWrapThresholdComment} 0
+    [1],
+);
+`;
+
+const cacheIsolationExpected = `import {z} from './z';
+import {pkg} from 'pkg';
+const result = call(
+    // ${nextWrapThresholdComment} 0
+    [
+        1,
+    ],
+);
+`;
+
 describe('oxc multiline array formatting', () => {
     runTests(
         '.ts',
@@ -234,6 +279,7 @@ describe('oxc multiline array formatting', () => {
             oxcTsOrdinaryCommentInCallArgumentsTest,
             oxcTsDanglingTriggerCommentInCallArgumentsTest,
             oxcTsTriggerCommentBeforeDeclarationTest,
+            oxcTsTriggerCommentInTemplateExpressionTest,
             oxcTsLinePatternWithoutSortImportsTest,
             oxcTsLinePatternWithSortImportsTest,
         ],
@@ -246,6 +292,7 @@ describe('oxc multiline array formatting', () => {
             oxcJsTriggerCommentInCallArgumentsTest,
             oxcJsOrdinaryCommentInCallArgumentsTest,
             oxcJsDanglingTriggerCommentInCallArgumentsTest,
+            oxcJsTriggerCommentInTemplateExpressionTest,
         ],
         'oxc',
     );
@@ -256,4 +303,22 @@ describe('oxc multiline array formatting', () => {
         ],
         'typescript',
     );
+
+    it('does not reuse oxc preprocessed trigger lines in later TypeScript formats', async () => {
+        const typescriptOptions: Options = {
+            ...repoConfig,
+            parser: 'typescript',
+        };
+
+        const formattedBefore = await format(cacheIsolationCode, typescriptOptions);
+        await format(cacheIsolationCode, {
+            ...repoConfig,
+            parser: 'oxc-ts',
+            plugins: oxcPluginsWithSortImports,
+        });
+        const formattedAfter = await format(cacheIsolationCode, typescriptOptions);
+
+        assert.strictEquals(formattedBefore, cacheIsolationExpected);
+        assert.strictEquals(formattedAfter, formattedBefore);
+    });
 });
