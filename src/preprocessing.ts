@@ -1,7 +1,6 @@
-import {stringify} from '@augment-vir/common';
+import {stringify, type SetOptional} from '@augment-vir/common';
 import {type Parser, type ParserOptions, type Plugin, type Printer} from 'prettier';
 import {createWrappedMultiTargetProxy} from 'proxy-vir';
-import {type SetOptional} from 'type-fest';
 import {pluginMarker} from './plugin-marker.js';
 import {createMultilineArrayPrinter} from './printer/multiline-array-printer.js';
 import {setOriginalPrinter} from './printer/original-printer.js';
